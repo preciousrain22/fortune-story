@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune Story - 만세력 & 운세</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.4/lunar.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="main.html" class="obangsaek-text">Fortune Story</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Section -->
+    <div style="padding-top: 100px;"></div> <!-- Spacer for fixed header -->
+
+    <!-- Starry Background (Fixed) -->
+    <div class="star-bg-fixed"></div>
+
+    <!-- Gateway Section -->
+    <section id="gateway" class="gateway-section fade-in">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2 class="obangsaek-text">운명의 문을 선택하세요</h2>
+                <p>당신의 미래를 안내할 길을 선택해주세요.</p>
+            </div>
+            <div class="gateway-grid">
+                <!-- Saju Card -->
+                <div class="gateway-card saju-card" onclick="selectPath('saju')">
+                    <div class="gateway-icon">
+                        <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="url(#gold-grad)"
+                            stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#F9F6CA" />
+                                    <stop offset="50%" stop-color="#D4AF37" />
+                                    <stop offset="100%" stop-color="#AA7C11" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 2a5 5 0 0 0 0 10 5 5 0 0 1 0 10"></path>
+                            <circle cx="12" cy="7" r="1.5" fill="#D4AF37" stroke="none"></circle>
+                            <circle cx="12" cy="17" r="1.5" fill="#D4AF37" stroke="none"></circle>
+                        </svg>
+                    </div>
+                    <div class="gateway-title" style="color: #E8D080;">천명의 지혜, 사주</div>
+                    <div class="gateway-desc">
+                        수천 년을 이어온 동양의 깊은 철학.<br>
+                        타고난 기운과 삶의 궤적을 섬세하게 조명합니다.
+                    </div>
+                </div>
+
+                <!-- Tarot Card -->
+                <div class="gateway-card tarot-card" onclick="selectPath('tarot')">
+                    <div class="gateway-icon">
+                        <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="url(#purple-grad)"
+                            stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#EEDCFF" />
+                                    <stop offset="50%" stop-color="#B388EB" />
+                                    <stop offset="100%" stop-color="#6F58C9" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            <polygon points="12 2 12.5 4 14.5 4.5 12.5 5 12 7 11.5 5 9.5 4.5 11.5 4" fill="#EEDCFF"
+                                stroke="none"></polygon>
+                            <polygon points="21 5 21.2 6 22.2 6.2 21.2 6.4 21 7.4 20.8 6.4 19.8 6.2 20.8 6"
+                                fill="#B388EB" stroke="none"></polygon>
+                        </svg>
+                    </div>
+                    <div class="gateway-title" style="color: #D3B8F8;">영혼의 거울, 타로</div>
+                    <div class="gateway-desc">
+                        무의식을 비추는 서양의 신비주의.<br>
+                        마음속 얽힌 고민과 다가올 미래의 해답을 찾습니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manse-ryok Input Section -->
+    <section id="daily" class="section-padding" style="display: none;">
+        <div class="container input-container">
+            <div class="section-header text-center">
+                <h2 class="obangsaek-text">사주 운세 확인하기</h2>
+                <p>정확한 분석을 위해 사주 정보를 입력해주세요.</p>
+            </div>
+
+
+            <form id="sajuForm" class="saju-form fade-in">
+                <div class="form-group">
+                    <label for="fortuneType">운세 종류</label>
+                    <select id="fortuneType" class="full-width-select" required>
+                        <option value="daily">오늘의 운세 (3,900원)</option>
+                        <option value="weekly">주간 운세 (5,900원)</option>
+                        <option value="yearly">1년 운세 (9,900원)</option>
+                        <option value="love">연애운 (8,900원)</option>
+                        <option value="exam">수능 운세 (8,900원)</option>
+                    </select>
+                    <div id="priceDisplay" class="price-tag">결제 금액: 3,900원</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="width: 100%;">
+                        <label for="name">이름 (한글)</label>
+                        <input type="text" id="name" placeholder="예: 홍길동" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>성별</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" checked> 남성
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="female"> 여성
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>결혼 여부</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="maritalStatus" value="single" checked> 미혼
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="maritalStatus" value="married"> 기혼
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>생년월일</label>
+                    <div class="date-select-group">
+                        <select id="birthYear" required>
+                            <option value="" disabled selected>년도</option>
+                            <!-- JS will populate this -->
+                        </select>
+                        <select id="birthMonth" required>
+                            <option value="" disabled selected>월</option>
+                            <!-- JS will populate this -->
+                        </select>
+                        <select id="birthDay" required>
+                            <option value="" disabled selected>일</option>
+                            <!-- JS will populate this -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>태어난 시간</label>
+                    <div class="date-select-group" id="birthTimeGroup">
+                        <select id="birthAmPm">
+                            <option value="AM" selected>오전</option>
+                            <option value="PM">오후</option>
+                        </select>
+                        <select id="birthHour">
+                            <option value="" disabled selected>시</option>
+                            <!-- JS will populate this -->
+                        </select>
+                        <select id="birthMinute">
+                            <option value="" disabled selected>분</option>
+                            <!-- JS will populate this -->
+                        </select>
+                    </div>
+                    <div class="checkbox-group" style="margin-top: 10px;">
+                        <label>
+                            <input type="checkbox" id="unknownTime"> 시간 모름
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>양력/음력</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="calendarType" value="solar" checked> 양력
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="calendarType" value="lunar"> 음력
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="calendarType" value="lunar_leap"> 음력(윤달)
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width">결과 확인하기</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Tarot Input Section -->
+    <section id="tarot" class="section-padding" style="display: none;">
+        <div class="container input-container">
+            <div class="section-header text-center tarot-header">
+                <h2 style="color: #D3B8F8; letter-spacing: 2px; text-shadow: 0 0 15px rgba(211,184,248,0.3);">영혼의 거울, 타로
+                    파빌리온</h2>
+                <p style="color: #a980d9; line-height: 1.8;">우주의 기운이 당신의 진심에 응답할 수 있도록,<br>마음속 깊은 고민과 질문을 구체적으로 적어주세요.
+                </p>
+            </div>
+
+            <form id="tarotForm" class="tarot-form fade-in">
+                <div class="form-group">
+                    <label for="tarotCategory" style="color: #D3B8F8;">고민의 주제</label>
+                    <div class="tarot-select-wrapper">
+                        <select id="tarotCategory" class="full-width-select tarot-input" required>
+                            <option value="love">연애 / 애정운</option>
+                            <option value="career">직장 / 일 / 학업</option>
+                            <option value="wealth">금전 / 재물운</option>
+                            <option value="general">전반적인 흐름 / 인간관계 / 기타</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="width: 100%;">
+                    <label for="tarotName" style="color: #D3B8F8;">당신의 이름 (또는 별명)</label>
+                    <input type="text" id="tarotName" class="tarot-input" placeholder="빛으로 불릴 이름을 알려주세요" required>
+                </div>
+
+                <div class="form-group" style="width: 100%;">
+                    <label for="tarotConcern" style="color: #D3B8F8; margin-bottom: 0.8rem; display: block;">자세한 고민 내용
+                        (질문)</label>
+                    <textarea id="tarotConcern" class="tarot-textarea" rows="6"
+                        placeholder="예: 최근 시작한 일터에서 동료들과의 관계가 약간 어렵습니다. 제가 어떻게 행동하는 것이 좋을까요? 조만간 상황이 나아질까요?"
+                        required></textarea>
+                    <p style="font-size: 0.85rem; color: #8870a0; margin-top: 0.5rem; text-align: right;">구체적이고 명확한
+                        질문일수록 카드는 정확한 해답을 보여줍니다.</p>
+                </div>
+
+                <div class="buttons-row tarot-buttons" style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="button" class="btn btn-outline-tarot" onclick="location.reload()" style="flex: 1;">운명의
+                        문으로 돌아가기</button>
+                    <button type="submit" class="btn btn-primary-tarot" style="flex: 2;">신비의 타로 뽑기</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Tarot Loading Overlay -->
+    <div id="tarotLoading" class="analysis-overlay"
+        style="display: none; background: radial-gradient(circle at center, #1b0c2e 0%, #05010a 100%); z-index: 9999;">
+        <div class="mystic-loader-container text-center" style="margin-bottom: 3rem; position: relative;">
+            <svg class="mystic-loader-svg" width="140" height="140" viewBox="0 0 100 100" fill="none"
+                xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 10px rgba(179,136,235,0.4));">
+                <circle cx="50" cy="50" r="42" stroke="url(#lux-grad)" stroke-width="0.8" stroke-dasharray="4 6"
+                    opacity="0.6">
+                    <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="15s"
+                        repeatCount="indefinite" />
+                </circle>
+                <circle cx="50" cy="50" r="32" stroke="url(#lux-grad)" stroke-width="1.2" stroke-dasharray="12 4"
+                    opacity="0.8">
+                    <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="10s"
+                        repeatCount="indefinite" />
+                </circle>
+                <path d="M50 22 L56 44 L78 50 L56 56 L50 78 L44 56 L22 50 L44 44 Z" stroke="url(#lux-grad)"
+                    stroke-width="1" fill="rgba(211,184,248,0.05)" stroke-linejoin="round" opacity="0.9">
+                    <animateTransform attributeName="transform" type="scale" values="0.95;1.05;0.95" keyTimes="0;0.5;1"
+                        dur="4s" repeatCount="indefinite" additive="sum" />
+                </path>
+                <circle cx="50" cy="50" r="3" fill="#EEDCFF" style="filter: blur(1px);">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <defs>
+                    <linearGradient id="lux-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#EEDCFF" />
+                        <stop offset="50%" stop-color="#B388EB" />
+                        <stop offset="100%" stop-color="#D4AF37" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div
+                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: radial-gradient(circle, rgba(179,136,235,0.2) 0%, transparent 70%); border-radius: 50%; animation: pulse-glow 3s infinite;">
+            </div>
+        </div>
+        <div class="loading-text-container text-center">
+            <h3 class="analysis-text" id="tarotLoadingTitle"
+                style="color: #EEDCFF; font-weight: 300; font-size: 1.6rem; margin-bottom: 1.2rem; letter-spacing: 2px; text-shadow: 0 0 20px rgba(179,136,235,0.6);">
+                운명의 교차로를 탐색하는 중...
+            </h3>
+            <p id="tarotLoadingMessage"
+                style="color: #B388EB; font-size: 1.15rem; font-weight: 300; letter-spacing: 1px; flex-shrink: 0; min-height: 2rem;">
+                당신의 파동을 타로 카드에 동기화하고 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- Tarot Card Drawing Section -->
+    <section id="tarotDraw" class="section-padding tarot-draw-overlay" style="display: none;">
+        <div class="tarot-draw-content text-center"
+            style="width: 96%; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+            <div class="section-header" style="width: 100%; margin-bottom: 2rem;">
+                <h2 style="color: #D3B8F8; letter-spacing: 2px;">질문에 집중하며 카드를 선택하세요</h2>
+                <p style="color: #a980d9; font-size: 1.1rem;">마음이 이끄는 대로 <span id="tarotDrawCount"
+                        style="color: #FFE082; font-weight: bold;">3</span>장의 카드를 뽑아주세요.</p>
+            </div>
+
+            <div id="tarotDeck" class="tarot-deck-container">
+                <!-- Cards will be generated by JS -->
+            </div>
+
+            <div class="draw-action-container mt-4" style="display: flex; justify-content: center; width: 100%;">
+                <button id="btnReadTarot" class="btn btn-primary-tarot disable-btn"
+                    style="margin: 0 auto; display: block;" disabled>선택 완료 (결제하기)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tarot Result Section -->
+    <section id="tarotResult" class="result-overlay tarot-result-overlay" style="display: none;">
+        <div class="tarot-result-container fade-in">
+            <div class="result-header text-center">
+                <h2 id="tarotResultTitle" style="color: #D3B8F8; letter-spacing: 2px;">영혼의 거울이 비춘 당신의 미래</h2>
+                <div class="divider" style="background: linear-gradient(90deg, transparent, #9b59b6, transparent);">
+                </div>
+                <p id="tarotResultSub" style="color: #a980d9; font-size: 1.1rem; margin-top: 1rem;"></p>
+            </div>
+
+            <div class="tarot-cards-reveal">
+                <!-- Revealed cards will be injected here -->
+            </div>
+
+            <div class="result-content" id="tarotResultContent"
+                style="color: #EEDCFF; line-height: 1.8; text-align: left; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(179, 136, 235, 0.2); margin-top: 2rem;">
+                <!-- Detailed Result text will be injected here -->
+            </div>
+
+            <div class="result-actions no-print" style="margin-top: 3rem; text-align: center;">
+                <button class="btn-outline-tarot" onclick="location.reload()"
+                    style="padding: 10px 30px; border-radius: 50px;">처음으로 돌아가기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content fade-in">
+            <div class="modal-header">
+                <h3>운세 결제</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="payment-info">선택하신 운세: <span id="paymentFortuneType" class="highlight">오늘의 운세</span></p>
+                <p class="payment-amount">결제 금액: <span id="paymentAmount" class="highlight-large">8,000원</span></p>
+
+                <div class="payment-methods">
+                    <div class="payment-method selected">
+                        <span class="method-icon">💳</span>
+                        <span>신용카드</span>
+                    </div>
+                    <div class="payment-method">
+                        <span class="method-icon">💬</span>
+                        <span>카카오페이</span>
+                    </div>
+                    <div class="payment-method">
+                        <span class="method-icon">🟦</span>
+                        <span>토스페이</span>
+                    </div>
+                </div>
+
+                <button id="confirmPaymentBtn" class="btn btn-primary full-width pulse-btn">결제하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Analysis Loading Screen -->
+    <div id="analysisLoading" class="analysis-overlay" style="display: none;">
+        <div class="compass-container">
+            <div class="compass-ring"></div>
+            <div class="compass-inner"></div>
+            <div class="compass-center"></div>
+        </div>
+        <div class="loading-text-container text-center">
+            <h3 class="analysis-text" id="loadingTitle">정밀 사주 분석 중입니다...</h3>
+            <p id="loadingMessage">생년월일을 바탕으로 명식을 도출하고 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- Result Section (Full Screen Overlay) -->
+    <section id="result" class="result-overlay" style="display: none;">
+        <div class="paper-container fade-in">
+            <div class="result-header text-center">
+                <h2 id="resultTitle">운세 결과</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="result-content" id="resultContent">
+                <!-- Detailed Result text will be injected here -->
+            </div>
+            <div class="result-actions no-print">
+                <p class="action-label">이 사주 명식을 소장하시겠습니까?</p>
+                <p class="action-sub-label">받을 이메일 주소</p>
+                <div class="email-input-wrapper">
+                    <input type="email" id="email" placeholder="example@email.com">
+                    <button class="btn-premium" id="sendEmailBtn">전송</button>
+                </div>
+                <div class="buttons-row">
+                    <button class="btn-premium outline" id="savePdfBtn">📄 PDF로 저장</button>
+                    <button class="btn-premium kakao" id="shareKakaoBtn">💬 카카오톡 공유</button>
+                    <button class="btn-premium outline" onclick="location.reload()">🔄 다른 운세 확인</button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer"
+        style="border-top: 1px solid rgba(255, 213, 79, 0.2); background-color: rgba(0, 0, 0, 0.5); padding: 2.5rem 0; margin-top: 4rem; text-align: center;">
+        <div class="container">
+            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6); line-height: 1.8;">
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>상호</strong> : 포춘스토리(Fortune Story) <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>대표</strong> : 이진우
+                </p>
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>사업자등록번호</strong> : [발급 예정인 번호 10자리] <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>통신판매업신고</strong> : [제-0000-0000호]
+                </p>
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>사업장 소재지</strong> : 서울특별시 관악구 은천로93 벽산블루밍 아파트 206동 303호
+                </p>
+                <p style="margin: 0; margin-bottom: 15px;">
+                    <strong>고객센터</strong> : 010-6848-7856 <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>이메일</strong> : preciousrain2@nate.com
+                </p>
+                <div style="margin-bottom: 15px; font-weight: 500;">
+                    <a href="terms.html" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[이용약관]</a>
+                    <a href="privacy.html" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[개인정보처리방침]</a>
+                    <a href="terms.html#refund" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[환불규정]</a>
+                </div>
+                <p style="margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.4);">&copy; 2026 Fortune Story. All
+                    rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
