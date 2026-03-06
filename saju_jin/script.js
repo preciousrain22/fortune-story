@@ -768,19 +768,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFinalResult(name, typeName, year, month, day, fallbackHTML);
             });
     }
-    // 1. 🔥 제미나이 사주 API 호출 (JSON 강제 반환으로 안정성 100% 확보)
+    // 1. 🔥 제미나이 사주 API 호출 (분량 폭발 메가 프롬프트 적용)
     async function getSajuFromGemini(name, typeName, year, month, day, fortuneType, maritalStatus) {
         const url = `/api/gemini`;
 
-        const systemPrompt = `당신은 30년 경력의 대한민국 최고 명리학자입니다.
-사용자의 생년월일과 운세 종류를 바탕으로, 고급스럽고 품격 있는 문어체(~라 할 수 있습니다)를 사용하여 운세 결과를 작성해 주세요.
-단정적이거나 부정적인 표현은 피하고 희망적으로 작성하세요.
-반드시 아래 JSON 형식으로만 응답하세요. (HTML이나 마크다운 기호 절대 금지)
+        // 운세 종류에 따라 AI를 쥐어짜내는 맞춤형 지시사항 생성
+        let specificInstructions = "";
+        if (fortuneType === 'yearly') {
+            specificInstructions = "1년 전체의 흐름을 분석하는 것이므로, 반드시 1월부터 12월까지 각 월별 운세 흐름을 한 문단씩 아주 길고 상세하게 풀어쓰세요. 올해의 핵심 성취와 위기 극복 방안을 구체적으로 명시해야 합니다.";
+        } else if (fortuneType === 'daily') {
+            specificInstructions = "오늘 하루의 운세이므로, 아침(태동), 점심(절정), 저녁(갈무리) 시간대별 기운의 변화와 구체적인 행동 지침을 아주 길고 상세하게 작성하세요. 오늘 마주칠 수 있는 귀인이나 주의할 사람에 대한 묘사도 포함하세요.";
+        } else if (fortuneType === 'weekly') {
+            specificInstructions = "일주일간의 운세이므로, 월요일부터 일요일까지 요일별 기운의 흐름과 일진을 아주 길게 풀어쓰세요. 이번 주 반드시 이루어야 할 목표와 피해야 할 함정을 강조하세요.";
+        } else if (fortuneType === 'love') {
+            const mStatus = maritalStatus === 'married' ? '기혼' : '미혼';
+            specificInstructions = `현재 고객은 ${mStatus} 상태입니다. 이에 맞추어 현재의 애정 전선, 인연의 작용, 상대방(또는 미래의 연인)과의 궁합적 조화, 갈등 해결 방안을 심리학적, 명리학적으로 매우 깊이 있게 분석하여 방대한 분량으로 작성하세요.`;
+        } else if (fortuneType === 'exam') {
+            specificInstructions = "시험/학업 운세이므로, 문창귀인 등의 학업 관련 기운 분석, 현재의 집중력 상태, 슬럼프 극복을 위한 멘탈 관리법, 시험 당일의 운기를 끌어올리는 비책을 매우 길고 상세하게 작성하세요.";
+        } else {
+            specificInstructions = "고객의 전반적인 삶의 궤적과 운기의 흐름을 방대한 분량으로 심도 있게 분석하세요.";
+        }
+
+        const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 30년 경력의 대한민국 최고 명리학자입니다.
+고객이 비싼 금액을 지불하고 보는 프리미엄 서비스이므로, 절대 내용이 짧거나 빈약해서는 안 됩니다. 
+
+[🔥 핵심 작성 규칙 🔥]
+1. 분량 강제 (절대 엄수): 유료 서비스에 걸맞게 각 섹션(content1~5)마다 최소 1500자 이상, 아주 방대하고 깊이 있는 리포트를 작성하세요. 내용이 짧으면 고객이 실망합니다. 각 항목별로 아주 상세한 심리분석, 명리학적 근거, 조언을 꽉꽉 채워 넣어 전체 분량이 A4 용지 4~5장 수준이 되도록 길게 쓰세요.
+2. 호칭 (매우 중요): 글 속에서 고객을 지칭할 때는 무조건 '${name}님'이라고 부르세요. ('선생님', '당신', '귀하'라는 단어 절대 금지)
+3. 용어 풀이 (매우 중요): 명리학 용어나 단어를 사용할 때는 반드시 한자를 먼저 쓰고 괄호 안에 한글음을 적는 '한자(한글)' 표기법을 엄격히 지키세요. (예: 食神(식신), 天干(천간), 天命(천명))
+4. 문체: 희망적이면서도 통찰력 있는 전문가의 문어체(~입니다, ~합니다, ~라 할 수 있습니다)를 사용하세요.
+
+[운세 맞춤형 특별 지침]
+${specificInstructions}
+
+반드시 아래 JSON 형식으로만 응답하세요. (마크다운 기호 절대 금지, 줄바꿈은 \\n 사용)
 {
-  "intro": "사주 원국에 대한 전반적인 1~2문장 묘사",
-  "destiny": "타고난 성향과 기질을 자연물에 비유하여 3~4문장 작성",
-  "fortune": "요청한 운세 종류에 맞는 현재의 운기 흐름과 기회 4~5문장",
-  "advice": "운기를 긍정적으로 활용하기 위한 실질적인 개운법 2~3문장"
+  "title1": "첫 번째 소제목 (예: 천명(天命)과 타고난 그릇)",
+  "content1": "사주 원국과 기질에 대한 아주 상세하고 긴 분석",
+  "title2": "두 번째 소제목 (예: 부와 명예의 흐름)",
+  "content2": "재물, 직업, 사회적 성취에 대한 아주 상세하고 긴 분석",
+  "title3": "세 번째 소제목 (예: 인연과 관계의 조화)",
+  "content3": "애정운, 대인관계에 대한 아주 상세하고 긴 분석",
+  "title4": "네 번째 소제목 (예: ${typeName} 상세 풀이)",
+  "content4": "특별 지침에 따른 시기별(월별/시간별 등) 구체적 흐름을 매우 길게 작성",
+  "title5": "다섯 번째 소제목 (예: 마스터의 개운 비책)",
+  "content5": "행운의 색, 방향, 음식 및 마음가짐 등 운을 틔우는 실질적이고 긴 조언"
 }`;
 
         const userPrompt = `
@@ -788,7 +820,8 @@ document.addEventListener('DOMContentLoaded', () => {
 - 생년월일: ${year}년 ${month}월 ${day}일
 - 성별/결혼여부: ${maritalStatus === 'married' ? '기혼' : '미혼'}
 - 요청한 운세 종류: ${typeName}
-위 사람의 사주 명식을 분석해 주세요.`;
+
+위 사람의 사주 명식을 분석해 주세요. 모든 호칭은 '${name}님'으로 통일하고, 엄청난 분량의 최고급 해설을 제공해 주세요.`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -796,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({
                 system_instruction: { parts: [{ text: systemPrompt }] },
                 contents: [{ parts: [{ text: userPrompt }] }],
-                generationConfig: { response_mime_type: "application/json", temperature: 0.6 }
+                generationConfig: { response_mime_type: "application/json", temperature: 0.8 }
             })
         });
 
@@ -809,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
-    // 2. 🔥 화면 출력 함수 (진우님의 '빨간 도장' UI + 제미나이 텍스트 완벽 결합)
+    // 2. 🔥 화면 출력 함수 (실시간 대괄호 방어막 + 동적 렌더링)
     function showFinalResult(name, typeName, year, month, day, aiResult) {
         document.querySelector('.header').style.display = 'none';
         document.querySelector('.star-bg-fixed').style.display = 'none';
@@ -831,7 +864,6 @@ document.addEventListener('DOMContentLoaded', () => {
         paperContainer.style.setProperty('--personal-color', personalColorInfo.textHex);
         paperContainer.style.setProperty('--personal-highlight', personalColorInfo.highlightHex);
 
-        // 스크롤 두루마리 효과 유지
         paperContainer.style.clipPath = 'inset(-50px -50px 100% -50px)';
         paperContainer.style.transform = 'translateY(0)';
 
@@ -859,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(updateUnroll);
         }
 
-        resultTitle.innerHTML = `<span style="font-size: 0.65em; color: ${personalColorInfo.highlightHex}; font-weight: 400; letter-spacing: 1px; word-break: keep-all;"><span style="display:inline-block;">${name}님을 위해 풀어낸 명리(命理) 비결</span> <span style="display:inline-block;">[퍼스널 컬러: ${personalColorInfo.element} ${personalColorInfo.colorName}]</span></span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">[ ${typeName} ]</span>`;
+        resultTitle.innerHTML = `<span style="font-size: 0.65em; color: ${personalColorInfo.highlightHex}; font-weight: 400; letter-spacing: 1px; word-break: keep-all;"><span style="display:inline-block;">${name}님을 위해 풀어낸 명리(命理) 비결</span> <span style="display:inline-block;">퍼스널 컬러: ${personalColorInfo.element} ${personalColorInfo.colorName}</span></span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
 
         const hashString = name + year + month + day;
         let hash = 0;
@@ -869,7 +901,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         hash = Math.abs(hash);
 
-        // 🔥 사라졌던 낙관(도장) 키워드 로직 완벽 복구!
         const keywords = [
             { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미를 가집니다.' },
             { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘을 의미합니다.' },
@@ -880,36 +911,76 @@ document.addEventListener('DOMContentLoaded', () => {
         const keyword = keywords[hash % keywords.length];
         const cHex = personalColorInfo.highlightHex;
 
-        // 🔥 제미나이 텍스트 또는 혼합 조립
         let finalHTML = "";
+
         if (typeof aiResult === 'string') {
-            finalHTML = aiResult;
+            finalHTML = aiResult.replace(/\[/g, '').replace(/\]/g, '');
         } else {
-            finalHTML = `
-                <h3 style="text-align: center; margin-top: 1rem;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[천명(天命)]</span> 타고난 그릇과 기질</h3>
-                <p style="color: #FDFBF7; font-size: 1.05rem; margin-bottom: 15px;">${aiResult.intro}</p>
-                <p style="color: #FDFBF7; font-size: 1.05rem;">${aiResult.destiny}</p>
+            // 🔥 AI가 보내준 5개의 대형 섹션을 순서대로 조립하면서 대괄호 무조건 파괴!
+            for (let i = 1; i <= 5; i++) {
+                if (aiResult[`title${i}`] && aiResult[`content${i}`]) {
 
-                <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                    <div style="font-size: 1.15rem; color: ${personalColorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 타고난 핵심 기운 ]</div>
-                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
-                        <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">${keyword.hanja}</span>
-                    </div>
-                    <div style="font-size: 1.05rem; color: ${cHex}; line-height: 1.9; text-align: center; word-break: keep-all;">
-                        <strong style="font-size: 1.15rem;">${keyword.title}</strong> : ${keyword.desc}
-                    </div>
-                </div>
+                    let formattedContent = aiResult[`content${i}`]
+                        .split(/\n|\\n/)
+                        .filter(p => p.trim() !== '')
+                        .map(p => {
+                            // 1. AI가 본문 안에 몰래 넣은 대괄호 [ ] 및 마크다운 별표 기호 완벽하게 소각!
+                            let text = p.replace(/\[|\]|\*/g, '').trim();
 
-                ${generateSajuChartsHTML(personalColorInfo, hash)}
+                            // 2. "재물운: 어쩌고" 또는 "아침 - 저쩌고" 형태를 감지
+                            let splitChar = text.includes(':') ? ':' : (text.includes(' - ') ? ' - ' : null);
 
-                <h3 style="text-align: center; margin-top: 3.5rem;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[시운(時運)]</span> ${typeName} 흐름</h3>
-                <p style="color: #FDFBF7; font-size: 1.05rem;">${aiResult.fortune}</p>
+                            if (splitChar) {
+                                let colonIndex = text.indexOf(splitChar);
+                                // 앞에 붙은 단어가 25자 이내로 짧은 '소제목'일 경우에만 디자인 발동
+                                if (colonIndex > 0 && colonIndex < 25) {
+                                    let subTitle = text.substring(0, colonIndex).trim();
+                                    let subContent = text.substring(colonIndex + splitChar.length).trim();
 
-                <h3 style="text-align: center; margin-top: 3.5rem;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[비책(秘策)]</span> 운을 틔우는 지혜</h3>
-                <p style="color: #FDFBF7; font-size: 1.05rem;">${aiResult.advice}</p>
-                
-                <div style="text-align: center; margin-top: 50px;">
-                    <p style="color: rgba(253, 251, 247, 0.6); font-size: 0.9rem;">이 작은 글귀가 당신의 인생 여정에 따스한 등불이 되기를 기원합니다.<br>
+                                    if (subContent.length > 0) {
+                                        return `
+                                        <div style="margin-top: 2.5rem; margin-bottom: 1rem;">
+                                            <span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">${subTitle}</span>
+                                        </div>
+                                        <p style="color: #FDFBF7; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.2rem; text-align: justify; word-break: keep-all;">${subContent}</p>`;
+                                    }
+                                }
+                            }
+
+                            // 일반 문단일 경우 (여백과 줄 간격 확보)
+                            return `<p style="color: #FDFBF7; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.5rem; text-align: justify; word-break: keep-all;">${text}</p>`;
+                        })
+                        .join('');
+
+                    finalHTML += `
+                        <div style="margin-top: 3.5rem; margin-bottom: 1rem;">
+                            <h3 style="text-align: center; color: ${cHex}; font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px;">
+                                ${aiResult[`title${i}`].replace(/\[/g, '').replace(/\]/g, '')}
+                            </h3>
+                            ${formattedContent}
+                        </div>
+                    `;
+
+                    if (i === 1) {
+                        finalHTML += `
+                            <div style="text-align: center; margin-top: 4rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
+                                <div style="font-size: 1.15rem; color: ${personalColorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold; letter-spacing: 1px;">타고난 핵심 기운</div>
+                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
+                                    <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">${keyword.hanja}</span>
+                                </div>
+                                <div style="font-size: 1.05rem; color: ${cHex}; line-height: 1.9; text-align: center; word-break: keep-all;">
+                                    <strong style="font-size: 1.15rem;">${keyword.title}</strong> : ${keyword.desc}
+                                </div>
+                            </div>
+                            ${generateSajuChartsHTML(personalColorInfo, hash)}
+                        `;
+                    }
+                }
+            }
+
+            finalHTML += `
+                <div style="text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(197, 160, 89, 0.2);">
+                    <p style="color: rgba(253, 251, 247, 0.7); font-size: 0.95rem; line-height: 1.8;">이 긴 글귀가 ${name}님의 인생 여정에 따스한 등불이 되기를 기원합니다.<br>
                     <strong>Fortune Story</strong></p>
                 </div>
             `;
@@ -918,7 +989,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resultContent.innerHTML = finalHTML;
         window.scrollTo(0, 0);
 
-        // 하단 버튼 로직 유지
         const savePdfBtn = document.getElementById('savePdfBtn');
         const sendEmailBtn = document.getElementById('sendEmailBtn');
         if (savePdfBtn) {
@@ -945,9 +1015,6 @@ document.addEventListener('DOMContentLoaded', () => {
             newKakaoBtn.onclick = () => alert('카카오톡 공유창이 열립니다.');
         }
     }
-
-
-    // Helper: Determine Personal Color based on Year (Simplified for demonstration)
     function getPersonalColor(yearStr) {
         const yearNum = parseInt(yearStr);
         const lastDigit = yearNum % 10;
@@ -966,102 +1033,113 @@ document.addEventListener('DOMContentLoaded', () => {
             return { element: '수(水)', colorName: '검정/푸른색', textHex: '#B3E5FC', bgHex: '#0D47A1', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' }; // Water
         }
     }
-
     function generateSajuChartsHTML(colorInfo, hash) {
-        // Pseudo-random generation of 5 elements based on hash
-        const elements = ['목(木)', '화(火)', '토(土)', '금(金)', '수(水)'];
+        // 오행 기본 데이터
+        const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
         const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
 
-        // Generate pseudo-random values that sum to 8 (8 characters) or 100%
+        // 가상 오행 데이터 생성 (총합 100%)
         let v1 = (hash % 30) + 5;
         let v2 = ((hash >> 2) % 30) + 5;
         let v3 = ((hash >> 4) % 30) + 5;
         let v4 = ((hash >> 6) % 30) + 5;
         let v5 = ((hash >> 8) % 30) + 5;
 
-        // Normalize to 100%
+        // 100% 비율 맞추기
         const total = v1 + v2 + v3 + v4 + v5;
         const p1 = Math.round((v1 / total) * 100);
         const p2 = Math.round((v2 / total) * 100);
         const p3 = Math.round((v3 / total) * 100);
         const p4 = Math.round((v4 / total) * 100);
-        const p5 = 100 - (p1 + p2 + p3 + p4); // Ensure exactly 100%
-
+        const p5 = 100 - (p1 + p2 + p3 + p4);
         const percentages = [p1, p2, p3, p4, p5];
 
-        // Ten Deities mock data based on hash
-        const deities = [
-            '비견(比肩)', '겁재(劫財)', '식신(食神)', '상관(傷官)', '편재(偏財)',
-            '정재(正財)', '편관(偏官)', '정관(正官)', '편인(偏印)', '정인(正印)'
-        ];
-        const d1 = deities[hash % 10];
-        const d2 = deities[(hash >> 1) % 10];
-        const d3 = deities[(hash >> 2) % 10];
-        const d4 = deities[(hash >> 3) % 10];
-        const d5 = deities[(hash >> 4) % 10];
-        const d6 = deities[(hash >> 5) % 10];
-        const d7 = deities[(hash >> 6) % 10];
-        const d8 = deities[(hash >> 7) % 10];
+        // --- 🌟 오각형 레이더 차트 (마법진) SVG 렌더링 로직 ---
+        const size = 320;
+        const center = size / 2;
+        const radius = 110;
 
-        let html = `
-            <!-- 오행 분포도 -->
-            <div style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold; text-align: center;">[ 오행(五行) 분포도 ]</div>
-                <div style="display: flex; flex-direction: column; gap: 20px; max-width: 450px; margin: 0 auto;">
-        `;
+        // 배경 거미줄 (오각형 상생 라인)
+        let webPaths = '';
+        for (let level = 1; level <= 5; level++) {
+            let points = '';
+            const r = radius * (level / 5);
+            for (let i = 0; i < 5; i++) {
+                const angle = (Math.PI / 2) - (i * 2 * Math.PI / 5);
+                const px = center + r * Math.cos(angle);
+                const py = center - r * Math.sin(angle);
+                points += `${px},${py} `;
+            }
+            webPaths += `<polygon points="${points.trim()}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />`;
+        }
 
+        // 중심에서 뻗어나가는 축선
+        for (let i = 0; i < 5; i++) {
+            const angle = (Math.PI / 2) - (i * 2 * Math.PI / 5);
+            const px = center + radius * Math.cos(angle);
+            const py = center - radius * Math.sin(angle);
+            webPaths += `<line x1="${center}" y1="${center}" x2="${px}" y2="${py}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />`;
+        }
+
+        // 내 사주 데이터 폴리곤(면적) 그리기
+        let dataSegmentHTML = '';
+        let dataPoints = '';
         percentages.forEach((p, idx) => {
+            let scaledRad = (p / 40) * radius;
+            if (scaledRad > radius) scaledRad = radius;
+            if (scaledRad < 10) scaledRad = 10;
+
+            const angle = (Math.PI / 2) - (idx * 2 * Math.PI / 5);
+            const px = center + scaledRad * Math.cos(angle);
+            const py = center - scaledRad * Math.sin(angle);
+            dataPoints += `${px},${py} `;
+
+            // 꼭짓점 빛나는 점
+            dataSegmentHTML += `<circle cx="${px}" cy="${py}" r="4" fill="${eColors[idx]}" filter="drop-shadow(0 0 4px ${eColors[idx]})" />`;
+
+            // 외부 텍스트 라벨 (목, 화, 토, 금, 수)
+            const textRadius = radius + 25;
+            const tx = center + textRadius * Math.cos(angle);
+            const ty = center - textRadius * Math.sin(angle);
             const labelParts = elements[idx].split('(');
-            const pureKor = labelParts[0];
-            const hanjaPart = '(' + labelParts[1];
-            html += `
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-weight: 800; font-size: 1.1rem; color: ${eColors[idx]}; letter-spacing: 2px; text-shadow: 0 0 5px ${eColors[idx]};">${pureKor} <span style="font-size: 0.85rem; font-weight: 400; opacity: 0.8;">${hanjaPart}</span></span>
-                            <span style="font-size: 1.1rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.5);">${p}%</span>
-                        </div>
-                        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);">
-                            <div style="width: ${p}%; height: 100%; background: linear-gradient(90deg, transparent, ${eColors[idx]}); box-shadow: 0 0 10px ${eColors[idx]}; border-radius: 4px;"></div>
-                        </div>
-                    </div>
-            `;
+            const pureHanja = labelParts[0];
+            const korPart = '(' + labelParts[1];
+
+            let anchor = "middle";
+            if (Math.abs(tx - center) > 10) {
+                anchor = tx > center ? "start" : "end";
+            }
+
+            dataSegmentHTML += `
+                <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="16" font-weight="bold" text-anchor="${anchor}" filter="drop-shadow(0 0 2px rgba(0,0,0,0.8))">${pureHanja}</text>
+                <text x="${tx}" y="${ty + 12}" fill="#ddd" font-size="12" text-anchor="${anchor}">${korPart} ${p}%</text>
+             `;
         });
 
-        html += `
+        let html = `
+            <div style="margin-top: 3rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
+                <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">오행(五行) 분포도</div>
+                <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem; letter-spacing: 1px;">상생(相生)과 상극(相剋)의 조화</div>
+                
+                <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+                    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="overflow: visible;">
+                        <defs>
+                            <linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="${colorInfo.textHex}" stop-opacity="0.4" />
+                                <stop offset="100%" stop-color="${colorInfo.highlightHex}" stop-opacity="0.1" />
+                            </linearGradient>
+                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        ${webPaths}
+                        
+                        <polygon points="${dataPoints.trim()}" fill="url(#polyGrad)" stroke="${colorInfo.textHex}" stroke-width="2" filter="url(#glow)"/>
+                        
+                        ${dataSegmentHTML}
+                    </svg>
                 </div>
-            </div>
-
-            <!-- 십신 표 -->
-            <div style="margin-bottom: 3rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold; text-align: center;">[ 명식(命式)과 십신(十神) ]</div>
-                <table style="width: 100%; border-collapse: collapse; text-align: center; color: ${colorInfo.textHex}; table-layout: fixed; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-                    <thead>
-                        <tr style="background: rgba(197, 160, 89, 0.15); border-bottom: 2px solid ${colorInfo.borderRgba};">
-                            <th style="padding: 12px 10px; width: 20%; color: rgba(255,255,255,0.85); font-weight: normal;">구분</th>
-                            <th style="padding: 12px 10px; width: 20%; color: rgba(255,255,255,0.85); font-weight: normal;">시(時)</th>
-                            <th style="padding: 12px 10px; width: 20%; color: rgba(255,255,255,0.85); font-weight: normal;">일(日)</th>
-                            <th style="padding: 12px 10px; width: 20%; color: rgba(255,255,255,0.85); font-weight: normal;">월(月)</th>
-                            <th style="padding: 12px 10px; width: 20%; color: rgba(255,255,255,0.85); font-weight: normal;">년(年)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 15px 12px; font-weight: bold; color: ${colorInfo.highlightHex}; letter-spacing: 1px;">천간<br><span style="font-size:0.75rem; color: rgba(255,255,255,0.5); font-weight: normal;">(십신)</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['갑', '병', '무', '경', '임'][hash % 5]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d1}</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 10px ${colorInfo.textHex};">본원</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: bold; display: inline-block; margin-top: 5px;">[나]</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['을', '정', '기', '신', '계'][hash % 5]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d2}</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['병', '무', '경', '임', '갑'][hash % 5]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d3}</span></td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 15px 12px; font-weight: bold; color: ${colorInfo.highlightHex}; letter-spacing: 1px;">지지<br><span style="font-size:0.75rem; color: rgba(255,255,255,0.5); font-weight: normal;">(십신)</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['자', '인', '진', '오', '신', '술'][hash % 6]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d4}</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['축', '묘', '사', '미', '유', '해'][hash % 6]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d5}</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['인', '진', '오', '신', '술', '자'][hash % 6]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d6}</span></td>
-                            <td style="padding: 15px 12px;"><span style="font-size: 1.3rem; font-weight: bold; color: ${colorInfo.textHex}; text-shadow: 0 0 8px rgba(255,255,255,0.2);">${['묘', '사', '미', '유', '해', '축'][hash % 6]}</span><br><span style="font-size: 0.85rem; color: ${colorInfo.highlightHex}; font-weight: 300; display: inline-block; margin-top: 5px;">${d7}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p style="text-align: right; font-size: 0.75rem; margin-top: 15px; color: rgba(255,255,255,0.4); font-weight: 300;">* 사주 원국과 십신의 배치는 고유 기운을 바탕으로 분석되었습니다.</p>
             </div>
         `;
         return html;
@@ -1118,13 +1196,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Intro & Heaven's Will ([천명])
         html += `
-            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[천명(天命)]</span> 타고난 그릇과 기질</h3>
+            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">천명(天命)</span> 타고난 그릇과 기질</h3>
             <p>${name}님은 ${year}년 ${month}월 ${day}일, 하늘과 땅의 기운이 교차하는 아름다운 시기에 이 세상에 나셨습니다. 
             사주팔자에 깃든 당신의 본성은 <strong>'외유내강(外柔內剛)'</strong>이라 할 수 있습니다. 겉으로는 봄바람처럼 부드럽고 온화하나, 그 내면에는 한겨울의 모진 바람도 견뎌내는 굳건한 바위와 같은 심지가 자리하고 있습니다.</p>
             <p>당신의 기운은 맑은 날 드넓은 대지를 비추는 따스한 태양과 같으니, 주변 사람들에게 온기를 전하고 만물을 생동케 하는 훌륭한 힘을 지녔습니다. 
             비록 때로는 짙은 구름에 가려 스스로의 빛을 발하지 못하는 듯 답답함을 느낄지라도, 구름이 걷힌 후의 태양은 더욱 찬란하게 빛남을 잊지 마시길 바랍니다.</p>
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 타고난 기운 분석 ]</div>
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">타고난 기운 분석</div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
                     <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">${keyword.hanja}</span>
                 </div>
@@ -1142,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fortune Flow
         html += `
-            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[운의 흐름(時運)]</span> 현재의 시운과 나아갈 길</h3>
+            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">운의 흐름(時運)</span> 현재의 시운과 나아갈 길</h3>
         `;
 
         // Fortune Details based on Type
@@ -1168,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Advice
         html += `
             <br>
-            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[비책(秘策)]</span> 운을 틔우는 지혜</h3>
+            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">비책(秘策)</span> 운을 틔우는 지혜</h3>
             <p>${name}님이 품고 있는 훌륭한 기운을 더욱 조화롭게 만개시키기 위해서는 '물(水)'의 유연함을 가까이하는 것이 이롭습니다. 
             만물을 품어 흐르는 강물처럼 마음의 여유를 가지시고, 일상 속에서 잔잔한 호수나 깊은 산속의 계곡을 찾아 마음의 찌든 때를 씻어내시길 권해드립니다.</p>
             <p>혹여 다가오는 운의 흐름에서 거센 비바람을 만나더라도 결코 두려워하지 마십시오. 비 온 뒤에 땅이 더욱 단단해지듯, 이 모든 굴곡진 과정은 당신의 뿌리를 더욱 깊고 튼튼하게 내리기 위한 대자연의 이치일 뿐입니다. 잠시 비를 피할 튼튼한 처마 밑에서 숨을 고르시면 충분합니다.</p>
@@ -1254,74 +1332,75 @@ document.addEventListener('DOMContentLoaded', () => {
         const selHuman = getVariation(humanVariations, 7);
 
         return `
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <span style="display:inline-block; padding: 5px 15px; border-radius: 20px; background-color: ${colorInfo.borderRgba}; color: ${colorInfo.textHex}; font-weight: bold; font-size: 1.1em; letter-spacing: 2px;">${todayStr} 일진(日辰)</span>
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <span style="display:inline-block; padding: 6px 20px; border-radius: 30px; background-color: rgba(0,0,0,0.3); border: 1px solid ${colorInfo.borderRgba}; color: ${colorInfo.textHex}; font-weight: bold; font-size: 1.1em; letter-spacing: 2px;">${todayStr} 일진(日辰)</span>
             </div>
             
-            <p>${name}님의 사주 명식과 오늘 하루의 우주적 기운이 맞물려 빚어내는 종합적인 흐름입니다. ${selIntro}</p>
+            <p style="margin-bottom: 3.5rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${name}님의 사주 명식과 오늘 하루의 우주적 기운이 맞물려 빚어내는 종합적인 흐름입니다. ${selIntro}</p>
             
-            <br>
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[시간대별 운의 흐름]</span> 하루를 지배하는 기운의 변화</h4>
+            <h4 style="text-align: center; margin-top: 4rem; margin-bottom: 2.5rem;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">시간대별 운의 흐름</span> 하루를 지배하는 기운의 변화</h4>
             
-            <p><strong>아침 (06:00 ~ 11:30) - 여명(黎明)의 태동:</strong> 
-            ${selMorning}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">아침 (06:00 ~ 11:30) - 여명(黎明)의 태동</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selMorning}</p>
             
-            <p><strong>점심 (11:30 ~ 15:00) - 중천(中天)의 태양:</strong> 
-            ${selLunch}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">점심 (11:30 ~ 15:00) - 중천(中天)의 태양</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selLunch}</p>
             
-            <p><strong>오후 (15:00 ~ 19:00) - 황혼(黃昏)의 갈무리:</strong> 
-            ${selAfternoon}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">오후 (15:00 ~ 19:00) - 황혼(黃昏)의 갈무리</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selAfternoon}</p>
             
-            <p><strong>저녁 심야 (19:00 ~ ) - 심연(深淵)의 휴식:</strong> 
-            ${selNight}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">저녁 심야 (19:00 ~ ) - 심연(深淵)의 휴식</span></div>
+            <p style="margin-bottom: 4.5rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selNight}</p>
             
-            <br>
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[영역별 세부 운세]</span> 오늘의 길흉화복(吉凶祸福)</h4>
+            <h4 style="text-align: center; margin-bottom: 2.5rem;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">영역별 세부 운세</span> 오늘의 길흉화복(吉凶禍福)</h4>
             
-            <p><strong>재물운:</strong> ${selWealth}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">재물운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selWealth}</p>
             
-            <p><strong>인간관계운:</strong> ${selHuman}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">인간관계운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${selHuman}</p>
 
-            <p><strong>애정운:</strong> ${loveText}</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">애정운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">${loveText}</p>
             
-            <p><strong>직업/사업운:</strong> 직장이나 당신의 사업장에서 그동안 남몰래 갈고닦아온 내실 있는 실력이 드디어 빛을 발하고 위기 탈출의 귀중한 열쇠가 되는 쾌조의 타이밍입니다. 까다로운 상사나 거래처의 어려운 요구 앞에서도 당황하지 말고 평소의 페이스를 꿋꿋하게 유지하십시오. 당신의 논리정연하고 신중한 태도가 상대방의 단단한 마음의 벽을 허물고 깊은 신뢰를 얻어내어, 필시 큰 성취로 이어지는 징검다리를 놓게 될 것입니다.</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">직업/사업운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">직장이나 당신의 사업장에서 그동안 남몰래 갈고닦아온 내실 있는 실력이 드디어 빛을 발하고 위기 탈출의 귀중한 열쇠가 되는 쾌조의 타이밍입니다. 까다로운 상사나 거래처의 어려운 요구 앞에서도 당황하지 말고 평소의 페이스를 꿋꿋하게 유지하십시오. 당신의 논리정연하고 신중한 태도가 상대방의 단단한 마음의 벽을 허물고 깊은 신뢰를 얻어내어, 필시 큰 성취로 이어지는 징검다리를 놓게 될 것입니다.</p>
             
-            <p><strong>건강운:</strong> 겉보기에는 문제가 없어 보이지만, 피로가 보이지 않는 곳에서 체력을 갉아먹고 있을 수 있습니다. 무리하지 않고 가벼운 산책으로 기혈 순환을 장려하는 것이 명약입니다.</p>
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">건강운</span></div>
+            <p style="margin-bottom: 4rem; line-height: 2.0; word-break: keep-all; text-align: justify; color: #FDFBF7; font-size: 1.05rem;">겉보기에는 문제가 없어 보이지만, 피로가 보이지 않는 곳에서 체력을 갉아먹고 있을 수 있습니다. 무리하지 않고 가벼운 산책으로 기혈 순환을 장려하는 것이 명약입니다.</p>
 
-            <br>
-            <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 오늘의 행운 포인트 (Lucky Point) ]</div>
-                <div style="font-size: 1.05rem; color: ${colorInfo.highlightHex}; line-height: 1.9; text-align: center; word-break: keep-all;">
+            <div style="text-align: center; margin-top: 4rem; margin-bottom: 2rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold; letter-spacing: 1px;">오늘의 행운 포인트 (Lucky Point)</div>
+                <div style="font-size: 1.05rem; color: ${colorInfo.highlightHex}; line-height: 2.0; text-align: center; word-break: keep-all;">
                     오늘 당신의 부족한 기운을 빈틈없이 채워주고 불운을 막아줄 든든한 수호 장치들입니다.<br><br>
                     <strong style="color: ${colorInfo.textHex};">유리한 방향:</strong> 측면의 에너지가 닿는 곳<br>
-                    <strong style="color: ${colorInfo.textHex};">행운의 컬러:</strong> <strong>${colorInfo.colorName} 계열</strong>의 소품이나 의상<br>
+                    <strong style="color: ${colorInfo.textHex};">행운의 컬러:</strong> <strong style="color: #fff;">${colorInfo.colorName} 계열</strong>의 소품이나 의상<br>
                     <strong style="color: ${colorInfo.textHex};">이로운 음식:</strong> 따뜻하고 맑은 차, 든든한 곡물
                 </div>
             </div>
         `;
-    }
 
-    function generateGeneralContent(type, maritalStatus, cHex) {
-        let title = type === 'daily' ? "오늘의" : type === 'weekly' ? "주간" : type === 'yearly' ? "신년" : "평생";
+        function generateGeneralContent(type, maritalStatus, cHex) {
+            let title = type === 'daily' ? "오늘의" : type === 'weekly' ? "주간" : type === 'yearly' ? "신년" : "평생";
 
-        let loveSection = maritalStatus === 'married' ?
-            `<h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[가정/부부운]</span> 두 그루의 소나무처럼</h4>
+            let loveSection = maritalStatus === 'married' ?
+                `<h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">가정/부부운</span> 두 그루의 소나무처럼</h4>
             <p>배우자와의 관계는 오랜 세월 풍파를 함께 견뎌낸 두 그루의 소나무처럼 깊은 뿌리로 의지하게 될 것입니다. 
             간혹 거센 바람이 불어 가지가 부딪히고 상처가 날지라도, 이는 서로를 더욱 단단하게 얽어매는 과정입니다. 
             배우자의 침묵 속에 담긴 무게를 헤아려주는 다정한 말 한마디가 가뭄의 단비처럼 가정에 생기를 불어넣을 것입니다.</p>`
-            :
-            `<h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[애정/연애운]</span> 봄볕에 녹아드는 잔설(殘雪)</h4>
+                :
+                `<h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">애정/연애운</span> 봄볕에 녹아드는 잔설(殘雪)</h4>
             <p>차가운 겨울이 지나고 따스한 봄볕에 눈이 녹아내리듯, 꽁꽁 얼어붙었던 애정운에 반가운 온기가 스며들고 있습니다. 
             무리하게 봄을 앞당기려 꽃망울을 강제로 터뜨리려 하지 마시고, 때가 되면 자연스레 맺어질 인연의 순리를 믿으십시오. 
             만약 이별의 아픔이나 외로움을 겪고 계시다면, 이는 진정으로 내 삶에 어울리는 따스한 보금자리를 찾기 위해 지나가는 서리일 뿐이니 너무 깊이 상심하지 마시길 바랍니다.</p>`;
 
-        return `
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[재물운]</span> 풍요로운 대지의 기운</h4>
+            return `
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">재물운</span> 풍요로운 대지의 기운</h4>
             <p>현재 재물의 기운은 깊은 산속에서 시작된 작은 샘물이 모여 거대한 강줄기를 이루어 나가는 역동적인 형상과 같습니다. 
             재단과 금전이 서서히 모여들어 곳간을 채울 뚜렷한 조짐이 보이나, 재물의 순환이라는 물길이 막히지 않도록 주변 상황을 현명하게 살피는 지혜가 강력하게 요구되는 시기입니다. 
             때로는 가뭄이 든 메마른 땅처럼 자금의 융통이 일시적으로 어려울 때가 닥칠 수 있습니다. 하지만 이는 사주팔자 상 곧 다가올 거대한 재물의 폭우를 안전하게 감당하기 위해 미리 튼튼한 제방을 쌓고 그릇을 키우는 숙성의 시기라 깊이 이해하셔야 합니다. 
             눈앞의 작은 단기적 이익이나 얄팍한 투자에 일희일비하기보다는, 10년 뒤의 울창한 큰 숲을 가꾸는 대범한 마음가짐으로 자산을 굴려 나가실 때 비로소 큰 길(吉)함을 성취하실 수 있을 것입니다.</p>
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[직업/사업운]</span> 넓은 들판에 부는 거침없는 바람</h4>
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">직업/사업운</span> 넓은 들판에 부는 거침없는 바람</h4>
 
             <p>직업과 사회적 성취 분야를 짚어보면, 넓은 들판을 거침없이 달려나가는 강력한 순풍(順風)과도 같은 기운이 귀하의 일주(日柱)에 생생하게 깃들어 있습니다. 
             새로운 도약과 기회의 문이 열릴 상서로운 징조가 여러 곳에서 엿보이며, 그동안 남모르게 묵묵히 쌓아온 각고의 내공이 드디어 세상 사람들의 큰 인정과 박수갈채와 함께 빛을 발할 때가 코앞으로 다가왔습니다. 
@@ -1329,27 +1408,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
             ${loveSection}
 
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[건강운]</span> 숲을 지키는 굳건한 바위</h4>
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">건강운</span> 숲을 지키는 굳건한 바위</h4>
             <p>자신의 건강을 수호하는 기운의 뿌리는 기본적으로 비바람에도 끄떡없는 튼튼하고 거대한 바위처럼 강건하고 곧은 편입니다. 
             다만, 끊임없이 흐르는 부드러운 물방울이 오랜 세월 깊은 바위마저 깎아내리듯, 일상 속에서 타인과의 마찰이나 해결되지 않은 문제들로 인해 누적된 정신적 피로와 보이지 않는 스트레스가 무의식중에 기력을 갉아먹고 쇠약하게 할 수 있으니 각별한 예방과 관리가 요구됩니다. 평소 몸이 보내는 작고 간절한 신호에 귀를 기울이시고, 지치고 소진되는 느낌이 자각될 때는 결코 무리하지 마십시오. 비옥한 대지가 칠흑 같은 밤의 어둠 속에서 조용히 숨을 고르며 내일의 생명을 잉태하듯, 모든 것을 내려놓고 오직 스스로만을 위한 온전한 쉼을 허락하는 것이야말로 진정한 개운(開運)의 첫걸음입니다.</p>
             <br>
         `;
-    }
+        }
 
-    function generateLoveContent(maritalStatus, cHex) {
-        if (maritalStatus === 'married') {
-            return `
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[현재 부부 관계의 기운]</span> 마주 보는 두 개의 산봉우리</h4>
+        function generateLoveContent(maritalStatus, cHex) {
+            if (maritalStatus === 'married') {
+                return `
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">현재 부부 관계의 기운</span> 마주 보는 두 개의 산봉우리</h4>
             <p>두 분의 연(緣)은 거대한 산맥 속에서 서로를 마주 보며 우뚝 솟은 두 개의 산봉우리와 같습니다. 
             각자의 위치에서 단단하게 서 있으면서도 같은 풍경을 바라보고 있습니다. 
             서로의 기운이 팽팽하게 맞물려 강한 안정감을 주나, 때로는 이 단단함이 아집으로 변하여 소통의 단절을 부를 수 있습니다.</p>
             
-            <h4>[지혜로운 대처법]</h4>
+            <h4>지혜로운 대처법</h4>
             <p>단단한 바위틈에서도 맑은 샘물이 솟아오르듯, 굳어진 마음의 벽을 허무는 것은 결국 다정하고 부드러운 언어입니다. 
             사소한 의견 충돌로 마음이 차갑게 얼어붙었다고 느끼실 때는, 당신이 먼저 따스한 봄햇살이 되어 상대방의 꽁꽁 언 마음을 녹여주십시오. 
             이러한 헌신은 절대 헛되지 않으며, 가정을 굳건히 지키는 든든한 울타리로 당신에게 다시 돌아올 것입니다.</p>
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 애정 화합도 분석 ]</div>
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">애정 화합도 분석</div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
                     <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">吉 兆</span>
                 </div>
@@ -1362,19 +1441,19 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <br>
             `;
-        } else {
-            return `
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[현재 나의 애정 기운]</span> 달빛 아래 피어나는 난초</h4>
+            } else {
+                return `
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">현재 나의 애정 기운</span> 달빛 아래 피어나는 난초</h4>
             <p>당신의 애정 기운은 깊은 밤, 고요한 달빛 아래 맑은 향기를 내뿜는 아름다운 난초와 같습니다. 
             화려하고 자극적인 향기보다는 은은하고 깊이 있는 매력으로 천천히 상대의 마음을 사로잡는 고상함을 지니셨습니다. 
             도화(桃花)의 긍정적인 기운이 조용히 머물고 있으니, 억지로 인연을 찾아 헤매기보다는 본연의 향기를 간직하고 있을 때 제 짝을 찾은 나비가 자연스럽게 날아들 것입니다.</p>
             
-            <h4>[관계를 지키는 지혜]</h4>
+            <h4>관계를 지키는 지혜</h4>
             <p>마음이 조급해져 꽃망울을 억지로 터뜨리려 하면 꽃은 피지 못하고 잎사귀에 상처만 남게 됩니다. 
             새로운 인연 앞에서는 지나치게 서두르지 마시고, 흐르는 강물처럼 순리대로 마음을 섞어가야 합니다. 
             만약 과거의 상실이 가져온 슬픔이 아직 남아있다면, 이는 단지 당신의 영혼을 더욱 성숙하고 수려하게 빚어내기 위한 가을비에 불과했음을 부디 잊지 마시길 바랍니다.</p>
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 새로운 인연의 기운 ]</div>
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">새로운 인연의 기운</div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
                     <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">佳 期</span>
                 </div>
@@ -1387,23 +1466,23 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <br>
             `;
+            }
         }
-    }
 
-    function generateExamContent(cHex) {
-        return `
-            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">[학업과 성취의 기운]</span> 깊은 땅속에서 자라나는 씨앗</h4>
+        function generateExamContent(cHex) {
+            return `
+            <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">학업과 성취의 기운</span> 깊은 땅속에서 자라나는 씨앗</h4>
             <p>문창귀인(文昌貴人)의 이로운 기운이 머물고 있으니, 당신의 학업 운세는 깊은 땅속에서 싹을 틔울 준비를 완전하게 마친 굳센 씨앗과 다름없습니다. 
             보이지 않는 어둠 속에서 고독하게 홀로 흙을 파고드는 과정이 길고 고통스럽게 느껴지시겠으나, 
             그 뿌리가 깊어질수록 머지않아 피워낼 꽃과 달콤한 열매는 타인의 것보다 훨씬 크고 귀할 것입니다.</p>
             
-            <h4>[합격을 향한 지혜와 비책]</h4>
+            <h4>합격을 향한 지혜와 비책</h4>
             <p>큰 아름드리나무를 베기 위해서는 도끼를 날카롭게 가는 묵언의 시간이 반드시 필요합니다. 
             잠시 성적이 오르지 않거나 막막한 안개가 낀 것처럼 앞이 보이지 않을 때는 결코 자신을 자책하지 마십시오. 
             이는 지식을 온전히 당신의 뼛속 깊이 체화(體化)하기 위한 필수적인 숙성의 시간입니다. 
             시험의 압박감이라는 거센 폭풍이 몰아치더라도, 스스로의 노력을 믿는 그 단단한 마음가짐 하나면 모든 풍파를 충분히 이겨낼 수 있습니다.</p>
             <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
-                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">[ 학업과 합격 기운 ]</div>
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.2rem; font-weight: bold;">학업과 합격 기운</div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
                     <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">大 吉</span>
                 </div>
@@ -1416,23 +1495,23 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <br>
         `;
-    }
+        }
 
-    function getMonthlyText(month) {
-        const texts = [
-            "얼어붙은 대지에 봄비가 내리듯, 웅크렸던 뜻을 서서히 펼치기 참으로 좋은 시기라 할 수 있습니다.",
-            "새잎이 돋아나듯 새로운 기운이 솟아오르나, 아직은 늦서리가 내릴 수 있으니 무리한 전진은 잠시 삼가십시오.",
-            "따스한 봄볕에 만물이 생동합니다. 귀인의 아낌없는 도움으로 귀한 인연을 맺거나 뜻밖의 기회를 맞이할 수 있습니다.",
-            "성급한 춘풍(春風)에 애써 피운 꽃잎이 지지 않도록, 감정의 동요를 고요히 다스리는 지혜가 무엇보다 필요한 달입니다.",
-            "푸르른 녹음처럼 기운이 맹렬하게 왕성해지는 시기. 가내의 평안을 먼저 보살피면 바깥의 일도 물 흐르듯 순조롭게 풀립니다.",
-            "거센 소나기가 지나간 뒤 하늘이 더욱 투명하게 맑아지듯, 약간의 시련 뒤에 막혔던 일들이 시원하게 뚫릴 상서로운 조짐입니다.",
-            "여름날의 뜨거운 태양처럼 매사에 열정적으로 임하십시오. 묵묵히 흘린 땀방울 만큼의 성장이 뚜렷하게 자태를 드러내는 시기입니다.",
-            "한여름 짙은 녹음 밑 휴식처럼 쉼표가 절실히 필요합니다. 마음의 짐을 훌훌 털고 재충전의 시간을 가지며 스스로를 보듬으십시오.",
-            "황금빛 풍요로운 들녘처럼, 그간 정성껏 뿌려놓은 노력들이 아름다운 보상이라는 진귀한 열매로 맺히기 시작하는 길(吉)한 달입니다.",
-            "가을밤의 고요하고 청아한 달빛과 같습니다. 세상의 이치와 내면을 깊이 성찰하고 다가올 추운 겨울을 대비해 든든하게 내실을 다져야 합니다.",
-            "차가운 삭풍 속에서도 고고하게 피어나는 매향(梅香)처럼, 묵묵히 본분의 자리를 지키면 마침내 주변의 온전한 인정을 받게 됩니다.",
-            "한 해의 생채기를 덮어주는 포근한 첫눈처럼, 묵은 감정과 아쉬움을 훌훌 미련 없이 털어내고 평안하고 따뜻한 마음으로 매듭을 지을 때입니다."
-        ];
-        return texts[month - 1];
-    }
-});
+        function getMonthlyText(month) {
+            const texts = [
+                "얼어붙은 대지에 봄비가 내리듯, 웅크렸던 뜻을 서서히 펼치기 참으로 좋은 시기라 할 수 있습니다.",
+                "새잎이 돋아나듯 새로운 기운이 솟아오르나, 아직은 늦서리가 내릴 수 있으니 무리한 전진은 잠시 삼가십시오.",
+                "따스한 봄볕에 만물이 생동합니다. 귀인의 아낌없는 도움으로 귀한 인연을 맺거나 뜻밖의 기회를 맞이할 수 있습니다.",
+                "성급한 춘풍(春風)에 애써 피운 꽃잎이 지지 않도록, 감정의 동요를 고요히 다스리는 지혜가 무엇보다 필요한 달입니다.",
+                "푸르른 녹음처럼 기운이 맹렬하게 왕성해지는 시기. 가내의 평안을 먼저 보살피면 바깥의 일도 물 흐르듯 순조롭게 풀립니다.",
+                "거센 소나기가 지나간 뒤 하늘이 더욱 투명하게 맑아지듯, 약간의 시련 뒤에 막혔던 일들이 시원하게 뚫릴 상서로운 조짐입니다.",
+                "여름날의 뜨거운 태양처럼 매사에 열정적으로 임하십시오. 묵묵히 흘린 땀방울 만큼의 성장이 뚜렷하게 자태를 드러내는 시기입니다.",
+                "한여름 짙은 녹음 밑 휴식처럼 쉼표가 절실히 필요합니다. 마음의 짐을 훌훌 털고 재충전의 시간을 가지며 스스로를 보듬으십시오.",
+                "황금빛 풍요로운 들녘처럼, 그간 정성껏 뿌려놓은 노력들이 아름다운 보상이라는 진귀한 열매로 맺히기 시작하는 길(吉)한 달입니다.",
+                "가을밤의 고요하고 청아한 달빛과 같습니다. 세상의 이치와 내면을 깊이 성찰하고 다가올 추운 겨울을 대비해 든든하게 내실을 다져야 합니다.",
+                "차가운 삭풍 속에서도 고고하게 피어나는 매향(梅香)처럼, 묵묵히 본분의 자리를 지키면 마침내 주변의 온전한 인정을 받게 됩니다.",
+                "한 해의 생채기를 덮어주는 포근한 첫눈처럼, 묵은 감정과 아쉬움을 훌훌 미련 없이 털어내고 평안하고 따뜻한 마음으로 매듭을 지을 때입니다."
+            ];
+            return texts[month - 1];
+        }
+    });
