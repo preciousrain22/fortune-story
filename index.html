@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune Story - 당신의 운명을 발견하세요</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.4/lunar.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo center-logo">
+                <a href="#" class="obangsaek-text">Fortune Story</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section (Taste Fortune) -->
+    <section id="home" class="hero text-center">
+        <div class="container hero-content centered">
+            <h1 class="fade-in">당신의 이야기<br><span class="obangsaek-text">FORTUNE STORY</span></h1>
+            <p class="fade-in delay-1" style="color:var(--text-secondary); margin-bottom: 2rem;">이름과 생년월일만으로 당신의 오늘 하루를
+                미리 확인해보세요.</p>
+
+            <div class="login-box fade-in delay-2" id="tasteFormContainer">
+                <form id="tasteForm">
+                    <div class="input-group">
+                        <input type="text" id="tasteName" placeholder="이름 (예: 홍길동)" required>
+                    </div>
+
+                    <div class="input-group" style="display:flex; gap:1rem; margin-bottom: 1.2rem; align-items:center;">
+                        <span style="color:var(--text-secondary); min-width:50px; text-align:left;">성별</span>
+                        <label style="color:white; cursor:pointer;"><input type="radio" name="tasteGender" value="male"
+                                checked style="width:auto; display:inline-block; margin-right:5px;"> 남성</label>
+                        <label style="color:white; cursor:pointer;"><input type="radio" name="tasteGender"
+                                value="female" style="width:auto; display:inline-block; margin-right:5px;"> 여성</label>
+                    </div>
+
+                    <div class="input-group" style="display:flex; gap:0.5rem; margin-bottom: 1.2rem;">
+                        <input type="number" id="tasteYear" placeholder="년도(YYYY)" min="1900" max="2026" required
+                            style="width:33%;">
+                        <input type="number" id="tasteMonth" placeholder="월" min="1" max="12" required
+                            style="width:33%;">
+                        <input type="number" id="tasteDay" placeholder="일" min="1" max="31" required style="width:33%;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary full-width pulse-btn">무료 맛보기 운세 확인</button>
+
+                    <div class="login-links" style="margin-top: 2rem;">
+                        <a href="main.html" style="color:var(--accent-color); font-weight:bold;">✨ 더 깊고 정확한 정밀 사주 분석
+                            보러가기 ✨</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Taste Result Section (Hidden) -->
+            <div id="tasteResultContainer" class="login-box fade-in"
+                style="display: none; padding: 2rem; border-color: var(--accent-color);">
+                <h3 style="color: var(--accent-color); margin-bottom: 1.5rem;" id="tasteResultTitle">오늘의 운세</h3>
+                <p id="tasteResultText"
+                    style="color: white; font-size: 1.1rem; line-height: 1.8; text-align: left; margin-bottom: 2rem;">
+                </p>
+                <a href="main.html" class="btn btn-primary full-width">정밀 사주 분석하러 가기</a>
+                <button type="button" id="tasteRetryBtn" class="btn"
+                    style="background:transparent; border:1px solid rgba(255,255,255,0.3); color:white; width: 100%; margin-top: 1rem;">다시
+                    하기</button>
+            </div>
+
+        </div>
+        <div class="star-bg-fixed"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer"
+        style="border-top: 1px solid rgba(255, 213, 79, 0.2); background-color: rgba(0, 0, 0, 0.5); padding: 2.5rem 0; margin-top: 4rem; text-align: center;">
+        <div class="container">
+            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6); line-height: 1.8;">
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>상호</strong> : 포춘스토리(Fortune Story) <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>대표</strong> : 이진우
+                </p>
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>사업자등록번호</strong> : [발급 예정인 번호 10자리] <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>통신판매업신고</strong> : [제-0000-0000호]
+                </p>
+                <p style="margin: 0; margin-bottom: 5px;">
+                    <strong>사업장 소재지</strong> : 서울특별시 관악구 은천로93 벽산블루밍 아파트 206동 303호
+                </p>
+                <p style="margin: 0; margin-bottom: 15px;">
+                    <strong>고객센터</strong> : 010-6848-7856 <span
+                        style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+                    <strong>이메일</strong> : preciousrain2@nate.com
+                </p>
+                <div style="margin-bottom: 15px; font-weight: 500;">
+                    <a href="terms.html" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[이용약관]</a>
+                    <a href="privacy.html" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[개인정보처리방침]</a>
+                    <a href="terms.html#refund" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[환불규정]</a>
+                </div>
+                <p style="margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.4);">&copy; 2026 Fortune Story. All
+                    rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
