@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         fullTarotDeck.forEach((card, index) => {
-            card.imageUrl = baseUrl + index + ".jpg";
+            card.imageUrl = baseUrl + index + ".jpeg";
         });
 
         const shuffled = fullTarotDeck.sort(() => 0.5 - Math.random());
