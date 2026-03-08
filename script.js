@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 대한민국 최고 수준의 명리학자입니다.
 [🔥 핵심 작성 규칙 🔥]
-1. 서론/인사말 절대 금지 (가장 중요): "존경하는 ~님", "30년 명리학의 통찰로", "경험을 토대로" 같은 본인 소개나 뻔한 인사말은 절대 쓰지 마세요. 첫 문장부터 군더더기 없이 곧바로 사주 원국에 대한 분석 본론으로 시작하세요.
+1. 서론/인사말 절대 금지 (가장 중요): "존경하는 ~님", "30년 명리학의 통찰로", "경험을 토대로", "살펴보겠습니다" 같은 본인 소개나 뻔한 인사말은 절대 쓰지 마세요. 첫 문장부터 군더더기 없이 곧바로 사주 원국에 대한 분석 본론으로 시작하세요.
 2. 분량 강제 (절대 엄수): 각 섹션마다 최소 1500자 이상 아주 방대하고 깊이 있게 작성하세요.
 3. 호칭 (매우 중요): 무조건 '${name}님'이라고 부르세요. ('선생님', '당신' 등 절대 금지)
 4. 용어 풀이: 명리학 용어는 무조건 '한자(한글)' 표기법을 지키세요.
@@ -971,4 +971,39 @@ ${specificInstructions}
         ];
         return texts[month - 1];
     }
-}); 
+
+    // --- 👇 여기서부터 완벽하게 복구된 카카오톡 공유하기 기능 👇 ---
+    if (typeof Kakao !== 'undefined') {
+        if (!Kakao.isInitialized()) {
+            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+        }
+
+        const shareKakaoBtn = document.getElementById('shareKakaoBtn');
+        if (shareKakaoBtn) {
+            shareKakaoBtn.onclick = () => {
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '포춘 스토리 (Fortune Story)',
+                        description: '상위 0.1%를 위한 프리미엄 사주 및 타로 분석 결과를 확인해보세요.',
+                        imageUrl: 'https://fortune-story.vercel.app/images/og-image.jpg',
+                        link: {
+                            mobileWebUrl: 'https://fortune-story.vercel.app',
+                            webUrl: 'https://fortune-story.vercel.app',
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '내 운세 확인하기',
+                            link: {
+                                mobileWebUrl: 'https://fortune-story.vercel.app',
+                                webUrl: 'https://fortune-story.vercel.app',
+                            },
+                        },
+                    ],
+                });
+            };
+        }
+    }
+
+});
