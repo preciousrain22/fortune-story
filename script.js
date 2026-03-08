@@ -581,15 +581,50 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div style="margin-top: 3rem; text-align: center; border-top: 1px solid rgba(179, 136, 235, 0.2); padding-top: 2rem;">
                 <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem;">이 타로 리딩 결과를 소장하시겠습니까?</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 400px; margin: 0 auto;">
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3);" onclick="window.print()">📄 PDF로 저장</button>
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3);" onclick="location.reload()">🔄 다른 타로 보기</button>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                    <button class="btn-premium kakao" id="shareTarotKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px;">💬 카카오톡 공유</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1;" onclick="window.print()">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1;" onclick="location.reload()">🔄 다른 타로 보기</button>
+                    </div>
                 </div>
             </div>
         `;
 
         document.getElementById('tarotResultContent').innerHTML = interpretationHTML;
         window.scrollTo(0, 0);
+
+        // --- 👇 타로 전용 카카오톡 공유 기능 연결 👇 ---
+        const shareTarotKakaoBtn = document.getElementById('shareTarotKakaoBtn');
+        if (shareTarotKakaoBtn && typeof Kakao !== 'undefined') {
+            shareTarotKakaoBtn.onclick = () => {
+                if (!Kakao.isInitialized()) {
+                    Kakao.init('a5c28b4d706bced99d7282a87113ec82'); // 진우님의 JavaScript 키
+                }
+                Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '포춘 스토리 (Fortune Story) - 타로 리딩',
+                        description: `'${tarotState.name}'님의 타로 리딩 결과가 도착했습니다. 우주의 조언을 확인해보세요.`,
+                        imageUrl: 'https://fortune-story.vercel.app/images/og-image.jpg',
+                        link: {
+                            mobileWebUrl: 'https://fortune-story.vercel.app',
+                            webUrl: 'https://fortune-story.vercel.app',
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '내 타로 결과 확인하기',
+                            link: {
+                                mobileWebUrl: 'https://fortune-story.vercel.app',
+                                webUrl: 'https://fortune-story.vercel.app',
+                            },
+                        },
+                    ],
+                });
+            };
+        }
+        // --- 👆 타로 카카오톡 연결 끝 👆 ---
     }
 
     function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType, maritalStatus) {
