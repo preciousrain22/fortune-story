@@ -1042,3 +1042,38 @@ ${specificInstructions}
     }
 
 });
+const sendEmailBtn = document.getElementById('sendEmailBtn');
+if (sendEmailBtn && typeof emailjs !== 'undefined') {
+    sendEmailBtn.onclick = () => {
+        const emailInput = document.getElementById('email').value;
+        if (!emailInput) {
+            alert('결과를 받으실 이메일 주소를 입력해주세요.');
+            return;
+        }
+
+        const originalText = sendEmailBtn.innerText;
+        sendEmailBtn.innerText = "메일 전송 중... ⏳";
+        sendEmailBtn.disabled = true;
+
+
+        const resultContent = document.getElementById('resultContent').innerText;
+        const resultTitle = document.getElementById('resultTitle').innerText;
+
+
+        emailjs.send('service_ype4se4', 'template_e6x6v1m', {
+            to_email: emailInput,             // 고객이 입력한 이메일
+            subject: `[포춘 스토리] ${resultTitle}`, // 메일 제목
+            message: resultContent            // 메일 내용 (운세 결과)
+        }, 'Z38s_o2VuAjbFKTNv')
+            .then(function (response) {
+                alert(`'${emailInput}'(으)로 운세 결과가 성공적으로 발송되었습니다!\n(메일이 보이지 않는다면 스팸함을 확인해주세요.)`);
+                sendEmailBtn.innerText = originalText;
+                sendEmailBtn.disabled = false;
+                document.getElementById('email').value = ''; // 입력창 비우기
+            }, function (error) {
+                alert(`메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.\n에러내용: ${error.text}`);
+                sendEmailBtn.innerText = originalText;
+                sendEmailBtn.disabled = false;
+            });
+    };
+}
