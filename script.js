@@ -249,10 +249,18 @@ document.addEventListener('DOMContentLoaded', () => {
             tarotState.name = document.getElementById('tarotName').value;
             tarotState.category = document.getElementById('tarotCategory').value;
             tarotState.concern = document.getElementById('tarotConcern').value;
+
             if (!tarotState.name || !tarotState.concern) {
                 alert('이름과 고민 내용을 모두 입력해주세요.');
                 return;
             }
+
+            // [추가됨] 타로 고민 내용 최소 30글자 제한
+            if (tarotState.concern.length < 30) {
+                alert('더 정확한 타로 리딩을 위해 고민을 30자 이상 구체적으로 적어주세요.');
+                return;
+            }
+
             document.getElementById('tarot').style.display = 'none';
             initTarotDraw();
         });
@@ -591,15 +599,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // [추가됨] 다시보기 기능을 위해 sessionStorage에 저장
+        sessionStorage.setItem('savedTarotResult', interpretationHTML);
         document.getElementById('tarotResultContent').innerHTML = interpretationHTML;
         window.scrollTo(0, 0);
 
-        // --- 👇 타로 전용 카카오톡 공유 기능 연결 👇 ---
         const shareTarotKakaoBtn = document.getElementById('shareTarotKakaoBtn');
         if (shareTarotKakaoBtn && typeof Kakao !== 'undefined') {
             shareTarotKakaoBtn.onclick = () => {
                 if (!Kakao.isInitialized()) {
-                    Kakao.init('a5c28b4d706bced99d7282a87113ec82'); // 진우님의 JavaScript 키
+                    Kakao.init('a5c28b4d706bced99d7282a87113ec82');
                 }
                 Kakao.Share.sendDefault({
                     objectType: 'feed',
@@ -624,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             };
         }
-        // --- 👆 타로 카카오톡 연결 끝 👆 ---
     }
 
     function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType, maritalStatus) {
@@ -661,13 +669,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFinalResult(name, typeName, year, month, day, aiResultHTML);
             })
             .catch(err => {
-                console.warn("API Error, falling back to local generation:", err);
+                // [수정됨] 사주 API 에러 발생 시 가짜 텍스트를 띄우지 않고 결제 취소 알림 표시
                 clearInterval(msgInterval);
                 if (loadingScreen) loadingScreen.style.display = 'none';
                 document.body.style.overflow = 'auto';
-                const personalColorInfo = getPersonalColor(year);
-                const fallbackHTML = generateLongContent(name, typeName, year, month, day, fortuneType, maritalStatus, personalColorInfo);
-                showFinalResult(name, typeName, year, month, day, fallbackHTML);
+                alert("현재 AI 분석 서버에 일시적인 트래픽이 몰려 접속이 지연되고 있습니다.\n고객님의 결제는 안전하게 취소(또는 보류)되었으니, 잠시 후 다시 시도해주세요.");
             });
     }
 
@@ -806,6 +812,10 @@ ${specificInstructions}
                 }
             }
         }
+
+        // [추가됨] 다시보기 기능을 위해 sessionStorage에 저장
+        sessionStorage.setItem('savedSajuTitle', document.getElementById('resultTitle').innerHTML);
+        sessionStorage.setItem('savedSajuResult', finalHTML);
 
         resultContent.innerHTML = finalHTML;
         window.scrollTo(0, 0);
@@ -1007,7 +1017,6 @@ ${specificInstructions}
         return texts[month - 1];
     }
 
-    // --- 👇 여기서부터 완벽하게 복구된 카카오톡 공유하기 기능 👇 ---
     if (typeof Kakao !== 'undefined') {
         if (!Kakao.isInitialized()) {
             Kakao.init('a5c28b4d706bced99d7282a87113ec82');
@@ -1041,39 +1050,31 @@ ${specificInstructions}
         }
     }
 
-});
-const sendEmailBtn = document.getElementById('sendEmailBtn');
-if (sendEmailBtn && typeof emailjs !== 'undefined') {
-    sendEmailBtn.onclick = () => {
-        const emailInput = document.getElementById('email').value;
-        if (!emailInput) {
-            alert('결과를 받으실 이메일 주소를 입력해주세요.');
-            return;
+    // [추가됨] 다시보기 복구 기능 (Saju & Tarot 통합)
+    window.restoreResult = function (type) {
+        if (type === 'saju') {
+            const savedHTML = sessionStorage.getItem('savedSajuResult');
+            const savedTitle = sessionStorage.getItem('savedSajuTitle');
+            if (savedHTML) {
+                document.getElementById('daily').style.display = 'none';
+                document.getElementById('gateway').style.display = 'none';
+                document.querySelector('.header').style.display = 'none';
+                document.querySelector('.star-bg-fixed').style.display = 'none';
+                document.getElementById('resultTitle').innerHTML = savedTitle;
+                document.getElementById('resultContent').innerHTML = savedHTML;
+                document.getElementById('result').style.display = 'block';
+                window.scrollTo(0, 0);
+            }
+        } else if (type === 'tarot') {
+            const savedHTML = sessionStorage.getItem('savedTarotResult');
+            if (savedHTML) {
+                document.getElementById('tarot').style.display = 'none';
+                document.getElementById('gateway').style.display = 'none';
+                document.querySelector('.header').style.display = 'none';
+                document.getElementById('tarotResultContent').innerHTML = savedHTML;
+                document.getElementById('tarotResult').style.display = 'block';
+                window.scrollTo(0, 0);
+            }
         }
-
-        const originalText = sendEmailBtn.innerText;
-        sendEmailBtn.innerText = "메일 전송 중... ⏳";
-        sendEmailBtn.disabled = true;
-
-
-        const resultContent = document.getElementById('resultContent').innerText;
-        const resultTitle = document.getElementById('resultTitle').innerText;
-
-
-        emailjs.send('service_ype4se4', 'template_e6x6v1m', {
-            to_email: emailInput,             // 고객이 입력한 이메일
-            subject: `[포춘 스토리] ${resultTitle}`, // 메일 제목
-            message: resultContent            // 메일 내용 (운세 결과)
-        }, 'Z38s_o2VuAjbFKTNv')
-            .then(function (response) {
-                alert(`'${emailInput}'(으)로 운세 결과가 성공적으로 발송되었습니다!\n(메일이 보이지 않는다면 스팸함을 확인해주세요.)`);
-                sendEmailBtn.innerText = originalText;
-                sendEmailBtn.disabled = false;
-                document.getElementById('email').value = ''; // 입력창 비우기
-            }, function (error) {
-                alert(`메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.\n에러내용: ${error.text}`);
-                sendEmailBtn.innerText = originalText;
-                sendEmailBtn.disabled = false;
-            });
     };
-}
+});
