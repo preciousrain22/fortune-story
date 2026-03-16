@@ -613,31 +613,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     content: {
                         title: '포춘 스토리 (Fortune Story) - 타로 리딩',
                         description: `'${tarotState.name}'님의 타로 리딩 결과가 도착했습니다. 우주의 조언을 확인해보세요.`,
-                        imageUrl: 'https://fortune-story.vercel.app/images/og-image.jpg',
+                        imageUrl: 'https://fortune-story.com/images/og-image.jpg',
                         link: {
-                            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                            mobileWebUrl: 'https://fortune-story.com',
+                            webUrl: 'https://fortune-story.com',
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '내 타로 결과 확인하기',
                             link: {
                                 mobileWebUrl: 'https://fortune-story.com',
                                 webUrl: 'https://fortune-story.com',
                             },
                         },
-                        buttons: [
-                            {
-                                title: '내 타로 결과 확인하기',
-                                link: {
-                                    mobileWebUrl: 'https://fortune-story.com',
-                                    webUrl: 'https://fortune-story.com',
-                                },
-                                buttons: [
-                                    {
-                                        title: '내 타로 결과 확인하기',
-                                        link: {
-                                            mobileWebUrl: 'https://fortune-story.vercel.app',
-                                            webUrl: 'https://fortune-story.vercel.app',
-                                        },
-                                    },
-                                ],
-                            });
+                    ],
+                });
             };
         }
     }
@@ -1035,18 +1026,18 @@ ${specificInstructions}
                     content: {
                         title: '포춘 스토리 (Fortune Story)',
                         description: '상위 0.1%를 위한 프리미엄 사주 및 타로 분석 결과를 확인해보세요.',
-                        imageUrl: 'https://fortune-story.vercel.app/images/og-image.jpg',
+                        imageUrl: 'https://fortune-story.com/images/og-image.jpg',
                         link: {
-                            mobileWebUrl: 'https://fortune-story.vercel.app',
-                            webUrl: 'https://fortune-story.vercel.app',
+                            mobileWebUrl: 'https://fortune-story.com',
+                            webUrl: 'https://fortune-story.com',
                         },
                     },
                     buttons: [
                         {
                             title: '내 운세 확인하기',
                             link: {
-                                mobileWebUrl: 'https://fortune-story.vercel.app',
-                                webUrl: 'https://fortune-story.vercel.app',
+                                mobileWebUrl: 'https://fortune-story.com',
+                                webUrl: 'https://fortune-story.com',
                             },
                         },
                     ],
