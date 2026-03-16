@@ -255,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // [추가됨] 타로 고민 내용 최소 30글자 제한
             if (tarotState.concern.length < 30) {
                 alert('더 정확한 타로 리딩을 위해 고민을 30자 이상 구체적으로 적어주세요.');
                 return;
@@ -599,7 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // [추가됨] 다시보기 기능을 위해 sessionStorage에 저장
         sessionStorage.setItem('savedTarotResult', interpretationHTML);
         document.getElementById('tarotResultContent').innerHTML = interpretationHTML;
         window.scrollTo(0, 0);
@@ -617,20 +615,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         description: `'${tarotState.name}'님의 타로 리딩 결과가 도착했습니다. 우주의 조언을 확인해보세요.`,
                         imageUrl: 'https://fortune-story.vercel.app/images/og-image.jpg',
                         link: {
-                            mobileWebUrl: 'https://fortune-story.vercel.app',
-                            webUrl: 'https://fortune-story.vercel.app',
-                        },
-                    },
-                    buttons: [
-                        {
-                            title: '내 타로 결과 확인하기',
+                            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
                             link: {
-                                mobileWebUrl: 'https://fortune-story.vercel.app',
-                                webUrl: 'https://fortune-story.vercel.app',
+                                mobileWebUrl: 'https://fortune-story.com',
+                                webUrl: 'https://fortune-story.com',
                             },
                         },
-                    ],
-                });
+                        buttons: [
+                            {
+                                title: '내 타로 결과 확인하기',
+                                link: {
+                                    mobileWebUrl: 'https://fortune-story.com',
+                                    webUrl: 'https://fortune-story.com',
+                                },
+                                buttons: [
+                                    {
+                                        title: '내 타로 결과 확인하기',
+                                        link: {
+                                            mobileWebUrl: 'https://fortune-story.vercel.app',
+                                            webUrl: 'https://fortune-story.vercel.app',
+                                        },
+                                    },
+                                ],
+                            });
             };
         }
     }
@@ -669,7 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFinalResult(name, typeName, year, month, day, aiResultHTML);
             })
             .catch(err => {
-                // [수정됨] 사주 API 에러 발생 시 가짜 텍스트를 띄우지 않고 결제 취소 알림 표시
                 clearInterval(msgInterval);
                 if (loadingScreen) loadingScreen.style.display = 'none';
                 document.body.style.overflow = 'auto';
@@ -813,7 +819,6 @@ ${specificInstructions}
             }
         }
 
-        // [추가됨] 다시보기 기능을 위해 sessionStorage에 저장
         sessionStorage.setItem('savedSajuTitle', document.getElementById('resultTitle').innerHTML);
         sessionStorage.setItem('savedSajuResult', finalHTML);
 
@@ -1050,7 +1055,6 @@ ${specificInstructions}
         }
     }
 
-    // [추가됨] 다시보기 복구 기능 (Saju & Tarot 통합)
     window.restoreResult = function (type) {
         if (type === 'saju') {
             const savedHTML = sessionStorage.getItem('savedSajuResult');
