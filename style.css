@@ -1970,3 +1970,56 @@ p {
     background-position: right 1rem center;
     background-size: 1em;
 }
+
+/* =========================================
+   모바일 화면 잘림 방지 (반응형 완벽 최적화)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* 1. 사주 결과지(부적) 모바일 화면에 딱 맞게 축소 */
+    .paper-container {
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 2rem 1rem !important;
+        margin: 1rem auto !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. 사주 결과지 안쪽 황금색 테두리 여백 조정 */
+    .paper-container::before {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+    }
+
+    /* 3. 결과 텍스트 크기 모바일 최적화 */
+    .result-content h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .result-content h4 {
+        font-size: 1.15rem !important;
+    }
+
+    /* 4. 하단 버튼들 가로 삐져나감 방지 (세로 정렬) */
+    .buttons-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .btn-premium {
+        width: 100% !important;
+        max-width: 320px;
+    }
+
+    /* 5. 타로 카드 결과 모바일 삐져나감 방지 */
+    .tarot-result-container {
+        padding: 1.5rem !important;
+    }
+
+    .revealed-card-col {
+        min-width: 45% !important;
+    }
+}
