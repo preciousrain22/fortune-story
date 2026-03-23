@@ -40,7 +40,9 @@
         <div class="container">
             <div class="section-header text-center">
                 <h2 class="obangsaek-text">운명의 문을 선택하세요</h2>
-                <p>당신의 미래를 안내할 길을 선택해주세요.</p>
+                <p style="color: #FFE082; font-weight: bold; margin-bottom: 5px; font-size: 1.1rem;">"누구에게나 똑같이 나오는 공장형
+                    운세가 아닙니다."</p>
+                <p style="color: #e0e0e0;">상위 0.1%를 위해 생성형 AI가 실시간으로 집필하는 1:1 맞춤형 프리미엄 리포트</p>
             </div>
             <div class="gateway-grid">
                 <div class="gateway-card saju-card" onclick="selectPath('saju')">
@@ -91,6 +93,15 @@
                         마음속 얽힌 고민과 다가올 미래의 해답을 찾습니다.
                     </div>
                 </div>
+            </div>
+
+            <div
+                style="text-align: center; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: #a980d9; font-size: 1.1rem; margin-bottom: 1.5rem;">매일 아침 찾아오는 나만의 행운 메시지 💌</p>
+                <button onclick="loginWithKakao()" class="btn-premium kakao"
+                    style="width: auto; padding: 0 2rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.2);">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오로 1초 만에 시작하기 (무료)
+                </button>
             </div>
         </div>
     </section>
@@ -215,9 +226,11 @@
     <section id="tarot" class="section-padding" style="display: none;">
         <div class="container input-container">
             <div class="section-header text-center tarot-header">
-                <h2 style="color: #D3B8F8; letter-spacing: 2px; text-shadow: 0 0 15px rgba(211,184,248,0.3);">영혼의 거울, 타로
+                <h2 style="color: #D3B8F8; letter-spacing: 2px; text-shadow: 0 0 15px rgba(211,184,248,0.3);">영혼의
+                    거울, 타로
                     파빌리온</h2>
-                <p style="color: #a980d9; line-height: 1.8;">우주의 기운이 당신의 진심에 응답할 수 있도록,<br>마음속 깊은 고민과 질문을 구체적으로 적어주세요.
+                <p style="color: #a980d9; line-height: 1.8;">우주의 기운이 당신의 진심에 응답할 수 있도록,<br>마음속 깊은 고민과 질문을 구체적으로
+                    적어주세요.
                 </p>
             </div>
 
@@ -240,7 +253,8 @@
                 </div>
 
                 <div class="form-group" style="width: 100%;">
-                    <label for="tarotConcern" style="color: #D3B8F8; margin-bottom: 0.8rem; display: block;">자세한 고민 내용
+                    <label for="tarotConcern" style="color: #D3B8F8; margin-bottom: 0.8rem; display: block;">자세한 고민
+                        내용
                         (최소 30자 이상)</label>
                     <textarea id="tarotConcern" class="tarot-textarea" rows="6"
                         placeholder="예: 최근 시작한 일터에서 동료들과의 관계가 약간 어렵습니다. 제가 어떻게 행동하는 것이 좋을까요? 조만간 상황이 나아질까요?"
@@ -405,6 +419,16 @@
             <div class="result-content" id="resultContent">
             </div>
             <div class="result-actions no-print">
+                <div
+                    style="background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(138,103,28,0.2) 100%); border: 1px solid #D4AF37; border-radius: 12px; padding: 2rem; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                    <h4 style="color: #FFE082; margin-bottom: 0.5rem; font-size: 1.3rem;">✨ 나만의 맞춤 황금 부적 (디지털)</h4>
+                    <p style="color: #E8D080; font-size: 0.95rem; margin-bottom: 1.5rem;">이 좋은 기운을 1년 내내 간직하세요. 스마트폰
+                        배경화면용 초고화질 부적을 즉시 발급해 드립니다.</p>
+                    <button class="btn-premium pulse-btn"
+                        style="background: linear-gradient(135deg, #D4AF37, #AA7C11); color: #000 !important; width: 100%; max-width: 300px; border: none; font-weight: 900;"
+                        onclick="alert('토스페이먼츠 심사 완료 후 자동 결제창(+4,900원)이 연동될 예정입니다.')">부적 다운로드 (+4,900원)</button>
+                </div>
+
                 <p class="action-label">이 사주 명식을 소장하시겠습니까?</p>
                 <div class="buttons-row">
                     <button class="btn-premium outline" id="savePdfBtn">📄 PDF로 저장</button>
@@ -442,7 +466,8 @@
                     <a href="privacy.html" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[개인정보처리방침]</a>
                     <a href="terms.html#refund" style="color: #FFE082; text-decoration: none; margin: 0 8px;">[환불규정]</a>
                 </div>
-                <p style="margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.4);">&copy; 2026 Fortune Story. All
+                <p style="margin: 0; font-size: 0.8rem; color: rgba(255,255,255,0.4);">&copy; 2026 Fortune Story.
+                    All
                     rights reserved.</p>
             </div>
         </div>

@@ -1073,3 +1073,31 @@ ${specificInstructions}
         }
     };
 });
+
+window.loginWithKakao = function () {
+    if (!Kakao.isInitialized()) {
+        Kakao.init('a5c28b4d706bced99d7282a87113ec82'); // 진우님의 카카오 키
+    }
+
+    Kakao.Auth.login({
+        success: function (authObj) {
+            // 로그인 성공 시 유저 정보 가져오기
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function (res) {
+                    const userName = res.kakao_account.profile.nickname;
+                    // 성공 메시지 및 미끼 기능 안내 (추후 무료 타로 기능 연결)
+                    alert(userName + "님 환영합니다! 🎉\n성공적으로 로그인되었습니다.\n\n(회원가입 DB 수집 완료: " + userName + ")\n현재 무료 행운 타로 기능은 오픈 준비 중입니다.");
+                },
+                fail: function (error) {
+                    console.error('사용자 정보 요청 실패', error);
+                    alert('정보를 불러오는데 실패했습니다.');
+                }
+            });
+        },
+        fail: function (err) {
+            console.error('로그인 실패', err);
+            alert('카카오 로그인에 실패했습니다. 다시 시도해주세요.');
+        }
+    });
+};
