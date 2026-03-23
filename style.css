@@ -2023,3 +2023,142 @@ p {
         min-width: 45% !important;
     }
 }
+
+.amulet-upsell-box {
+    background: linear-gradient(135deg, rgba(30, 2, 2, 0.4) 0%, rgba(10, 0, 0, 0.6) 100%) !important;
+    border: 2px solid #AA7C11 !important;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(170, 124, 17, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.amulet-upsell-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+    animation: auraRotate 20s linear infinite;
+    pointer-events: none;
+}
+
+.amulet-result-box {
+    display: none;
+    margin-bottom: 3rem;
+    text-align: center;
+    animation: fadeInUp 1s forwards;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 16px;
+    border: 1px solid rgba(170, 124, 17, 0.3);
+}
+
+.premium-amulet {
+    width: 260px;
+    height: 440px;
+    margin: 0 auto 2.5rem auto;
+    /* 전통 한지 배경 느낌 */
+    background: #E8D080 !important;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiPjxnIGZpbGwtb25hY2l0eT0iMC4wNSIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGg0djRoLTR6Ii8+PHBhdGggZD0iTTAgMGgxdjFIMC96TTEgMWgxdjFIMS96TTIgMmgxdjFIMi96TTMgM2gxdjFIMy96Ii8+PC9nPjwvc3ZnPg==') !important;
+    border: 3px solid #8A671C;
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    font-family: 'Batang', 'Nanum Myeongjo', serif;
+    overflow: hidden;
+}
+
+.premium-amulet::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 2px solid #8B0000;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.amulet-traditional-title {
+    color: #8B0000;
+    font-size: 1.1rem;
+    margin-top: 15px;
+    letter-spacing: 4px;
+    font-weight: 900;
+    text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.3);
+}
+
+.amulet-mystic-symbol {
+    width: 130px;
+    height: auto;
+    margin: 30px auto;
+    display: block;
+    animation: amuletGlow 4s ease-in-out infinite;
+}
+
+.amulet-personal-text {
+    color: #000;
+    font-size: 1.05rem;
+    margin-top: 10px;
+    font-weight: bold;
+    text-shadow: 0.5px 0.5px 0px rgba(255, 255, 255, 0.5);
+}
+
+.amulet-official-seal {
+    margin-top: 25px;
+    display: inline-block;
+    color: #ef4444;
+    border: 2px solid #ef4444;
+    padding: 3px 7px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    transform: rotate(-5deg);
+    letter-spacing: 1px;
+    box-shadow: inset 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+
+@keyframes auraRotate {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes amuletGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 1px rgba(139, 0, 0, 0.4));
+        opacity: 0.9;
+    }
+
+    50% {
+        filter: drop-shadow(0 0 5px rgba(139, 0, 0, 0.8));
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

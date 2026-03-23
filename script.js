@@ -1101,3 +1101,204 @@ window.loginWithKakao = function () {
         }
     });
 };
+// ==========================================
+// 부적 결제, 생성 및 카카오톡 전송 로직
+// ==========================================
+window.openAmuletPayment = function () {
+    const paymentModal = document.getElementById('paymentModal');
+    const paymentFortuneType = document.getElementById('paymentFortuneType');
+    const paymentAmount = document.getElementById('paymentAmount');
+    const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    paymentFortuneType.textContent = "맞춤 영험 부적 (디지털)";
+    paymentAmount.textContent = "4,900원";
+    paymentModal.style.display = 'flex';
+
+    closeModalBtn.onclick = () => paymentModal.style.display = 'none';
+
+    confirmPaymentBtn.onclick = () => {
+        confirmPaymentBtn.textContent = "맞춤 부적 그리는 중...";
+        confirmPaymentBtn.disabled = true;
+
+        setTimeout(() => {
+            paymentModal.style.display = 'none';
+            confirmPaymentBtn.textContent = "결제하기";
+            confirmPaymentBtn.disabled = false;
+            generateAndShowAmulet();
+        }, 1500);
+    };
+};
+
+window.generateAndShowAmulet = function () {
+    const upsellSection = document.getElementById('amuletUpsellSection');
+    if (upsellSection) upsellSection.style.display = 'none';
+
+    const titleEl = document.getElementById('resultTitle');
+    let userName = "고객";
+    if (titleEl && titleEl.textContent.includes('님을 위해')) {
+        userName = titleEl.textContent.split('님을 위해')[0].trim();
+    }
+
+    const amuletType = "만사형통 금전 수호부";
+    const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
+
+    const amuletHTML = `
+            <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px;">
+                <h4 style="color: #FFE082; margin-bottom: 2rem; font-size: 1.25rem;">✨ ${userName}님만의 영험 부적이 완성되었습니다</h4>
+                
+                <div id="amuletImage" style="width: 260px; height: 440px; margin: 0 auto 2.5rem auto; background: #E8D080; border: 3px solid #8A671C; padding: 15px; text-align: center; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.2); position: relative; font-family: 'Batang', 'Nanum Myeongjo', serif; overflow: hidden;">
+                    <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 2px solid #8B0000; pointer-events: none; opacity: 0.7;"></div>
+                    <div style="color: #8B0000; font-size: 1.1rem; margin-top: 15px; letter-spacing: 4px; font-weight: 900;">[ 萬事亨通 ]</div>
+                    <div style="color: #333; font-size: 0.8rem; margin-top: 8px; font-family: 'Noto Sans KR', sans-serif;">${amuletType}</div>
+                    
+                    <svg style="width: 130px; height: auto; margin: 30px auto; display: block; filter: drop-shadow(0 0 3px rgba(139,0,0,0.5));" viewBox="0 0 100 130">
+                        <path d="M50 10 Q60 5 70 15 T50 35 T30 55 T70 75 T50 120" stroke="#8B0000" stroke-width="5" fill="none"/>
+                        <circle cx="50" cy="20" r="6" fill="#8B0000"/>
+                        <circle cx="50" cy="110" r="6" fill="#8B0000"/>
+                        <path d="M20 60 Q50 30 80 60" stroke="#8B0000" stroke-width="4" fill="none" stroke-dasharray="6 6"/>
+                    </svg>
+
+                    <div style="color: #000; font-size: 1.05rem; margin-top: 10px; font-weight: bold;">${userName} 님의</div>
+                    <div style="color: #333; font-size: 0.85rem; margin-top: 10px; line-height: 1.6; font-family: 'Noto Sans KR', sans-serif;">
+                        ${effectDesc}
+                    </div>
+                    <div style="margin-top: 25px; display: inline-block; color: #ef4444; border: 2px solid #ef4444; padding: 3px 7px; font-weight: 900; font-size: 0.8rem; transform: rotate(-5deg); letter-spacing: 1px;">포춘<br>스토리</div>
+                </div>
+
+                <button class="btn-premium kakao pulse-btn" style="width: auto; padding: 0 2rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.3);" onclick="sendAmuletToKakao('${userName}', '${amuletType}')">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오톡으로 부적 발급받기
+                </button>
+            </div>
+        `;
+
+    const resultSection = document.getElementById('amuletResultSection');
+    if (resultSection) {
+        resultSection.innerHTML = amuletHTML;
+        resultSection.style.display = 'block';
+    }
+};
+
+window.sendAmuletToKakao = function (userName, amuletType) {
+    if (!Kakao.isInitialized()) {
+        Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+    }
+
+    Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
+            description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
+            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+        },
+        buttons: [
+            { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
+        ],
+        callback: function () {
+            alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
+        },
+    });
+};
+// ==========================================
+// 부적 결제, 생성 및 카카오톡 전송 로직
+// ==========================================
+window.openAmuletPayment = function () {
+    const paymentModal = document.getElementById('paymentModal');
+    const paymentFortuneType = document.getElementById('paymentFortuneType');
+    const paymentAmount = document.getElementById('paymentAmount');
+    const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    paymentFortuneType.textContent = "맞춤 영험 부적 (디지털)";
+    paymentAmount.textContent = "4,900원";
+    paymentModal.style.display = 'flex';
+
+    closeModalBtn.onclick = () => paymentModal.style.display = 'none';
+
+    confirmPaymentBtn.onclick = () => {
+        confirmPaymentBtn.textContent = "맞춤 부적 그리는 중...";
+        confirmPaymentBtn.disabled = true;
+
+        setTimeout(() => {
+            paymentModal.style.display = 'none';
+            confirmPaymentBtn.textContent = "결제하기";
+            confirmPaymentBtn.disabled = false;
+            generateAndShowAmulet();
+        }, 1500);
+    };
+};
+
+window.generateAndShowAmulet = function () {
+    const upsellSection = document.getElementById('amuletUpsellSection');
+    if (upsellSection) upsellSection.style.display = 'none';
+
+    const titleEl = document.getElementById('resultTitle');
+    let userName = "고객";
+    if (titleEl && titleEl.textContent.includes('님을 위해')) {
+        userName = titleEl.textContent.split('님을 위해')[0].trim();
+    }
+
+    const amuletType = "만사형통 금전 수호부";
+    const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
+
+    const amuletHTML = `
+            <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px;">
+                <h4 style="color: #FFE082; margin-bottom: 2rem; font-size: 1.25rem;">✨ ${userName}님만의 영험 부적이 완성되었습니다</h4>
+                
+                <div id="amuletImage" style="width: 260px; height: 440px; margin: 0 auto 2.5rem auto; background: #E8D080; border: 3px solid #8A671C; padding: 15px; text-align: center; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.2); position: relative; font-family: 'Batang', 'Nanum Myeongjo', serif; overflow: hidden;">
+                    <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 2px solid #8B0000; pointer-events: none; opacity: 0.7;"></div>
+                    <div style="color: #8B0000; font-size: 1.1rem; margin-top: 15px; letter-spacing: 4px; font-weight: 900;">[ 萬事亨通 ]</div>
+                    <div style="color: #333; font-size: 0.8rem; margin-top: 8px; font-family: 'Noto Sans KR', sans-serif;">${amuletType}</div>
+                    
+                    <svg style="width: 130px; height: auto; margin: 30px auto; display: block; filter: drop-shadow(0 0 3px rgba(139,0,0,0.5));" viewBox="0 0 100 130">
+                        <path d="M50 10 Q60 5 70 15 T50 35 T30 55 T70 75 T50 120" stroke="#8B0000" stroke-width="5" fill="none"/>
+                        <circle cx="50" cy="20" r="6" fill="#8B0000"/>
+                        <circle cx="50" cy="110" r="6" fill="#8B0000"/>
+                        <path d="M20 60 Q50 30 80 60" stroke="#8B0000" stroke-width="4" fill="none" stroke-dasharray="6 6"/>
+                    </svg>
+
+                    <div style="color: #000; font-size: 1.05rem; margin-top: 10px; font-weight: bold;">${userName} 님의</div>
+                    <div style="color: #333; font-size: 0.85rem; margin-top: 10px; line-height: 1.6; font-family: 'Noto Sans KR', sans-serif;">
+                        ${effectDesc}
+                    </div>
+                    
+                    <div style="margin-top: 20px; display: inline-block; width: 40px; height: 40px; color: #b91c1c; border: 3px solid #b91c1c; border-radius: 4px; font-weight: 900; font-size: 1rem; font-family: 'Batang', serif; transform: rotate(-3deg); line-height: 1.1; padding: 2px; background: rgba(255,255,255,0.1); box-shadow: 1px 1px 3px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(185, 28, 28, 0.2);">
+                        天命<br>之印
+                    </div>
+                </div>
+
+                <button class="btn-premium kakao pulse-btn" style="width: auto; padding: 0 2rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.3);" onclick="sendAmuletToKakao('${userName}', '${amuletType}')">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오톡으로 부적 발급받기
+                </button>
+            </div>
+        `;
+
+    const resultSection = document.getElementById('amuletResultSection');
+    if (resultSection) {
+        resultSection.innerHTML = amuletHTML;
+        resultSection.style.display = 'block';
+    }
+};
+
+window.sendAmuletToKakao = function (userName, amuletType) {
+    if (!Kakao.isInitialized()) {
+        Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+    }
+
+    Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
+            description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
+            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+        },
+        buttons: [
+            { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
+        ],
+        callback: function () {
+            alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
+        },
+    });
+};

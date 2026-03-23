@@ -361,11 +361,48 @@
                 style="color: #EEDCFF; line-height: 1.8; text-align: left; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(179, 136, 235, 0.2); margin-top: 2rem;">
             </div>
 
-            <div class="result-actions no-print" style="margin-top: 3rem; text-align: center;">
-                <button class="btn-outline-tarot" onclick="location.reload()"
-                    style="padding: 10px 30px; border-radius: 50px;">처음으로 돌아가기</button>
+            <div class="result-actions no-print">
+                <div id="amuletUpsellSection" class="amulet-upsell-box no-print"
+                    style="background: linear-gradient(135deg, rgba(30, 2, 2, 0.4) 0%, rgba(10, 0, 0, 0.6) 100%); border: 1px solid rgba(212,175,55,0.4); border-radius: 12px; padding: 3rem 2rem; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <h4 style="color: #FFE082; margin-bottom: 1rem; font-size: 1.3rem; font-weight: 700;">✨ 나만의 맞춤 영험 부적
+                        (선택 사항)</h4>
+                    <p style="color: #c5a059; font-size: 0.95rem; margin-bottom: 2rem;">모든 운세 분석이 완료되었습니다. 이 기운을 곁에 간직하고
+                        싶으신 분들께만 특별 제작해 드립니다.</p>
+
+                    <div
+                        style="position: relative; width: 140px; height: 230px; margin: 0 auto 2rem auto; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212,175,55,0.3); background: #E8D080;">
+                        <div
+                            style="width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.5));">
+                        </div>
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3;">
+                            <svg width="60" height="90" viewBox="0 0 100 130">
+                                <path d="M50 10 Q60 5 70 15 T50 35 T30 55 T70 75 T50 120" stroke="#8B0000"
+                                    stroke-width="6" fill="none" />
+                            </svg>
+                        </div>
+                        <div
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);">
+                        </div>
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; text-shadow: 0 0 15px rgba(255,223,115,0.8);">
+                            🔮
+                        </div>
+                    </div>
+
+                    <p style="color: #e0e0e0; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">AI가 사주 오행을
+                        즉시 분석하여 부족한 기운을 채워주는<br><strong>세상에 단 하나뿐인 디지털 부적</strong>을 그려냅니다.</p>
+
+                    <button class="btn-premium pulse-btn"
+                        style="background: linear-gradient(135deg, #D4AF37, #AA7C11); color: #000 !important; width: 100%; max-width: 320px; border: none; font-weight: 900; box-shadow: 0 0 20px rgba(212,175,55,0.2);"
+                        onclick="openAmuletPayment()">프리미엄 부적 제작하기 (+4,900원)</button>
+                </div>
+
+                <div id="amuletResultSection"
+                    style="display: none; margin-bottom: 3rem; text-align: center; animation: fadeInUp 1s forwards;">
+                </div>
+                <p class="action-label">이 사주 명식을 소장하시겠습니까?</p>
             </div>
-        </div>
     </section>
 
     <div id="paymentModal" class="modal-overlay" style="display: none;">
@@ -418,24 +455,51 @@
             </div>
             <div class="result-content" id="resultContent">
             </div>
-            <div class="result-actions no-print">
+            <div id="amuletUpsellSection" class="amulet-upsell-box no-print"
+                style="background: linear-gradient(135deg, rgba(30, 2, 2, 0.4) 0%, rgba(10, 0, 0, 0.6) 100%); border: 1px solid rgba(212,175,55,0.4); border-radius: 12px; padding: 3rem 2rem; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <h4 style="color: #FFE082; margin-bottom: 1rem; font-size: 1.3rem; font-weight: 700;">✨ 나만의 맞춤 영험 부적 (선택
+                    사항)</h4>
+                <p style="color: #c5a059; font-size: 0.95rem; margin-bottom: 2rem;">모든 운세 분석이 완료되었습니다. 이 기운을 곁에 간직하고 싶으신
+                    분들께만 특별 제작해 드립니다.</p>
+
                 <div
-                    style="background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(138,103,28,0.2) 100%); border: 1px solid #D4AF37; border-radius: 12px; padding: 2rem; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
-                    <h4 style="color: #FFE082; margin-bottom: 0.5rem; font-size: 1.3rem;">✨ 나만의 맞춤 황금 부적 (디지털)</h4>
-                    <p style="color: #E8D080; font-size: 0.95rem; margin-bottom: 1.5rem;">이 좋은 기운을 1년 내내 간직하세요. 스마트폰
-                        배경화면용 초고화질 부적을 즉시 발급해 드립니다.</p>
-                    <button class="btn-premium pulse-btn"
-                        style="background: linear-gradient(135deg, #D4AF37, #AA7C11); color: #000 !important; width: 100%; max-width: 300px; border: none; font-weight: 900;"
-                        onclick="alert('토스페이먼츠 심사 완료 후 자동 결제창(+4,900원)이 연동될 예정입니다.')">부적 다운로드 (+4,900원)</button>
+                    style="position: relative; width: 140px; height: 230px; margin: 0 auto 2rem auto; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212,175,55,0.3); background: #E8D080;">
+                    <div
+                        style="width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.5));">
+                    </div>
+                    <div
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3;">
+                        <svg width="60" height="90" viewBox="0 0 100 130">
+                            <path d="M50 10 Q60 5 70 15 T50 35 T30 55 T70 75 T50 120" stroke="#8B0000" stroke-width="6"
+                                fill="none" />
+                        </svg>
+                    </div>
+                    <div
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);">
+                    </div>
+                    <div
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; text-shadow: 0 0 15px rgba(255,223,115,0.8);">
+                        🔮
+                    </div>
                 </div>
 
-                <p class="action-label">이 사주 명식을 소장하시겠습니까?</p>
-                <div class="buttons-row">
-                    <button class="btn-premium outline" id="savePdfBtn">📄 PDF로 저장</button>
-                    <button class="btn-premium kakao" id="shareKakaoBtn">💬 카카오톡 공유</button>
-                    <button class="btn-premium outline" onclick="location.reload()">🔄 다른 운세 확인</button>
-                </div>
+                <p style="color: #e0e0e0; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">AI가 고객님의 사주 오행을
+                    즉시 분석하여 부족한 기운을 채워주는<br><strong>세상에 단 하나뿐인 디지털 부적</strong>을 그려냅니다.</p>
+
+                <button class="btn-premium pulse-btn"
+                    style="background: linear-gradient(135deg, #D4AF37, #AA7C11); color: #000 !important; width: 100%; max-width: 320px; border: none; font-weight: 900; box-shadow: 0 0 20px rgba(212,175,55,0.2);"
+                    onclick="openAmuletPayment()">프리미엄 부적 제작하기 (+4,900원)</button>
             </div>
+
+            <div id="amuletResultSection"
+                style="display: none; margin-bottom: 3rem; text-align: center; animation: fadeInUp 1s forwards;">
+            </div>
+            <div class="buttons-row">
+                <button class="btn-premium outline" id="savePdfBtn">📄 PDF로 저장</button>
+                <button class="btn-premium kakao" id="shareKakaoBtn">💬 카카오톡 공유</button>
+                <button class="btn-premium outline" onclick="location.reload()">🔄 다른 운세 확인</button>
+            </div>
+        </div>
         </div>
     </section>
 
@@ -474,35 +538,6 @@
     </footer>
 
     <script src="script.js"></script>
-    <div
-        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 280px; height: 450px; background: linear-gradient(135deg, #1a0b14 0%, #3a1525 100%); border: 2px solid #D4AF37; padding: 20px; text-align: center; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); font-family: 'Batang', 'Nanum Myeongjo', serif;">
-        <div
-            style="position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px; border: 1px dashed rgba(212, 175, 55, 0.5); pointer-events: none;">
-        </div>
-
-        <div style="color: #FFDF73; font-size: 1.2rem; margin-top: 20px; letter-spacing: 3px; font-weight: 900;">[ 萬事亨通
-            ]</div>
-        <div style="color: #e0e0e0; font-size: 0.85rem; margin-top: 8px; font-family: 'Noto Sans KR', sans-serif;">만사형통
-            금전 수호부</div>
-
-        <div
-            style="font-size: 5.5rem; color: #D4AF37; margin: 40px 0; text-shadow: 0 0 25px rgba(212, 175, 55, 0.6); font-weight: normal; line-height: 1;">
-            福</div>
-
-        <div style="color: #e0e0e0; font-size: 1.1rem; margin-top: 10px; font-weight: bold;">이진우 님의</div>
-        <div
-            style="color: #FFDF73; font-size: 0.85rem; margin-top: 10px; line-height: 1.6; font-family: 'Noto Sans KR', sans-serif;">
-            부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운
-        </div>
-
-        <div
-            style="margin-top: 35px; display: inline-block; color: #ef4444; border: 2px solid #ef4444; padding: 4px 8px; font-weight: 900; font-size: 0.9rem; transform: rotate(-5deg); letter-spacing: 1px; box-shadow: inset 0 0 5px rgba(239, 68, 68, 0.3);">
-            포춘<br>스토리
-        </div>
-
-        <button onclick="this.parentElement.style.display='none'"
-            style="position: absolute; top: -10px; right: -10px; background: #333; color: white; border: 1px solid #D4AF37; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 12px;">X</button>
-    </div>
 </body>
 
 </html>
