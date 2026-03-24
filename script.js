@@ -1090,7 +1090,7 @@ window.loginWithKakao = function () {
                 success: function (res) {
                     const userName = res.kakao_account.profile.nickname;
                     // 👇 고객용 우아한 환영 메시지로 변경 (DB 수집 멘트 삭제) 👇
-                    alert(userName + "님 환영합니다! 🎉\n성공적으로 로그인되었습니다.\n\n매일 아침 찾아오는 [무료 행운 타로] 기능은 현재 오픈 준비 중입니다. 조금만 기다려주세요!");
+                    alert(userName + "님 환영합니다! 🎉\n성공적으로 로그인되었습니다.");
                 },
                 fail: function (error) {
                     console.error('사용자 정보 요청 실패', error);
