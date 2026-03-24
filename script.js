@@ -1,3 +1,8 @@
+// 👇 결제 후 로딩 중 이탈 방지용 자물쇠 함수 👇
+function preventExit(e) {
+    e.preventDefault();
+    e.returnValue = '결제가 완료되어 분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
+}
 document.addEventListener('DOMContentLoaded', () => {
     // Gateway Path Selection Logic
     window.selectPath = function (path) {
@@ -350,6 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingTitle = document.getElementById('tarotLoadingTitle');
         const loadingMessage = document.getElementById('tarotLoadingMessage');
 
+        // 🔒 [추가] 브라우저 이탈(새로고침/뒤로가기) 방지 잠금!
+        window.addEventListener('beforeunload', preventExit);
+
         document.body.style.overflow = 'hidden';
         if (loadingScreen) loadingScreen.style.display = 'flex';
 
@@ -377,11 +385,19 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(msgInterval);
             if (loadingScreen) loadingScreen.style.display = 'none';
             document.body.style.overflow = 'auto';
+
+            // 🔓 [추가] 분석 완료! 잠금 해제
+            window.removeEventListener('beforeunload', preventExit);
+
             showTarotResult(result);
         }).catch(err => {
             clearInterval(msgInterval);
             if (loadingScreen) loadingScreen.style.display = 'none';
             document.body.style.overflow = 'auto';
+
+            // 🔓 [추가] 에러 발생! 잠금 해제
+            window.removeEventListener('beforeunload', preventExit);
+
             alert("타로 리딩 중 오류가 발생했습니다: " + err.message);
         });
     }
@@ -638,6 +654,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingTitle = document.getElementById('loadingTitle');
         const loadingMessage = document.getElementById('loadingMessage');
 
+        // 🔒 [추가] 브라우저 이탈(새로고침/뒤로가기) 방지 잠금!
+        window.addEventListener('beforeunload', preventExit);
+
         document.body.style.overflow = 'hidden';
         if (loadingScreen) loadingScreen.style.display = 'flex';
         if (loadingTitle) loadingTitle.innerHTML = `'${name}'님의 <span class="obangsaek-text">${typeName}</span> 분석 진행 중...`;
@@ -664,13 +683,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(msgInterval);
                 if (loadingScreen) loadingScreen.style.display = 'none';
                 document.body.style.overflow = 'auto';
+
+                // 🔓 [추가] 분석 완료! 잠금 해제
+                window.removeEventListener('beforeunload', preventExit);
+
                 showFinalResult(name, typeName, year, month, day, aiResultHTML);
             })
             .catch(err => {
                 clearInterval(msgInterval);
                 if (loadingScreen) loadingScreen.style.display = 'none';
                 document.body.style.overflow = 'auto';
-                alert("현재 AI 분석 서버에 일시적인 트래픽이 몰려 접속이 지연되고 있습니다.\n고객님의 결제는 안전하게 취소(또는 보류)되었으니, 잠시 후 다시 시도해주세요.");
+
+                // 🔓 [추가] 에러 발생! 잠금 해제
+                window.removeEventListener('beforeunload', preventExit);
+
+                alert("현재 분석중 서버에 일시적인 트래픽이 몰려 접속이 지연되고 있습니다.\n고객님의 결제는 안전하게 취소(또는 보류)되었으니, 잠시 후 다시 시도해주세요.");
             });
     }
 
