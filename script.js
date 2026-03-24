@@ -1148,32 +1148,44 @@ window.openAmuletPayment = function () {
     closeModalBtn.onclick = () => paymentModal.style.display = 'none';
 
     confirmPaymentBtn.onclick = () => {
-        confirmPaymentBtn.textContent = "맞춤 부적 그리는 중...";
+        confirmPaymentBtn.textContent = "결제창 여는 중...";
         confirmPaymentBtn.disabled = true;
 
-        setTimeout(() => {
-            paymentModal.style.display = 'none';
-            confirmPaymentBtn.textContent = "결제하기";
-            confirmPaymentBtn.disabled = false;
-            generateAndShowAmulet();
-        }, 1500);
+        // 1. 진우님의 진짜 테스트 키로 토스페이먼츠 연결
+        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+
+        // 2. 카드 결제창 강제 호출!
+        tossPayments.requestPayment('카드', {
+            amount: currentPrice,
+            orderId: 'saju_' + new Date().getTime(),
+            orderName: displayTypeName,
+            customerName: name,
+            successUrl: window.location.href, // 심사용 임시 주소
+            failUrl: window.location.href,    // 심사용 임시 주소
+        }).catch(function (error) {
+            if (error.code === 'USER_CANCEL') {
+                paymentModal.style.display = 'none';
+                confirmPaymentBtn.textContent = "결제하기";
+                confirmPaymentBtn.disabled = false;
+                startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus);
+            }
+        });
     };
-};
 
-window.generateAndShowAmulet = function () {
-    const upsellSection = document.getElementById('amuletUpsellSection');
-    if (upsellSection) upsellSection.style.display = 'none';
+    window.generateAndShowAmulet = function () {
+        const upsellSection = document.getElementById('amuletUpsellSection');
+        if (upsellSection) upsellSection.style.display = 'none';
 
-    const titleEl = document.getElementById('resultTitle');
-    let userName = "고객";
-    if (titleEl && titleEl.textContent.includes('님을 위해')) {
-        userName = titleEl.textContent.split('님을 위해')[0].trim();
-    }
+        const titleEl = document.getElementById('resultTitle');
+        let userName = "고객";
+        if (titleEl && titleEl.textContent.includes('님을 위해')) {
+            userName = titleEl.textContent.split('님을 위해')[0].trim();
+        }
 
-    const amuletType = "만사형통 금전 수호부";
-    const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
+        const amuletType = "만사형통 금전 수호부";
+        const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
 
-    const amuletHTML = `
+        const amuletHTML = `
             <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px;">
                 <h4 style="color: #FFE082; margin-bottom: 2rem; font-size: 1.25rem;">✨ ${userName}님만의 영험 부적이 완성되었습니다</h4>
                 
@@ -1202,77 +1214,77 @@ window.generateAndShowAmulet = function () {
             </div>
         `;
 
-    const resultSection = document.getElementById('amuletResultSection');
-    if (resultSection) {
-        resultSection.innerHTML = amuletHTML;
-        resultSection.style.display = 'block';
-    }
-};
-
-window.sendAmuletToKakao = function (userName, amuletType) {
-    if (!Kakao.isInitialized()) {
-        Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-    }
-
-    Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-            title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
-            description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
-            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-        },
-        buttons: [
-            { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
-        ],
-        callback: function () {
-            alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
-        },
-    });
-};
-// ==========================================
-// 부적 결제, 생성 및 카카오톡 전송 로직
-// ==========================================
-window.openAmuletPayment = function () {
-    const paymentModal = document.getElementById('paymentModal');
-    const paymentFortuneType = document.getElementById('paymentFortuneType');
-    const paymentAmount = document.getElementById('paymentAmount');
-    const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
-    const closeModalBtn = document.querySelector('.close-modal');
-
-    paymentFortuneType.textContent = "맞춤 영험 부적 (디지털)";
-    paymentAmount.textContent = "4,900원";
-    paymentModal.style.display = 'flex';
-
-    closeModalBtn.onclick = () => paymentModal.style.display = 'none';
-
-    confirmPaymentBtn.onclick = () => {
-        confirmPaymentBtn.textContent = "맞춤 부적 그리는 중...";
-        confirmPaymentBtn.disabled = true;
-
-        setTimeout(() => {
-            paymentModal.style.display = 'none';
-            confirmPaymentBtn.textContent = "결제하기";
-            confirmPaymentBtn.disabled = false;
-            generateAndShowAmulet();
-        }, 1500);
+        const resultSection = document.getElementById('amuletResultSection');
+        if (resultSection) {
+            resultSection.innerHTML = amuletHTML;
+            resultSection.style.display = 'block';
+        }
     };
-};
 
-window.generateAndShowAmulet = function () {
-    const upsellSection = document.getElementById('amuletUpsellSection');
-    if (upsellSection) upsellSection.style.display = 'none';
+    window.sendAmuletToKakao = function (userName, amuletType) {
+        if (!Kakao.isInitialized()) {
+            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+        }
 
-    const titleEl = document.getElementById('resultTitle');
-    let userName = "고객";
-    if (titleEl && titleEl.textContent.includes('님을 위해')) {
-        userName = titleEl.textContent.split('님을 위해')[0].trim();
-    }
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
+                description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
+                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+            },
+            buttons: [
+                { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
+            ],
+            callback: function () {
+                alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
+            },
+        });
+    };
+    // ==========================================
+    // 부적 결제, 생성 및 카카오톡 전송 로직
+    // ==========================================
+    window.openAmuletPayment = function () {
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentFortuneType = document.getElementById('paymentFortuneType');
+        const paymentAmount = document.getElementById('paymentAmount');
+        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+        const closeModalBtn = document.querySelector('.close-modal');
 
-    const amuletType = "만사형통 금전 수호부";
-    const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
+        paymentFortuneType.textContent = "맞춤 영험 부적 (디지털)";
+        paymentAmount.textContent = "4,900원";
+        paymentModal.style.display = 'flex';
 
-    const amuletHTML = `
+        closeModalBtn.onclick = () => paymentModal.style.display = 'none';
+
+        confirmPaymentBtn.onclick = () => {
+            confirmPaymentBtn.textContent = "맞춤 부적 그리는 중...";
+            confirmPaymentBtn.disabled = true;
+
+            setTimeout(() => {
+                paymentModal.style.display = 'none';
+                confirmPaymentBtn.textContent = "결제하기";
+                confirmPaymentBtn.disabled = false;
+                generateAndShowAmulet();
+            }, 1500);
+        };
+    };
+
+    window.generateAndShowAmulet = function () {
+        const upsellSection = document.getElementById('amuletUpsellSection');
+        if (upsellSection) upsellSection.style.display = 'none';
+
+        const titleEl = document.getElementById('resultTitle');
+        let userName = "고객";
+        if (titleEl && titleEl.textContent.includes('님을 위해')) {
+            userName = titleEl.textContent.split('님을 위해')[0].trim();
+        }
+
+        const amuletType = "만사형통 금전 수호부";
+        const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
+
+        const amuletHTML = `
             <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px;">
                 <h4 style="color: #FFE082; margin-bottom: 2rem; font-size: 1.25rem;">✨ ${userName}님만의 영험 부적이 완성되었습니다</h4>
                 
@@ -1304,31 +1316,31 @@ window.generateAndShowAmulet = function () {
             </div>
         `;
 
-    const resultSection = document.getElementById('amuletResultSection');
-    if (resultSection) {
-        resultSection.innerHTML = amuletHTML;
-        resultSection.style.display = 'block';
-    }
-};
+        const resultSection = document.getElementById('amuletResultSection');
+        if (resultSection) {
+            resultSection.innerHTML = amuletHTML;
+            resultSection.style.display = 'block';
+        }
+    };
 
-window.sendAmuletToKakao = function (userName, amuletType) {
-    if (!Kakao.isInitialized()) {
-        Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-    }
+    window.sendAmuletToKakao = function (userName, amuletType) {
+        if (!Kakao.isInitialized()) {
+            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+        }
 
-    Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-            title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
-            description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
-            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-        },
-        buttons: [
-            { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
-        ],
-        callback: function () {
-            alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
-        },
-    });
-};
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: '[포춘스토리] ' + userName + '님 맞춤 황금 부적',
+                description: '기운을 채우고 액운을 막는 ' + amuletType + '입니다. 스마트폰 배경화면으로 간직하세요.',
+                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+            },
+            buttons: [
+                { title: '내 부적 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } },
+            ],
+            callback: function () {
+                alert('카카오톡으로 부적이 성공적으로 전송되었습니다! 💬\\n\\n카카오톡 앱에서 확인해 보세요.');
+            },
+        });
+    };
