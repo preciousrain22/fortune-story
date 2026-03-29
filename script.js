@@ -613,64 +613,78 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
 
         // ==========================================
-        // 🔮 [타로 전용] 텍스트 복사 및 공유 버튼 추가 (수정완료)
+        // 🔮 [타로 전용] 옛날 버튼 삭제 및 새 버튼 삽입
         // ==========================================
-        window.copyTarotText = function () {
-            const text = tarotResultContent.innerText || "";
-            const snippet = text.substring(0, 300) + "\n\n...\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
-            navigator.clipboard.writeText(snippet).then(() => {
-                alert("결과 내용이 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
-            }).catch(err => {
-                alert("복사 기능이 지원되지 않는 브라우저입니다.");
-            });
-        };
+        const tarotResultActions = document.querySelector('#tarotResult .result-actions');
+        if (tarotResultActions) {
+            // 옛날 HTML 껍데기 버튼 및 문구 흔적도 없이 삭제!
+            const oldRow = tarotResultActions.querySelector('.buttons-row');
+            if (oldRow) oldRow.remove();
+            const oldLabel = tarotResultActions.querySelector('.action-label');
+            if (oldLabel) oldLabel.remove();
+            const oldCustom = document.getElementById('tarotCustomBtnArea');
+            if (oldCustom) oldCustom.remove();
 
-        const tarotBtnArea = document.createElement('div');
-        tarotBtnArea.style.cssText = "margin-top: 3rem; text-align: center; border-top: 1px solid rgba(179, 136, 235, 0.2); padding-top: 2rem;";
-        tarotBtnArea.innerHTML = `
-            <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 타로 리딩 결과를 보관하시겠습니까?</p>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                <button class="btn-premium kakao" id="shareTarotKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유</button>
-                <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #D3B8F8; border: 1px solid #D3B8F8; height: 55px;" onclick="copyTarotText()">📋 텍스트 복사하기</button>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn-premium outline" id="saveTarotPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;">📄 PDF로 저장</button>
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 타로 보기</button>
-                </div>
-            </div>
-        `;
-        tarotResultContent.appendChild(tarotBtnArea);
-
-        // 타로 PDF 저장 버튼 명시적 이벤트 바인딩 및 인앱 브라우저 체크
-        const saveTarotPdfBtn = document.getElementById('saveTarotPdfBtn');
-        if (saveTarotPdfBtn) {
-            saveTarotPdfBtn.onclick = () => {
-                const ua = navigator.userAgent || navigator.vendor || window.opera;
-                if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
-                    alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\\n\\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
-                } else {
-                    window.print();
-                }
-            };
-        }
-
-        // 카카오톡 공유 이벤트 (타로)
-        const shareTarotKakaoBtn = document.getElementById('shareTarotKakaoBtn');
-        if (shareTarotKakaoBtn && typeof Kakao !== 'undefined') {
-            shareTarotKakaoBtn.onclick = () => {
-                if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-                const rawText = tarotResultContent.innerText;
-                const dynamicDesc = rawText.substring(0, 60).replace(/\n/g, ' ') + "...";
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '포춘스토리 프리미엄 타로 결과',
-                        description: dynamicDesc,
-                        imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                        link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-                    },
-                    buttons: [{ title: '내 타로 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+            // 텍스트 복사 기능
+            window.copyTarotText = function () {
+                const text = tarotResultContent.innerText || "";
+                const snippet = text.substring(0, 300) + "\n\n...\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
+                navigator.clipboard.writeText(snippet).then(() => {
+                    alert("결과 내용이 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
+                }).catch(err => {
+                    alert("복사 기능이 지원되지 않는 브라우저입니다.");
                 });
             };
+
+            // 진짜 작동하는 새로운 버튼 세트 생성
+            const tarotBtnArea = document.createElement('div');
+            tarotBtnArea.id = 'tarotCustomBtnArea';
+            tarotBtnArea.style.cssText = "margin-top: 1rem; text-align: center; border-top: 1px solid rgba(179, 136, 235, 0.2); padding-top: 2.5rem; padding-bottom: 2rem;";
+            tarotBtnArea.innerHTML = `
+                <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 타로 리딩 결과를 보관하시겠습니까?</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                    <button class="btn-premium kakao" id="shareTarotKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유 (내용 포함)</button>
+                    <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #D3B8F8; border: 1px solid #D3B8F8; height: 55px;" onclick="copyTarotText()">📋 텍스트 복사하기</button>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn-premium outline" id="saveTarotPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 타로 보기</button>
+                    </div>
+                </div>
+            `;
+            tarotResultActions.appendChild(tarotBtnArea);
+
+            // PDF 저장 버튼 클릭 이벤트 (인앱 브라우저 체크 포함)
+            const saveTarotPdfBtn = document.getElementById('saveTarotPdfBtn');
+            if (saveTarotPdfBtn) {
+                saveTarotPdfBtn.onclick = () => {
+                    const ua = navigator.userAgent || navigator.vendor || window.opera;
+                    if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
+                        alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\n\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
+                    } else {
+                        window.print();
+                    }
+                };
+            }
+
+            // 카카오톡 공유 이벤트 (진짜 내용이 전송되는 부분)
+            const shareTarotKakaoBtn = document.getElementById('shareTarotKakaoBtn');
+            if (shareTarotKakaoBtn && typeof Kakao !== 'undefined') {
+                shareTarotKakaoBtn.onclick = () => {
+                    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+                    const rawText = tarotResultContent.innerText;
+                    const dynamicDesc = rawText.substring(0, 60).replace(/\n/g, ' ') + "...";
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: '포춘스토리 프리미엄 타로 결과',
+                            description: dynamicDesc,
+                            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+                        },
+                        buttons: [{ title: '내 타로 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+                    });
+                };
+            }
         }
     }
 
@@ -862,64 +876,78 @@ ${specificInstructions}
         window.scrollTo(0, 0);
 
         // ==========================================
-        // 🔮 [사주 전용] 텍스트 복사 및 공유 버튼 추가 (수정완료)
+        // 🔮 [사주 전용] 옛날 버튼 삭제 및 새 버튼 삽입
         // ==========================================
-        window.copySajuText = function () {
-            const text = resultContent.innerText || "";
-            const snippet = text.substring(0, 300) + "\n\n...\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
-            navigator.clipboard.writeText(snippet).then(() => {
-                alert("결과 내용이 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
-            }).catch(err => {
-                alert("복사 기능이 지원되지 않는 브라우저입니다.");
-            });
-        };
+        const resultActions = document.querySelector('#result .result-actions');
+        if (resultActions) {
+            // 옛날 HTML 껍데기 버튼 및 문구 흔적도 없이 삭제!
+            const oldRow = resultActions.querySelector('.buttons-row');
+            if (oldRow) oldRow.remove();
+            const oldLabel = resultActions.querySelector('.action-label');
+            if (oldLabel) oldLabel.remove();
+            const oldCustom = document.getElementById('sajuCustomBtnArea');
+            if (oldCustom) oldCustom.remove();
 
-        const sajuBtnArea = document.createElement('div');
-        sajuBtnArea.style.cssText = "margin-top: 3rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;";
-        sajuBtnArea.innerHTML = `
-            <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 운세 결과를 보관하시겠습니까?</p>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                <button class="btn-premium kakao" id="shareSajuKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유</button>
-                <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copySajuText()">📋 텍스트 복사하기</button>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn-premium outline" id="saveSajuPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;">📄 PDF로 저장</button>
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
-                </div>
-            </div>
-        `;
-        resultContent.appendChild(sajuBtnArea);
-
-        // 사주 PDF 저장 버튼 명시적 이벤트 바인딩 및 인앱 브라우저 체크
-        const saveSajuPdfBtn = document.getElementById('saveSajuPdfBtn');
-        if (saveSajuPdfBtn) {
-            saveSajuPdfBtn.onclick = () => {
-                const ua = navigator.userAgent || navigator.vendor || window.opera;
-                if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
-                    alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\\n\\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
-                } else {
-                    window.print();
-                }
-            };
-        }
-
-        // 카카오톡 공유 이벤트 (사주)
-        const shareSajuKakaoBtn = document.getElementById('shareSajuKakaoBtn');
-        if (shareSajuKakaoBtn && typeof Kakao !== 'undefined') {
-            shareSajuKakaoBtn.onclick = () => {
-                if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-                const rawText = resultContent.innerText;
-                const dynamicDesc = rawText.substring(0, 60).replace(/\n/g, ' ') + "...";
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '포춘스토리 프리미엄 사주 결과',
-                        description: dynamicDesc,
-                        imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                        link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-                    },
-                    buttons: [{ title: '내 운세 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+            // 텍스트 복사 기능
+            window.copySajuText = function () {
+                const text = resultContent.innerText || "";
+                const snippet = text.substring(0, 300) + "\n\n...\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
+                navigator.clipboard.writeText(snippet).then(() => {
+                    alert("결과 내용이 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
+                }).catch(err => {
+                    alert("복사 기능이 지원되지 않는 브라우저입니다.");
                 });
             };
+
+            // 진짜 작동하는 새로운 버튼 세트 생성
+            const sajuBtnArea = document.createElement('div');
+            sajuBtnArea.id = 'sajuCustomBtnArea';
+            sajuBtnArea.style.cssText = "margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;";
+            sajuBtnArea.innerHTML = `
+                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 운세 결과를 보관하시겠습니까?</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                    <button class="btn-premium kakao" id="shareSajuKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유 (내용 포함)</button>
+                    <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copySajuText()">📋 텍스트 복사하기</button>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn-premium outline" id="saveSajuPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
+                    </div>
+                </div>
+            `;
+            resultActions.appendChild(sajuBtnArea);
+
+            // PDF 저장 버튼 클릭 이벤트 (인앱 브라우저 체크 포함)
+            const saveSajuPdfBtn = document.getElementById('saveSajuPdfBtn');
+            if (saveSajuPdfBtn) {
+                saveSajuPdfBtn.onclick = () => {
+                    const ua = navigator.userAgent || navigator.vendor || window.opera;
+                    if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
+                        alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\n\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
+                    } else {
+                        window.print();
+                    }
+                };
+            }
+
+            // 카카오톡 공유 이벤트 (진짜 내용이 전송되는 부분)
+            const shareSajuKakaoBtn = document.getElementById('shareSajuKakaoBtn');
+            if (shareSajuKakaoBtn && typeof Kakao !== 'undefined') {
+                shareSajuKakaoBtn.onclick = () => {
+                    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+                    const rawText = resultContent.innerText;
+                    const dynamicDesc = rawText.substring(0, 60).replace(/\n/g, ' ') + "...";
+                    Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: '포춘스토리 프리미엄 사주 결과',
+                            description: dynamicDesc,
+                            imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                            link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+                        },
+                        buttons: [{ title: '내 운세 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+                    });
+                };
+            }
         }
     }
 
@@ -1115,39 +1143,6 @@ ${specificInstructions}
             "묵은 감정과 아쉬움을 털어내고 평안하고 따뜻한 마음으로 매듭을 지을 때입니다."
         ];
         return texts[month - 1];
-    }
-
-    if (typeof Kakao !== 'undefined') {
-        if (!Kakao.isInitialized()) {
-            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-        }
-
-        const shareKakaoBtn = document.getElementById('shareKakaoBtn');
-        if (shareKakaoBtn) {
-            shareKakaoBtn.onclick = () => {
-                Kakao.Share.sendDefault({
-                    objectType: 'feed',
-                    content: {
-                        title: '포춘 스토리 (Fortune Story)',
-                        description: '상위 0.1%를 위한 프리미엄 사주 및 타로 분석 결과를 확인해보세요.',
-                        imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                        link: {
-                            mobileWebUrl: 'https://fortune-story.com',
-                            webUrl: 'https://fortune-story.com',
-                        },
-                    },
-                    buttons: [
-                        {
-                            title: '내 운세 확인하기',
-                            link: {
-                                mobileWebUrl: 'https://fortune-story.com',
-                                webUrl: 'https://fortune-story.com',
-                            },
-                        },
-                    ],
-                });
-            };
-        }
     }
 
     window.restoreResult = function (type) {
