@@ -2091,16 +2091,13 @@ p {
 }
 
 /* ==========================================
-   🌟 프린트 & PDF 저장 완벽 해결 (중복 코드 제거용)
+   🌟 프린트 & PDF 저장 완벽 해결 (백지현상 수리완료)
    ========================================== */
 @media print {
-
-    /* 1. 쓸데없는 화면(메인화면, 로딩창) 다 숨기고 결과창만 남기기 */
     body>*:not(#result):not(#tarotResult) {
         display: none !important;
     }
 
-    /* 2. 결과창의 '화면 고정 족쇄'를 풀어서 A4 용지처럼 길게 늘어지게 만들기 (백지 해결 핵심!) */
     #result,
     #tarotResult,
     .paper-container {
@@ -2113,22 +2110,31 @@ p {
         padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        /* 투명도 애니메이션 버그 강제 해제 (백지 해결 핵심) */
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
     }
 
-    /* 3. 하얀 종이에 보이도록 모든 글씨를 무조건 까만색으로 강제 변환! */
+    .fade-in,
+    .fade-in-scroll,
+    .fade-in-up {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
     * {
         color: #000000 !important;
         text-shadow: none !important;
     }
 
-    /* 4. 인쇄할 때 지저분한 공유 버튼들 싹 지우기 */
     .result-actions,
     .no-print,
     button {
         display: none !important;
     }
 
-    /* 5. 문단이나 차트가 페이지 중간에 싹둑 잘리는 것 방지 */
     p,
     div,
     svg,
