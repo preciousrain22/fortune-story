@@ -6,7 +6,6 @@
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
     --accent-color: #3b82f6;
-    /* Blue like the benchmark */
     --accent-hover: #2563eb;
     --danger-color: #ef4444;
 
@@ -183,7 +182,6 @@ p {
     }
 }
 
-/* Specific highlight color reset, or let it inherit the gradient */
 .logo a .highlight {
     -webkit-text-fill-color: transparent;
 }
@@ -303,7 +301,6 @@ p {
     flex-direction: column;
     align-items: center;
 }
-
 
 /* Global Starry Background */
 .star-bg-fixed {
@@ -938,13 +935,11 @@ p {
 
 .tarot-deck-container {
     display: grid;
-    /* Desktop: 13 columns x 6 rows = 78 cards */
     grid-template-columns: repeat(13, 1fr);
     grid-auto-rows: 1fr;
     gap: 0.8vw;
     width: 100%;
     height: calc(100vh - 250px);
-    /* Leave room for header & button */
     margin: 0 auto;
     padding: 1rem 0;
     perspective: 1000px;
@@ -966,7 +961,6 @@ p {
     transform-style: preserve-3d;
 }
 
-/* Base font-size on viewport width so it shrinks smoothly */
 .tarot-card-back::after {
     content: '✺';
     font-size: 1.5vw;
@@ -1075,7 +1069,6 @@ p {
 
 @media (max-width: 768px) {
     .tarot-deck-container {
-        /* Mobile: 9 columns x 9 rows max = 81 (fits 78) */
         grid-template-columns: repeat(9, 1fr);
         gap: 1vw;
         width: 100%;
@@ -1253,7 +1246,6 @@ p {
     color: #e0e0e0;
     margin-bottom: 3rem;
     white-space: pre-line;
-    /* Handle newlines in text */
     text-align: left;
 }
 
@@ -1280,7 +1272,6 @@ p {
     font-size: 1.1rem;
     font-weight: bold;
     color: #ffd700;
-    /* Gold color for price */
     text-align: right;
 }
 
@@ -1385,14 +1376,12 @@ p {
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
-    /* Deep Navy to Black */
     z-index: 3000;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #c5a059;
-    /* Muted Gold */
 }
 
 .compass-container {
@@ -1518,30 +1507,23 @@ p {
 
 .paper-container {
     background-image:
-        /* Jujutsu Kaisen inspired pattern: Brush-like strokes, jagged edges, dark ink */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250' viewBox='0 0 250 250' opacity='0.25'%3E%3Cdefs%3E%3Cfilter id='inkBleed'%3E%3CfeGaussianBlur in='SourceGraphic' stdDeviation='1.5' result='blur'/%3E%3CfeColorMatrix in='blur' mode='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7' result='goo'/%3E%3CfeComposite in='SourceGraphic' in2='goo' operator='atop'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23inkBleed)' fill='%23000000' stroke='%23000000' stroke-width='1.5'%3E%3Ctext x='30' y='60' font-family='Gulim, Batang, serif' font-size='50' font-weight='900' transform='rotate(-8 30 60)'%3E呪%3C/text%3E%3Ctext x='150' y='40' font-family='Gulim, Batang, serif' font-size='38' font-weight='900' transform='rotate(15 150 40)'%3E術%3C/text%3E%3Ctext x='80' y='160' font-family='Gulim, Batang, serif' font-size='65' font-weight='900' transform='rotate(12 80 160)'%3E廻%3C/text%3E%3Ctext x='190' y='210' font-family='Gulim, Batang, serif' font-size='45' font-weight='900' transform='rotate(-18 190 210)'%3E戦%3C/text%3E%3Ctext x='20' y='200' font-family='Gulim, Batang, serif' font-size='35' font-weight='900' transform='rotate(5 20 200)'%3E祓%3C/text%3E%3C/g%3E%3C/svg%3E"),
-        /* Subtle natural noise for fabric/silk texture */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250' viewBox='0 0 250 250' opacity='0.25'%3E%3Cdefs%3E%3Cfilter id='inkBleed'%3E%3CfeGaussianBlur in='SourceGraphic' stdDeviation='1.5' result='blur'/%3E%3CfeColorMatrix in='blur' mode='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7' result='goo'/%3E%3CfeComposite in='SourceGraphic' in2='goo' operator='atop'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23inkBleed)' fill='%23000000' stroke='%23000000' stroke-width='1.5'%3E%3Ctext x='30' y='60' font-family='Gulim, Batang, serif' font-size='50' font-weight='900' transform='rotate(-8 30 60)'%3E呪%3C/text%3E%3Ctext x='150' y='40' font-family='Gulim, Batang, serif' font-size='38' font-weight='900' transform='rotate(15 150 40)'%3E術%3C/text%3E%3Ctext x='80' y='160' font-family='Gulim, Batang, serif' font-size='65' font-weight='900' transform='rotate(12 80 160)'%3E廻%3C/text%3E%3Ctext x='190' y='210' font-family='Gulim, Batang, serif' font-size='45' font-weight='900' transform='rotate(-18 190 210)'%3E戦%3C/text%3E%3Ctext x='20' y='200' font-family='Gulim, Batang, serif' font-size='35' font-weight='900' transform='rotate(5 20 200)'%3E祓%3C/text%3E%3C/g%3E%3C/svg%3E"),
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
     background-repeat: repeat;
     color: #FDFBF7;
-    /* Change text to off-white/gold to contrast with the dark red silk */
-    /* Soft dark gray/black ink */
     width: 210mm;
     min-height: 297mm;
     margin: 2rem auto;
     padding: 35mm 30mm;
-    /* Ample inner padding */
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
     font-family: 'Nanum Myeongjo', 'Batang', serif;
     position: relative;
     overflow: hidden;
-    /* Thick outer frame */
     border: 4px solid var(--personal-highlight, #C5A059);
     outline: 1px solid var(--personal-highlight, #C5A059);
     outline-offset: -8px;
 }
 
-/* Inner border with thick ornaments */
 .paper-container::before {
     content: '';
     position: absolute;
@@ -1552,7 +1534,6 @@ p {
     border: 2px solid var(--personal-highlight, #C5A059);
     pointer-events: none;
     z-index: 10;
-    /* Intricate SVG Corner Ornaments */
     background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0,0 h60 v6 h-54 v54 h-6 z M12,12 h36 v4 h-32 v32 h-4 z M24,24 h12 v4 h-8 v8 h-4 z' fill='%23FFDF73'/%3E%3Ccircle cx='48' cy='48' r='6' fill='%23FFDF73'/%3E%3C/svg%3E"),
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M60,0 v60 h-6 v-54 h-54 v-6 z M48,12 v36 h-4 v-32 h-32 v-4 z M36,24 v12 h-4 v-8 h-8 v-4 z' fill='%23FFDF73'/%3E%3Ccircle cx='12' cy='48' r='6' fill='%23FFDF73'/%3E%3C/svg%3E"),
@@ -1563,13 +1544,10 @@ p {
     color: var(--personal-highlight, #C5A059);
 }
 
-
-/* Removed the Hanja watermark in favor of the subtle cloud pattern */
 .paper-container::after {
     display: none;
 }
 
-/* Ensure content stays above watermark */
 .result-header,
 .result-content,
 .result-actions {
@@ -1577,7 +1555,6 @@ p {
     z-index: 1;
 }
 
-/* Fade In Up Animation for Text Rendering */
 .fade-in-up {
     opacity: 0;
     transform: translateY(25px);
@@ -1589,22 +1566,18 @@ p {
     transform: translateY(0);
 }
 
-/* Premium Buttons Area */
 .result-actions {
     margin-top: 3rem;
     padding-top: 2.5rem;
     padding-bottom: 2rem;
     border-top: 1px dashed rgba(197, 160, 89, 0.6);
-    /* Gold dashed line */
     text-align: center;
     display: block;
-    /* Ensure it's not flex so children stack vertically */
 }
 
 .action-label {
     font-size: 1.1rem;
     color: var(--personal-highlight, #FFDF73) !important;
-    /* Gold to pop on red */
     margin-bottom: 0.5rem;
     font-weight: 800;
 }
@@ -1612,7 +1585,6 @@ p {
 .action-sub-label {
     font-size: 0.95rem;
     color: var(--personal-color, #F8E5A5) !important;
-    /* Lighter gold */
     margin-bottom: 1.5rem;
     font-weight: 500;
 }
@@ -1652,18 +1624,14 @@ p {
     flex-wrap: wrap;
 }
 
-/* Force specific max-width and internal flex centering to equalize button width */
 .btn-premium {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 220px;
-    /* Fixed equal width as requested */
     height: 55px;
-    /* Fixed equal height */
     padding: 0;
-    /* Remove padding because width/height handles it */
     border-radius: 50px;
     font-weight: 800;
     font-family: 'Nanum Myeongjo', 'Batang', serif;
@@ -1686,14 +1654,12 @@ p {
 .btn-premium.outline {
     background-color: transparent;
     color: var(--personal-highlight, #FFDF73) !important;
-    /* Gold to pop on red */
     border: 1px solid var(--personal-highlight, #FFDF73);
 }
 
 .btn-premium.outline:hover {
     background-color: var(--personal-highlight, #FFDF73);
     color: var(--personal-bg, #901A1E) !important;
-    /* Dark red text on hover */
 }
 
 .btn-premium.kakao {
@@ -1709,16 +1675,13 @@ p {
     box-shadow: 0 6px 15px rgba(254, 229, 0, 0.5);
 }
 
-/* Remove the blunt `!important` selector to allow custom inline colors */
 .paper-container {
     color: #FDFBF7;
 }
 
-/* Red Seal (낙관) Style - Adjusting to Gold to pop on red background */
 .paper-container .red-seal {
     display: inline-block;
     color: var(--personal-highlight, #FFD700) !important;
-    /* Gold instead of red so it's visible on red silk */
     border: 2px solid var(--personal-highlight, #FFD700);
     border-radius: 4px;
     padding: 2px 10px;
@@ -1733,7 +1696,6 @@ p {
 
 .result-header h2 {
     color: var(--personal-highlight, #FFDF73) !important;
-    /* Bright Gold text for header */
     font-size: 2.4rem;
     font-weight: 800;
     margin-bottom: 0.8rem;
@@ -1744,7 +1706,6 @@ p {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Custom divider */
 .result-header .divider {
     height: 3px;
     background-color: var(--personal-highlight, #FFDF73);
@@ -1756,7 +1717,6 @@ p {
 .result-content {
     font-size: 12pt;
     line-height: 2.2;
-    /* Ample paragraph spacing */
     letter-spacing: 0.5px;
     text-align: justify;
 }
@@ -1765,9 +1725,7 @@ p {
     margin-top: 4rem;
     margin-bottom: 2rem;
     color: var(--personal-highlight, #E2C073) !important;
-    /* Gold */
     font-size: 1.5rem;
-    /* Slightly reduced to prevent wrapping */
     font-weight: 800;
     border-left: none;
     padding-left: 0;
@@ -1780,10 +1738,8 @@ p {
     margin-top: 2rem;
     margin-bottom: 1rem;
     color: var(--personal-highlight, #E2C073) !important;
-    /* Gold to match h3's base text */
     font-size: 1.35rem;
     font-weight: 800;
-    /* Bolder */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
     text-align: center;
 }
@@ -1792,9 +1748,7 @@ p {
 .result-content li {
     margin-bottom: 1.2rem;
     color: var(--personal-color, #FDFBF7) !important;
-    /* Off-white text on Red */
     font-weight: 400;
-    /* Normal weight since white on red is already high contrast */
 }
 
 .result-content ul,
@@ -1803,7 +1757,6 @@ p {
     padding-left: 1.5rem;
 }
 
-/* AI Loading Styles */
 .ai-loading-overlay {
     position: fixed;
     top: 0;
@@ -1847,13 +1800,8 @@ p {
     font-size: 1.1rem;
     color: var(--text-secondary);
     min-height: 1.6em;
-    /* Prevent layout shift */
 }
 
-/* Print Styles for PDF Save */
-
-
-/* Date Select Group */
 .date-select-group {
     display: flex;
     gap: 0.5rem;
@@ -1869,7 +1817,6 @@ p {
     font-size: 1rem;
     cursor: pointer;
     appearance: none;
-    /* Remove default arrow */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 1rem center;
@@ -1898,12 +1845,7 @@ p {
     background-size: 1em;
 }
 
-/* =========================================
-   모바일 화면 잘림 방지 (반응형 완벽 최적화)
-   ========================================= */
 @media (max-width: 768px) {
-
-    /* 1. 사주 결과지(부적) 모바일 화면에 딱 맞게 축소 */
     .paper-container {
         width: 100% !important;
         min-height: auto !important;
@@ -1912,7 +1854,6 @@ p {
         box-sizing: border-box !important;
     }
 
-    /* 2. 사주 결과지 안쪽 황금색 테두리 여백 조정 */
     .paper-container::before {
         top: 8px;
         left: 8px;
@@ -1920,7 +1861,6 @@ p {
         bottom: 8px;
     }
 
-    /* 3. 결과 텍스트 크기 모바일 최적화 */
     .result-content h3 {
         font-size: 1.3rem !important;
     }
@@ -1929,7 +1869,6 @@ p {
         font-size: 1.15rem !important;
     }
 
-    /* 4. 하단 버튼들 가로 삐져나감 방지 (세로 정렬) */
     .buttons-row {
         flex-direction: column;
         align-items: center;
@@ -1941,7 +1880,6 @@ p {
         max-width: 320px;
     }
 
-    /* 5. 타로 카드 결과 모바일 삐져나감 방지 */
     .tarot-result-container {
         padding: 1.5rem !important;
     }
@@ -1990,7 +1928,6 @@ p {
     width: 260px;
     height: 440px;
     margin: 0 auto 2.5rem auto;
-    /* 전통 한지 배경 느낌 */
     background: #E8D080 !important;
     background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHZpZXdCb3g9IjAgMCA0IDQiPjxnIGZpbGwtb25hY2l0eT0iMC4wNSIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGg0djRoLTR6Ii8+PHBhdGggZD0iTTAgMGgxdjFIMC96TTEgMWgxdjFIMS96TTIgMmgxdjFIMi96TTMgM2gxdjFIMy96Ii8+PC9nPjwvc3ZnPg==') !important;
     border: 3px solid #8A671C;
@@ -2053,7 +1990,6 @@ p {
     box-shadow: inset 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
-
 @keyframes auraRotate {
     0% {
         transform: translate(-50%, -50%) rotate(0deg);
@@ -2075,70 +2011,5 @@ p {
     50% {
         filter: drop-shadow(0 0 5px rgba(139, 0, 0, 0.8));
         opacity: 1;
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ==========================================
-   🌟 프린트 & PDF 저장 완벽 해결 (백지현상 수리완료)
-   ========================================== */
-@media print {
-    body>*:not(#result):not(#tarotResult) {
-        display: none !important;
-    }
-
-    #result,
-    #tarotResult,
-    .paper-container {
-        position: static !important;
-        display: block !important;
-        height: auto !important;
-        overflow: visible !important;
-        background: #ffffff !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        border: none !important;
-        /* 투명도 애니메이션 버그 강제 해제 (백지 해결 핵심) */
-        opacity: 1 !important;
-        transform: none !important;
-        animation: none !important;
-    }
-
-    .fade-in,
-    .fade-in-scroll,
-    .fade-in-up {
-        opacity: 1 !important;
-        transform: none !important;
-        animation: none !important;
-    }
-
-    * {
-        color: #000000 !important;
-        text-shadow: none !important;
-    }
-
-    .result-actions,
-    .no-print,
-    button {
-        display: none !important;
-    }
-
-    p,
-    div,
-    svg,
-    .revealed-card-col {
-        page-break-inside: avoid !important;
     }
 }

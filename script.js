@@ -1,11 +1,42 @@
-// 👇 전역 함수 세팅 (PDF 저장 및 카톡 하이브리드 공유) 👇
-window.handlePdfPrint = function () {
+// 👇 전역 함수 세팅 (화면 그대로 PDF 다운로드 및 카톡 하이브리드 공유) 👇
+window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
         alert("⚠️ 카카오톡이나 인스타그램 내부에서는 PDF 저장이 차단됩니다.\n\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
-    } else {
-        window.print();
+        return;
     }
+
+    // 1. 고객에게 안내 (PDF 생성에 2~3초 걸림)
+    alert("프리미엄 PDF 결과지를 생성 중입니다. 잠시만 기다려주세요... ⏳");
+
+    // 2. 사주인지 타로인지 구분하여 캡처할 영역 지정
+    const targetId = type === 'saju' ? 'result' : 'tarotResult';
+    const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
+
+    // 3. 캡처할 때 하단의 버튼들은 안 보이도록 임시 숨김
+    const actionArea = elementToCapture.querySelector('.result-actions');
+    if (actionArea) actionArea.style.display = 'none';
+
+    // 4. html2pdf 전문 엔진 옵션 (여백 제거, 고화질 캡처 최적화)
+    const opt = {
+        margin: 0, // 하얀 여백 없이 꽉 차게
+        filename: `포춘스토리_프리미엄_${type === 'saju' ? '사주' : '타로'}.pdf`,
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#1a1a1a', // 다크모드 배경색 강제 지정
+            scrollY: 0,
+            windowWidth: elementToCapture.scrollWidth // 모바일 깨짐 방지
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 5. 화면을 그대로 찍어서 PDF로 자동 다운로드!
+    html2pdf().set(opt).from(elementToCapture).save().then(() => {
+        // 다운로드가 끝나면 숨겼던 버튼 다시 표시
+        if (actionArea) actionArea.style.display = 'block';
+    });
 };
 
 window.shareKakaoCombo = function (type) {
@@ -13,7 +44,7 @@ window.shareKakaoCombo = function (type) {
     const text = document.getElementById(contentId).innerText || "";
     const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    // 1단계: 텍스트 강제 몰래 복사 (모바일 호환성 극대화)
+    // 1단계: 텍스트 강제 몰래 복사
     const textarea = document.createElement('textarea');
     textarea.value = snippet;
     textarea.style.position = "fixed";
@@ -21,14 +52,13 @@ window.shareKakaoCombo = function (type) {
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    try {
-        document.execCommand('copy');
-    } catch (e) { }
+    try { document.execCommand('copy'); } catch (e) { }
     document.body.removeChild(textarea);
 
-    // 2단계: 고객에게 안내 후 카톡 띄우기
+    // 2단계: 안내창
     alert("✅ 운세 결과 전체가 '자동 복사' 되었습니다!\n\n카카오톡 공유창이 열리면, 채팅방 입력창을 꾹 눌러서 [붙여넣기]를 하시면 전체 내용이 전송됩니다. 📋");
 
+    // 3단계: 카카오톡 열기
     if (typeof Kakao !== 'undefined') {
         if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
         const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
@@ -448,9 +478,52 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 29, name: "지팡이 8", keyword: "열정, 야망, 에너지", isMajor: false },
             { id: 30, name: "지팡이 9", keyword: "열정, 야망, 에너지", isMajor: false },
             { id: 31, name: "지팡이 10", keyword: "열정, 야망, 에너지", isMajor: false },
+            { id: 32, name: "지팡이 Page", keyword: "열정, 야망, 에너지", isMajor: false },
+            { id: 33, name: "지팡이 Knight", keyword: "열정, 야망, 에너지", isMajor: false },
+            { id: 34, name: "지팡이 Queen", keyword: "열정, 야망, 에너지", isMajor: false },
+            { id: 35, name: "지팡이 King", keyword: "열정, 야망, 에너지", isMajor: false },
             { id: 36, name: "컵 Ace", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 37, name: "컵 2", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 38, name: "컵 3", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 39, name: "컵 4", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 40, name: "컵 5", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 41, name: "컵 6", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 42, name: "컵 7", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 43, name: "컵 8", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 44, name: "컵 9", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 45, name: "컵 10", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 46, name: "컵 Page", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 47, name: "컵 Knight", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 48, name: "컵 Queen", keyword: "감정, 관계, 직관", isMajor: false },
+            { id: 49, name: "컵 King", keyword: "감정, 관계, 직관", isMajor: false },
             { id: 50, name: "검 Ace", keyword: "이성, 도전, 갈등", isMajor: false },
-            { id: 64, name: "펜타클 Ace", keyword: "물질, 안정, 결과", isMajor: false }
+            { id: 51, name: "검 2", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 52, name: "검 3", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 53, name: "검 4", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 54, name: "검 5", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 55, name: "검 6", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 56, name: "검 7", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 57, name: "검 8", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 58, name: "검 9", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 59, name: "검 10", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 60, name: "검 Page", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 61, name: "검 Knight", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 62, name: "검 Queen", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 63, name: "검 King", keyword: "이성, 도전, 갈등", isMajor: false },
+            { id: 64, name: "펜타클 Ace", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 65, name: "펜타클 2", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 66, name: "펜타클 3", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 67, name: "펜타클 4", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 68, name: "펜타클 5", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 69, name: "펜타클 6", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 70, name: "펜타클 7", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 71, name: "펜타클 8", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 72, name: "펜타클 9", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 73, name: "펜타클 10", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 74, name: "펜타클 Page", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 75, name: "펜타클 Knight", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 76, name: "펜타클 Queen", keyword: "물질, 안정, 결과", isMajor: false },
+            { id: 77, name: "펜타클 King", keyword: "물질, 안정, 결과", isMajor: false }
         ];
 
         fullTarotDeck.forEach((card, index) => {
@@ -596,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakaoCombo('tarot')">💬 카카오톡 공유 (내용 전체 복사)</button>
                     <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #D3B8F8; border: 1px solid #D3B8F8; height: 55px;" onclick="copyManualText('tarot')">📋 텍스트 수동 복사하기</button>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="handlePdfPrint()">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="handlePdfPrint('tarot')">📄 PDF로 저장</button>
                         <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 타로 보기</button>
                     </div>
                 </div>
@@ -672,7 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
 [🔥 핵심 작성 규칙 🔥]
 1. 서론/인사말 절대 금지 (가장 중요): "존경하는 ~님", "30년 명리학의 통찰로", "경험을 토대로", "살펴보겠습니다" 같은 본인 소개나 뻔한 인사말은 절대 쓰지 마세요. 첫 문장부터 군더더기 없이 곧바로 사주 원국에 대한 분석 본론으로 시작하세요.
 2. 분량 강제 (절대 엄수): 각 섹션마다 최소 1500자 이상 아주 방대하고 깊이 있게 작성하세요.
-3. 호칭 (매우 중요): 무조건 '${name}님'이라고 부르세요. ('선생님', '당신' 등 절대 금지)
+3. 호칭 (매 중요): 무조건 '${name}님'이라고 부르세요. ('선생님', '당신' 등 절대 금지)
 4. 용어 풀이: 명리학 용어는 무조건 '한자(한글)' 표기법을 지키세요.
 5. 문체: 희망적이면서 통찰력 있는 전문가의 문어체를 사용하세요.
 
@@ -811,7 +884,7 @@ ${specificInstructions}
                     <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakaoCombo('saju')">💬 카카오톡 공유 (내용 전체 복사)</button>
                     <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copyManualText('saju')">📋 텍스트 수동 복사하기</button>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint()">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
                         <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
                     </div>
                 </div>
@@ -894,6 +967,124 @@ ${specificInstructions}
                 </div>
             </div>
         `;
+    }
+
+    function generateLongContent(name, typeName, year, month, day, fortuneType, maritalStatus, colorInfo) {
+        const hashString = name + year + month + day;
+        let hash = 0;
+        for (let i = 0; i < hashString.length; i++) hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
+        hash = Math.abs(hash);
+
+        const cHex = colorInfo.highlightHex;
+        let html = `
+            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px;">천명(天命)</span> 타고난 그릇과 기질</h3>
+            <p>${name}님은 ${year}년 ${month}월 ${day}일, 하늘과 땅의 기운이 교차하는 아름다운 시기에 태어나셨습니다. 외유내강(外柔內剛)의 본성을 지니셨습니다.</p>
+            ${generateSajuChartsHTML(colorInfo, hash)}
+        `;
+
+        if (fortuneType === 'love') html += generateLoveContent(maritalStatus, cHex);
+        else if (fortuneType === 'exam') html += generateExamContent(cHex);
+        else if (fortuneType === 'daily') html += generateDailyContent(name, maritalStatus, cHex, colorInfo, hash);
+        else html += generateGeneralContent(fortuneType, maritalStatus, cHex);
+
+        if (fortuneType !== 'daily') {
+            html += `<br><h4>절기(節氣)로 보는 열두 달의 흐름</h4>`;
+            for (let i = 1; i <= 12; i++) html += `<p><strong>${i}월:</strong> ${getMonthlyText(i)}</p>`;
+        }
+
+        html += `
+            <br>
+            <h3 style="text-align: center;"><span style="font-size: 1.1em; color: ${cHex}; display: block; margin-bottom: 5px;">비책(秘策)</span> 운을 틔우는 지혜</h3>
+            <p>항상 마음의 여유를 가지시고 다가오는 운의 흐름을 자연스럽게 받아들이십시오.</p>
+        `;
+        return html;
+    }
+
+    function generateDailyContent(name, maritalStatus, cHex, colorInfo, hash) {
+        const todayStr = new Date().toLocaleDateString();
+        const intro = `오늘은 맑은 기운이 만물을 깨우는 형상으로, 중요한 결정을 내리기에 참으로 적합한 하루입니다.`;
+
+        return `
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <span style="display:inline-block; padding: 6px 20px; border-radius: 30px; background-color: rgba(0,0,0,0.3); border: 1px solid ${colorInfo.borderRgba}; color: ${colorInfo.textHex}; font-weight: bold; font-size: 1.1em;">${todayStr} 일진(日辰)</span>
+            </div>
+            
+            <p style="margin-bottom: 3.5rem; line-height: 2.0; word-break: keep-all;">${name}님의 사주 명식과 오늘 하루의 기운이 빚어내는 흐름입니다. ${intro}</p>
+            
+            <h4 style="text-align: center; margin-top: 4rem; margin-bottom: 2.5rem;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 8px;">시간대별 운의 흐름</span></h4>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">아침 (06:00 ~ 11:30) - 여명(黎明)의 태동</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">머릿속이 맑아지고 새로운 아이디어가 샘솟는 기분 좋은 아침입니다.</p>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">점심 (11:30 ~ 15:00) - 중천(中天)의 태양</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">기운이 절정에 달하며 역동적으로 움직이는 시간대입니다.</p>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">오후 (15:00 ~ 19:00) - 황혼(黃昏)의 갈무리</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">안정을 찾아가는 시간입니다. 꼼꼼하게 점검하는 작업에 집중해야 할 때입니다.</p>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">저녁 심야 (19:00 ~ ) - 심연(深淵)의 휴식</span></div>
+            <p style="margin-bottom: 4.5rem; line-height: 2.0; word-break: keep-all;">온전한 나만의 내면으로 침잠해야 하는 지극히 개인적인 시간입니다.</p>
+            
+            <h4 style="text-align: center; margin-bottom: 2.5rem;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 8px;">영역별 세부 운세</span></h4>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">재물운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">금전의 흐름이 반가운 날입니다. 작게라도 긍정적인 수확이 있습니다.</p>
+            
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">인간관계운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">대인관계에서 긍정적인 에너지가 발산되는 날입니다.</p>
+
+            <div style="margin-bottom: 1.2rem;"><span style="font-size: 1.15rem; font-weight: bold; color: ${colorInfo.highlightHex}; border-left: 3px solid ${colorInfo.highlightHex}; padding-left: 10px;">직업/사업운</span></div>
+            <p style="margin-bottom: 3rem; line-height: 2.0; word-break: keep-all;">그동안 갈고닦아온 내실이 빛을 발하는 쾌조의 타이밍입니다.</p>
+            
+            <div style="text-align: center; margin-top: 4rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15);">
+                <div style="font-size: 1.15rem; color: ${colorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold;">오늘의 행운 포인트</div>
+                <div style="font-size: 1.05rem; color: ${colorInfo.highlightHex}; line-height: 2.0;">
+                    <strong style="color: ${colorInfo.textHex};">유리한 방향:</strong> 남쪽<br>
+                    <strong style="color: ${colorInfo.textHex};">행운의 컬러:</strong> <strong style="color: #fff;">${colorInfo.colorName} 계열</strong>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateGeneralContent(type, maritalStatus, cHex) {
+        return `
+        <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px;">재물운</span> 풍요로운 대지의 기운</h4>
+        <p>재물의 기운은 깊은 산속에서 시작된 작은 샘물이 모여 거대한 강줄기를 이루어 나가는 역동적인 형상과 같습니다.</p>
+        <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px;">직업/사업운</span> 거침없는 바람</h4>
+        <p>새로운 도약과 기회의 문이 열릴 상서로운 징조가 여러 곳에서 엿보입니다.</p>
+        `;
+    }
+
+    function generateLoveContent(maritalStatus, cHex) {
+        return `
+        <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px;">애정 기운</span> 달빛 아래 피어나는 난초</h4>
+        <p>애정 기운은 깊은 밤, 고요한 달빛 아래 맑은 향기를 내뿜는 아름다운 난초와 같습니다.</p>
+        `;
+    }
+
+    function generateExamContent(cHex) {
+        return `
+        <h4 style="text-align: center;"><span style="font-size: 1.05em; color: ${cHex}; display: block; margin-bottom: 5px;">학업 기운</span> 땅속에서 자라나는 씨앗</h4>
+        <p>문창귀인의 이로운 기운이 머물고 있으니, 학업 운세는 굳센 씨앗과 다름없습니다.</p>
+        `;
+    }
+
+    function getMonthlyText(month) {
+        const texts = [
+            "얼어붙은 대지에 봄비가 내리듯, 웅크렸던 뜻을 서서히 펼치기 참으로 좋은 시기라 할 수 있습니다.",
+            "새잎이 돋아나듯 새로운 기운이 솟아오릅니다.",
+            "따스한 봄볕에 만물이 생동합니다.",
+            "지혜가 무엇보다 필요한 달입니다.",
+            "가내의 평안을 먼저 보살피면 바깥의 일도 물 흐르듯 순조롭게 풀립니다.",
+            "막혔던 일들이 시원하게 뚫릴 상서로운 조짐입니다.",
+            "여름날의 뜨거운 태양처럼 매사에 열정적으로 임하십시오.",
+            "한여름 짙은 녹음 밑 휴식처럼 쉼표가 절실히 필요합니다.",
+            "황금빛 풍요로운 들녘처럼 열매로 맺히기 시작하는 달입니다.",
+            "다가올 추운 겨울을 대비해 든든하게 내실을 다져야 합니다.",
+            "묵묵히 본분의 자리를 지키면 마침내 온전한 인정을 받게 됩니다.",
+            "묵은 감정과 아쉬움을 털어내고 평안하고 따뜻한 마음으로 매듭을 지을 때입니다."
+        ];
+        return texts[month - 1];
     }
 
     window.restoreResult = function (type) {
