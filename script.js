@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollElements = document.querySelectorAll('.fade-in-scroll');
     scrollElements.forEach(el => observer.observe(el));
 
-    // Taste Fortune Form Handler (index.html)
+    // Taste Fortune Form Handler
     const tasteForm = document.getElementById('tasteForm');
     const tasteRetryBtn = document.getElementById('tasteRetryBtn');
 
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Manse-ryok Form Handler (main.html)
+    // Manse-ryok Form Handler
     const sajuForm = document.getElementById('sajuForm');
     const unknownTimeCheckbox = document.getElementById('unknownTime');
     const birthAmPmSelect = document.getElementById('birthAmPm');
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
 
         // ==========================================
-        // 🔮 [타로 전용] 텍스트 복사 및 공유 버튼 추가
+        // 🔮 [타로 전용] 텍스트 복사 및 공유 버튼 추가 (수정완료)
         // ==========================================
         window.copyTarotText = function () {
             const text = tarotResultContent.innerText || "";
@@ -633,12 +633,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="btn-premium kakao" id="shareTarotKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유</button>
                 <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #D3B8F8; border: 1px solid #D3B8F8; height: 55px;" onclick="copyTarotText()">📋 텍스트 복사하기</button>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="window.print()">📄 PDF로 저장</button>
+                    <button class="btn-premium outline" id="saveTarotPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;">📄 PDF로 저장</button>
                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 타로 보기</button>
                 </div>
             </div>
         `;
         tarotResultContent.appendChild(tarotBtnArea);
+
+        // 타로 PDF 저장 버튼 명시적 이벤트 바인딩 및 인앱 브라우저 체크
+        const saveTarotPdfBtn = document.getElementById('saveTarotPdfBtn');
+        if (saveTarotPdfBtn) {
+            saveTarotPdfBtn.onclick = () => {
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
+                    alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\\n\\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
+                } else {
+                    window.print();
+                }
+            };
+        }
 
         // 카카오톡 공유 이벤트 (타로)
         const shareTarotKakaoBtn = document.getElementById('shareTarotKakaoBtn');
@@ -849,7 +862,7 @@ ${specificInstructions}
         window.scrollTo(0, 0);
 
         // ==========================================
-        // 🔮 [사주 전용] 텍스트 복사 및 공유 버튼 추가
+        // 🔮 [사주 전용] 텍스트 복사 및 공유 버튼 추가 (수정완료)
         // ==========================================
         window.copySajuText = function () {
             const text = resultContent.innerText || "";
@@ -869,12 +882,25 @@ ${specificInstructions}
                 <button class="btn-premium kakao" id="shareSajuKakaoBtn" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;">💬 카카오톡 공유</button>
                 <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copySajuText()">📋 텍스트 복사하기</button>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="window.print()">📄 PDF로 저장</button>
+                    <button class="btn-premium outline" id="saveSajuPdfBtn" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;">📄 PDF로 저장</button>
                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
                 </div>
             </div>
         `;
         resultContent.appendChild(sajuBtnArea);
+
+        // 사주 PDF 저장 버튼 명시적 이벤트 바인딩 및 인앱 브라우저 체크
+        const saveSajuPdfBtn = document.getElementById('saveSajuPdfBtn');
+        if (saveSajuPdfBtn) {
+            saveSajuPdfBtn.onclick = () => {
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
+                    alert("⚠️ 인스타그램이나 카카오톡 내부에서는 PDF 저장(인쇄) 기능이 차단되어 있습니다.\\n\\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
+                } else {
+                    window.print();
+                }
+            };
+        }
 
         // 카카오톡 공유 이벤트 (사주)
         const shareSajuKakaoBtn = document.getElementById('shareSajuKakaoBtn');
