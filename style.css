@@ -1803,36 +1803,6 @@ p {
     padding-left: 1.5rem;
 }
 
-
-@media print {
-    body * {
-        visibility: hidden;
-    }
-
-    .result-overlay,
-    .result-overlay * {
-        visibility: visible;
-    }
-
-    .result-overlay {
-        position: absolute;
-        left: 0;
-        top: 0;
-        background: white;
-    }
-
-    .paper-container {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-    }
-
-    .no-print {
-        display: none !important;
-    }
-}
-
 /* AI Loading Styles */
 .ai-loading-overlay {
     position: fixed;
@@ -1881,50 +1851,7 @@ p {
 }
 
 /* Print Styles for PDF Save */
-@media print {
-    body * {
-        visibility: hidden;
-    }
 
-    #result,
-    #result * {
-        visibility: visible;
-    }
-
-    #result {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        background: white;
-        /* Print usually works better with light bg, or keep dark if simulating screen */
-        color: black;
-    }
-
-    .result-card {
-        box-shadow: none;
-        border: none;
-        color: black;
-        background: white;
-    }
-
-    .result-header h2,
-    .result-content {
-        color: black;
-    }
-
-    .result-actions {
-        display: none;
-        /* Hide buttons in PDF */
-    }
-
-    .header,
-    .footer {
-        display: none;
-    }
-}
 
 /* Date Select Group */
 .date-select-group {
@@ -2164,66 +2091,48 @@ p {
 }
 
 /* ==========================================
-   프린트(PDF 저장) 전용 스타일 (흰 배경에 검은 글씨)
+   🌟 프린트 & PDF 저장 완벽 해결 (중복 코드 제거용)
    ========================================== */
 @media print {
 
-    /* 1. 배경을 모두 흰색으로, 스크롤 제한 해제 */
-    body,
-    html,
-    .paper-container,
+    /* 1. 쓸데없는 화면(메인화면, 로딩창) 다 숨기고 결과창만 남기기 */
+    body>*:not(#result):not(#tarotResult) {
+        display: none !important;
+    }
+
+    /* 2. 결과창의 '화면 고정 족쇄'를 풀어서 A4 용지처럼 길게 늘어지게 만들기 (백지 해결 핵심!) */
     #result,
     #tarotResult,
-    .tarot-cards-reveal,
-    #resultContent,
-    #tarotResultContent {
-        background: #ffffff !important;
-        background-color: #ffffff !important;
+    .paper-container {
+        position: static !important;
+        display: block !important;
         height: auto !important;
         overflow: visible !important;
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
     }
 
-    /* 2. 모든 텍스트 색상을 검은색/어두운 회색으로 강제 변경 */
-    body *,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    span,
-    div,
-    strong {
-        color: #111111 !important;
+    /* 3. 하얀 종이에 보이도록 모든 글씨를 무조건 까만색으로 강제 변환! */
+    * {
+        color: #000000 !important;
         text-shadow: none !important;
     }
 
-    /* 3. 인쇄할 때 필요 없는 요소들(버튼, 로딩창, 우주 배경) 숨기기 */
-    button,
-    .btn-premium,
-    .header,
-    #gateway,
-    .star-bg-fixed,
-    #analysisLoading,
-    #tarotLoading,
-    .close-modal,
-    #paymentModal {
+    /* 4. 인쇄할 때 지저분한 공유 버튼들 싹 지우기 */
+    .result-actions,
+    .no-print,
+    button {
         display: none !important;
     }
 
-    /* 4. 오행 차트(SVG)나 카드가 페이지 중간에 잘리지 않게 보호 */
+    /* 5. 문단이나 차트가 페이지 중간에 싹둑 잘리는 것 방지 */
+    p,
+    div,
     svg,
     .revealed-card-col {
         page-break-inside: avoid !important;
-    }
-
-    /* 5. 여백 정리 */
-    #result,
-    #tarotResult {
-        margin: 0 !important;
-        padding: 0 !important;
     }
 }
