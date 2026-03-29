@@ -2162,3 +2162,68 @@ p {
         transform: translateY(0);
     }
 }
+
+/* ==========================================
+   프린트(PDF 저장) 전용 스타일 (흰 배경에 검은 글씨)
+   ========================================== */
+@media print {
+
+    /* 1. 배경을 모두 흰색으로, 스크롤 제한 해제 */
+    body,
+    html,
+    .paper-container,
+    #result,
+    #tarotResult,
+    .tarot-cards-reveal,
+    #resultContent,
+    #tarotResultContent {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        height: auto !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 2. 모든 텍스트 색상을 검은색/어두운 회색으로 강제 변경 */
+    body *,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    div,
+    strong {
+        color: #111111 !important;
+        text-shadow: none !important;
+    }
+
+    /* 3. 인쇄할 때 필요 없는 요소들(버튼, 로딩창, 우주 배경) 숨기기 */
+    button,
+    .btn-premium,
+    .header,
+    #gateway,
+    .star-bg-fixed,
+    #analysisLoading,
+    #tarotLoading,
+    .close-modal,
+    #paymentModal {
+        display: none !important;
+    }
+
+    /* 4. 오행 차트(SVG)나 카드가 페이지 중간에 잘리지 않게 보호 */
+    svg,
+    .revealed-card-col {
+        page-break-inside: avoid !important;
+    }
+
+    /* 5. 여백 정리 */
+    #result,
+    #tarotResult {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
