@@ -1164,12 +1164,11 @@ window.openAmuletPayment = function () {
     };
 };
 
+// 🔮 1. 프리미엄 부적 생성 및 디자인 함수
 window.generateAndShowAmulet = function () {
-    // 1. 모든 결제 유도창(부적 제작하기 버튼 부분) 숨기기
     const upsellSections = document.querySelectorAll('#amuletUpsellSection');
     upsellSections.forEach(section => section.style.display = 'none');
 
-    // 2. 고객 이름 정확하게 찾기
     let userName = "고객";
     const sajuTitle = document.getElementById('resultTitle');
     const tarotTitle = document.getElementById('tarotResultSub');
@@ -1183,97 +1182,84 @@ window.generateAndShowAmulet = function () {
     const amuletType = "만사형통 금전 수호부";
     const effectDesc = "부족한 金의 기운을 보완하고<br>사방의 재물을 끌어당기는 기운";
 
-    // 3. 부적 HTML 생성
+    // 🎨 최대한 진짜 부적 느낌을 낸 레이아웃
     const amuletHTML = `
-        <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px;">
+        <div style="padding: 2.5rem 1rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; margin-top: 2rem;">
             <h4 style="color: #FFE082; margin-bottom: 2rem; font-size: 1.25rem;">✨ ${userName}님만의 영험 부적이 완성되었습니다</h4>
             
-            <div id="amuletImage" style="width: 260px; height: 440px; margin: 0 auto 2.5rem auto; background: #E8D080; border: 3px solid #8A671C; padding: 15px; text-align: center; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.2); position: relative; font-family: 'Batang', 'Nanum Myeongjo', serif; overflow: hidden; box-sizing: border-box;">
-                <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 2px solid #8B0000; pointer-events: none; opacity: 0.7; box-sizing: border-box;"></div>
-                <div style="color: #8B0000; font-size: 1.1rem; margin-top: 15px; letter-spacing: 4px; font-weight: 900;">[ 萬事亨通 ]</div>
-                <div style="color: #333; font-size: 0.8rem; margin-top: 8px; font-family: 'Noto Sans KR', sans-serif;">${amuletType}</div>
+            <div id="amuletImage" style="width: 280px; height: 460px; margin: 0 auto 2.5rem auto; background-color: #F5E3A1; border: 2px solid #8B0000; padding: 20px; text-align: center; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; font-family: 'Batang', 'Nanum Myeongjo', serif; box-sizing: border-box; overflow: hidden;">
                 
-                <svg style="width: 130px; height: auto; margin: 30px auto; display: block; filter: drop-shadow(0 0 3px rgba(139,0,0,0.5));" viewBox="0 0 100 130">
-                    <path d="M50 10 Q60 5 70 15 T50 35 T30 55 T70 75 T50 120" stroke="#8B0000" stroke-width="5" fill="none"/>
-                    <circle cx="50" cy="20" r="6" fill="#8B0000"/>
-                    <circle cx="50" cy="110" r="6" fill="#8B0000"/>
-                    <path d="M20 60 Q50 30 80 60" stroke="#8B0000" stroke-width="4" fill="none" stroke-dasharray="6 6"/>
+                <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 1px solid #8B0000; pointer-events: none; opacity: 0.8; box-sizing: border-box;"></div>
+                
+                <div style="color: #8B0000; font-size: 1.3rem; margin-top: 15px; letter-spacing: 6px; font-weight: 900;">[ 萬事亨通 ]</div>
+                <div style="color: #5a3814; font-size: 0.9rem; margin-top: 10px; font-family: 'Noto Sans KR', sans-serif; font-weight: 500;">${amuletType}</div>
+                
+                <svg style="width: 140px; height: auto; margin: 30px auto; display: block;" viewBox="0 0 100 150">
+                    <path d="M50 10 Q70 20 50 40 T50 70 T30 100 T70 120 T50 140" stroke="#8B0000" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="50" cy="15" r="5" fill="#8B0000"/>
+                    <circle cx="50" cy="135" r="5" fill="#8B0000"/>
+                    <path d="M25 75 Q50 50 75 75" stroke="#8B0000" stroke-width="4" fill="none" stroke-dasharray="4 4"/>
+                    <path d="M20 75 L80 75" stroke="#8B0000" stroke-width="2" fill="none"/>
                 </svg>
 
-                <div style="color: #000; font-size: 1.05rem; margin-top: 10px; font-weight: bold;">${userName} 님의</div>
-                <div style="color: #333; font-size: 0.85rem; margin-top: 10px; line-height: 1.6; font-family: 'Noto Sans KR', sans-serif;">
+                <div style="color: #000; font-size: 1.15rem; margin-top: 20px; font-weight: 900;">${userName} 님의</div>
+                <div style="color: #222; font-size: 0.85rem; margin-top: 12px; line-height: 1.7; font-family: 'Noto Sans KR', sans-serif;">
                     ${effectDesc}
                 </div>
                 
-                <div style="margin-top: 20px; display: inline-block; width: 40px; height: 40px; color: #b91c1c; border: 3px solid #b91c1c; border-radius: 4px; font-weight: 900; font-size: 1rem; font-family: 'Batang', serif; transform: rotate(-3deg); line-height: 1.1; padding: 2px; background: rgba(255,255,255,0.1); box-shadow: 1px 1px 3px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(185, 28, 28, 0.2);">
+                <div style="position: absolute; bottom: 30px; right: 50%; transform: translateX(50%); width: 40px; height: 40px; color: #b91c1c; border: 2px solid #b91c1c; font-weight: 900; font-size: 0.9rem; font-family: 'Batang', serif; line-height: 1.1; padding: 2px; box-sizing: border-box;">
                     天命<br>之印
                 </div>
             </div>
 
-            <button id="btnShareAmulet" class="btn-premium kakao pulse-btn" style="width: auto; padding: 0 2rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.3);" onclick="sendAmuletToKakao('${userName}', '${amuletType}')">
-                <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오톡으로 부적 전송하기
+            <button id="btnShareAmulet" class="btn-premium kakao pulse-btn" style="width: 100%; max-width: 300px; padding: 0 1rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.3);" onclick="sendAmuletToKakao('${userName}', '${amuletType}')">
+                <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오톡으로 부적 발급받기
             </button>
         </div>
     `;
 
-    // 4. 사주/타로 상관없이 존재하는 모든 부적 결과창에 짠! 하고 부적 보여주기
     const resultSections = document.querySelectorAll('#amuletResultSection');
     resultSections.forEach(section => {
         section.innerHTML = amuletHTML;
         section.style.display = 'block';
     });
 };
-// ⭐ [진짜 부적 공유] 부적 이미지 캡처 -> 카카오톡 서버 업로드 -> 전송 (파일 맨 아래 추가) ⭐
+
+// 🚀 2. 부적 캡처 후 카카오톡으로 전송하는 함수
 window.sendAmuletToKakao = function (userName, amuletType) {
-    // 1. 카카오 SDK 초기화 확인
     if (!Kakao.isInitialized()) {
-        Kakao.init('a5c28b4d706bced99d7282a87113ec82'); // 🚨 중요: 여기에 꼭 본인의 실제 카카오 앱 키를 넣어야 합니다.
+        Kakao.init('a5c28b4d706bced99d7282a87113ec82'); // 고객님의 진짜 카카오 앱 키
     }
 
-    // 2. 버튼 상태 변경 (로딩 중 표시)
     const shareBtn = document.getElementById('btnShareAmulet');
     const originalText = shareBtn.innerHTML;
-    shareBtn.innerHTML = '캡처 및 업로드 중... ⏳';
+    shareBtn.innerHTML = '부적 전송 중... ⏳';
     shareBtn.disabled = true;
 
-    // 3. 부적 이미지 캡처
     const amuletElement = document.getElementById('amuletImage');
 
-    // 캡처 전에 임시로 모바일 스타일을 풀어서 깨끗하게 캡처 (선택사항)
-    amuletElement.style.width = '260px';
-    amuletElement.style.height = '440px';
-    amuletElement.style.padding = '15px';
-
     html2canvas(amuletElement, {
-        backgroundColor: '#E8D080',
-        scale: 2, // 고화질 캡처
-        useCORS: true // 외부 이미지 허용
+        backgroundColor: '#F5E3A1', // 캡처할 때 배경색을 부적 색으로 맞춤
+        scale: 2,
+        useCORS: true
     }).then(function (canvas) {
-        // 🚨 캡처가 끝나면 모바일 스타일로 다시 원복
-        amuletElement.style.width = '';
-        amuletElement.style.height = '';
-        amuletElement.style.padding = '';
-
-        // 4. 캔버스를 Base64 데이터로 변환 후 Blob으로 변환 (카카오 업로드용)
         const base64Data = canvas.toDataURL('image/png');
         const blob = base64ToBlob(base64Data, 'image/png');
+        const file = new File([blob], 'amulet.png', { type: 'image/png' });
 
-        // 5. 카카오톡 서버로 이미지 업로드
         Kakao.Share.uploadImage({
-            file: blob,
+            file: [file]
         }).then(function (response) {
-            const uploadedImageUrl = response.infos.original.url;
-            console.log('부적 이미지 업로드 완료:', uploadedImageUrl);
+            const uploadedImageUrl = response.infos[0].url;
 
-            // 6. 진짜 부적 이미지를 포함한 카카오톡 피드 메시지 전송
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: `✨ ${userName}님의 영험 부적이 완성되었습니다 ✨`,
-                    description: `[ ${amuletType} ]\n당신의 부족한 기운을 채워주는 세상에 단 하나뿐인 영험 부적`,
+                    title: `✨ ${userName}님만의 영험 부적이 도착했습니다`,
+                    description: `[ ${amuletType} ]\n당신의 부족한 기운을 채워주고 재물을 끌어당기는 부적입니다.`,
                     imageUrl: uploadedImageUrl,
                     link: {
-                        mobileWebUrl: 'https://fortune-story.com', // 홈페이지 링크로 유지
+                        mobileWebUrl: 'https://fortune-story.com',
                         webUrl: 'https://fortune-story.com',
                     },
                 },
@@ -1288,26 +1274,25 @@ window.sendAmuletToKakao = function (userName, amuletType) {
                 ],
             });
 
-            // 7. 버튼 상태 원복
             shareBtn.innerHTML = originalText;
             shareBtn.disabled = false;
 
         }).catch(function (error) {
-            console.error('부적 이미지 업로드 실패:', error);
-            alert('❌ 부적 이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+            console.error('이미지 업로드 실패:', error);
+            alert('❌ 부적 전송에 실패했습니다. (카카오 서버 오류)');
             shareBtn.innerHTML = originalText;
             shareBtn.disabled = false;
         });
 
     }).catch(function (error) {
-        console.error('부적 이미지 캡처 실패:', error);
-        alert('❌ 부적 이미지 캡처에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+        console.error('캡처 실패:', error);
+        alert('❌ 부적 이미지를 만드는 데 실패했습니다.');
         shareBtn.innerHTML = originalText;
         shareBtn.disabled = false;
     });
 };
 
-// 헬퍼 함수: Base64 데이터를 Blob으로 변환
+// 🛠️ 3. 이미지 변환용 도우미 함수 (필수)
 function base64ToBlob(base64Data, contentType) {
     contentType = contentType || '';
     const sliceSize = 1024;
