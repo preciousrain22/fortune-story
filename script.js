@@ -1,4 +1,5 @@
 // 👇 전역 함수 세팅 (화면 그대로 PDF 다운로드 및 카톡 하이브리드 공유) 👇
+// 👇 전역 함수 세팅 (화면 그대로 PDF 다운로드 및 카톡 하이브리드 공유) 👇
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
@@ -9,26 +10,36 @@ window.handlePdfPrint = function (type) {
     alert("프리미엄 PDF 결과지를 생성 중입니다. 잠시만 기다려주세요... ⏳");
 
     const targetId = type === 'saju' ? 'result' : 'tarotResult';
+    const overlay = document.getElementById(targetId);
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
 
     const actionArea = elementToCapture.querySelector('.result-actions');
     if (actionArea) actionArea.style.display = 'none';
 
+    // 🚨 핵심 해결책: PDF 캡처하는 순간에만 화면 고정을 풀어서 밑에 잘린 부분까지 다 보이게 만듦
+    overlay.style.setProperty('position', 'absolute', 'important');
+    overlay.style.setProperty('overflow-y', 'visible', 'important');
+    overlay.style.setProperty('height', 'auto', 'important');
+    window.scrollTo(0, 0);
+
     const opt = {
-        margin: [5, 0, 5, 0], // 상하 여백을 살짝 주어 잘림 방지
+        margin: [5, 0, 5, 0], // 상하 여백
         filename: `포춘스토리_프리미엄_${type === 'saju' ? '사주' : '타로'}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: {
             scale: 2,
             useCORS: true,
             backgroundColor: '#1a1a1a',
-            // scrollY: 0 제거 (스크롤 위치 오류의 주범)
-            windowWidth: elementToCapture.scrollWidth
+            windowWidth: document.documentElement.scrollWidth
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(elementToCapture).save().then(() => {
+        // 🚨 캡처가 끝나면 다시 화면을 원상복구
+        overlay.style.setProperty('position', 'fixed', 'important');
+        overlay.style.setProperty('overflow-y', 'auto', 'important');
+        overlay.style.setProperty('height', '100vh', 'important');
         if (actionArea) actionArea.style.display = 'block';
     });
 };
