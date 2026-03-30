@@ -2013,3 +2013,79 @@ p {
         opacity: 1;
     }
 }
+
+/* --- 모바일 화면(768px 이하)에서 부적과 주변 요소 반응형 처리 --- */
+@media (max-width: 768px) {
+
+    /* 부적 결과 상자의 패딩을 줄여 공간 확보 */
+    #amuletResultSection>div {
+        padding: 1.5rem 0.5rem !important;
+    }
+
+    /* 부적 제목(h4) 크기 조절 */
+    #amuletResultSection h4 {
+        font-size: 1.1rem !important;
+        margin-bottom: 1rem !important;
+        word-break: keep-all;
+    }
+
+    /* ⭐ 핵심: 부적 이미지 자체를 화면 크기에 맞춰 반응형으로 변경 ⭐ */
+    #amuletImage {
+        width: 85% !important;
+        /* 화면 너비의 85%만 차지 */
+        max-width: 260px !important;
+        /* 최대 크기는 260px로 제한 */
+        height: auto !important;
+        /* 너비에 맞춰 높이는 자동 비율 조절 */
+        aspect-ratio: 26 / 44;
+        /* 원래 비율(260:440) 유지 */
+        margin: 0 auto 1.5rem auto !important;
+        /* 아래 여백 조절 */
+        padding: 10px !important;
+        /* 내부 패딩 조절 */
+    }
+
+    /* 부적 내부 SVG 아이콘 크기 조절 */
+    #amuletImage svg {
+        width: 50% !important;
+        max-width: 130px !important;
+        margin: 1rem auto !important;
+    }
+
+    /* 부적 내부 텍스트 및 인장 크기 조절 */
+    #amuletImage div[style*="font-size: 1.1rem"] {
+        font-size: 0.95rem !important;
+    }
+
+    /* 만사형통 */
+    #amuletImage div[style*="font-size: 0.8rem"] {
+        font-size: 0.75rem !important;
+    }
+
+    /* 부적종류 */
+    #amuletImage div[style*="font-size: 1.05rem"] {
+        font-size: 0.9rem !important;
+    }
+
+    /* 고객님 이름 */
+    #amuletImage div[style*="font-size: 0.85rem"] {
+        font-size: 0.8rem !important;
+    }
+
+    /* 효과 설명 */
+    #amuletImage div[style*="width: 40px"] {
+        /* 인장 */
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 0.9rem !important;
+        margin-top: 15px !important;
+    }
+
+    /* 카카오톡 공유 버튼 크기 조절 */
+    #amuletResultSection .btn-premium.kakao {
+        width: 100% !important;
+        max-width: 260px;
+        font-size: 1rem !important;
+        height: 50px !important;
+    }
+}
