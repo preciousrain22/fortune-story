@@ -27,8 +27,6 @@ window.handlePdfPrint = function (type) {
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-
-
     // 5. 화면을 그대로 찍어서 PDF로 자동 다운로드!
     html2pdf().set(opt).from(elementToCapture).save().then(() => {
         // 다운로드가 끝나면 숨겼던 버튼 다시 표시
