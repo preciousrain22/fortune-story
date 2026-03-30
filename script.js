@@ -6,38 +6,38 @@ window.handlePdfPrint = function (type) {
         return;
     }
 
-    // 1. 고객에게 안내 (PDF 생성에 2~3초 걸림)
     alert("프리미엄 PDF 결과지를 생성 중입니다. 잠시만 기다려주세요... ⏳");
 
-    // 2. 사주인지 타로인지 구분하여 캡처할 영역 지정
     const targetId = type === 'saju' ? 'result' : 'tarotResult';
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
 
-    // 3. 캡처할 때 하단의 버튼들은 안 보이도록 임시 숨김
     const actionArea = elementToCapture.querySelector('.result-actions');
     if (actionArea) actionArea.style.display = 'none';
 
-    // 4. html2pdf 전문 엔진 옵션 (여백 제거, 고화질 캡처 최적화)
     const opt = {
-        margin: 0, // 하얀 여백 없이 꽉 차게
+        margin: [5, 0, 5, 0], // 상하 여백을 살짝 주어 잘림 방지
         filename: `포춘스토리_프리미엄_${type === 'saju' ? '사주' : '타로'}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: '#1a1a1a', // 다크모드 배경색 강제 지정
-            scrollY: 0,
-            windowWidth: elementToCapture.scrollWidth // 모바일 깨짐 방지
+            backgroundColor: '#1a1a1a',
+            // scrollY: 0 제거 (스크롤 위치 오류의 주범)
+            windowWidth: elementToCapture.scrollWidth
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 5. 화면을 그대로 찍어서 PDF로 자동 다운로드!
     html2pdf().set(opt).from(elementToCapture).save().then(() => {
-        // 다운로드가 끝나면 숨겼던 버튼 다시 표시
         if (actionArea) actionArea.style.display = 'block';
     });
 };
+
+// 5. 화면을 그대로 찍어서 PDF로 자동 다운로드!
+html2pdf().set(opt).from(elementToCapture).save().then(() => {
+    // 다운로드가 끝나면 숨겼던 버튼 다시 표시
+    if (actionArea) actionArea.style.display = 'block';
+});
 
 window.shareKakaoCombo = function (type) {
     const contentId = type === 'saju' ? 'resultContent' : 'tarotResultContent';
