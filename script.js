@@ -1165,13 +1165,19 @@ window.openAmuletPayment = function () {
 };
 
 window.generateAndShowAmulet = function () {
-    const upsellSection = document.getElementById('amuletUpsellSection');
-    if (upsellSection) upsellSection.style.display = 'none';
+    // 1. 모든 결제 유도창(부적 제작하기 버튼 부분) 숨기기
+    const upsellSections = document.querySelectorAll('#amuletUpsellSection');
+    upsellSections.forEach(section => section.style.display = 'none');
 
-    const titleEl = document.getElementById('resultTitle');
+    // 2. 고객 이름 정확하게 찾기 (사주 화면이든 타로 화면이든 상관없이)
     let userName = "고객";
-    if (titleEl && titleEl.textContent.includes('님을 위해')) {
-        userName = titleEl.textContent.split('님을 위해')[0].trim();
+    const sajuTitle = document.getElementById('resultTitle');
+    const tarotTitle = document.getElementById('tarotResultSub');
+
+    if (sajuTitle && sajuTitle.textContent.includes('님을 위해')) {
+        userName = sajuTitle.textContent.split('님을 위해')[0].trim();
+    } else if (tarotTitle && tarotTitle.textContent.includes('님,')) {
+        userName = tarotTitle.textContent.split('님,')[0].replace(/'/g, '').trim();
     }
 
     const amuletType = "만사형통 금전 수호부";
@@ -1209,11 +1215,12 @@ window.generateAndShowAmulet = function () {
         </div>
     `;
 
-    const resultSection = document.getElementById('amuletResultSection');
-    if (resultSection) {
-        resultSection.innerHTML = amuletHTML;
-        resultSection.style.display = 'block';
-    }
+    // 3. 사주/타로 상관없이 존재하는 모든 부적 결과창에 짠! 하고 부적 보여주기
+    const resultSections = document.querySelectorAll('#amuletResultSection');
+    resultSections.forEach(section => {
+        section.innerHTML = amuletHTML;
+        section.style.display = 'block';
+    });
 };
 
 window.sendAmuletToKakao = function (userName, amuletType) {
