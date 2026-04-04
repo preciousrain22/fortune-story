@@ -39,8 +39,8 @@ window.handlePdfPrint = function (type) {
         if (actionArea) actionArea.style.display = 'block';
     });
 };
-
 window.shareKakaoCombo = function (type) {
+    // 1. 화면에 있는 텍스트 긁어오기
     let text = "";
     if (type === 'saju') {
         const freeText = document.getElementById('freeContentArea').innerText || "";
@@ -50,35 +50,56 @@ window.shareKakaoCombo = function (type) {
         text = document.getElementById('tarotResultContent').innerText || "";
     }
 
+    // 2. 맨 밑에 홍보 링크 살짝 붙이기
     const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    const textarea = document.createElement('textarea');
-    textarea.value = snippet;
-    textarea.style.position = "fixed";
-    textarea.style.left = "-999999px";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try { document.execCommand('copy'); } catch (e) { }
-    document.body.removeChild(textarea);
+    // 3. 최신 클립보드 복사 기술 (모바일 완벽 호환)
+    const copyToClipboard = async () => {
+        try {
+            // 최신 스마트폰 지원 방식
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(snippet);
+            } else {
+                // 구형 스마트폰 우회 방식
+                const textarea = document.createElement('textarea');
+                textarea.value = snippet;
+                textarea.style.position = "fixed";
+                textarea.style.left = "-999999px";
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+        } catch (err) {
+            console.error('클립보드 복사 실패:', err);
+        }
+    };
 
-    alert("✅ 운세 결과 전체가 '자동 복사' 되었습니다!\n\n카카오톡 공유창이 열리면, 채팅방 입력창을 꾹 눌러서 [붙여넣기]를 하시면 전체 내용이 전송됩니다. 📋");
+    // 4. 복사 완료 후 카카오톡 실행하기
+    copyToClipboard().then(() => {
+        alert("✅ 운세 결과 전체가 '자동 복사' 되었습니다!\n\n카카오톡 채팅방이 열리면, 대화창을 꾹 눌러서 [붙여넣기]를 하시면 전체 내용이 깔끔하게 전송됩니다. 📋");
 
-    if (typeof Kakao !== 'undefined') {
-        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-        const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: {
-                title: type === 'saju' ? '포춘스토리 프리미엄 운세 결과' : '포춘스토리 프리미엄 타로 결과',
-                description: dynamicDesc,
-                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-            },
-            buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
-        });
-    }
+        if (typeof Kakao !== 'undefined') {
+            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
+            // 카카오톡 말풍선에 보일 요약 내용 만들기
+            const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
+
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: type === 'saju' ? '포춘스토리 프리미엄 운세 결과' : '포춘스토리 프리미엄 타로 결과',
+                    description: dynamicDesc,
+                    imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                    link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+                },
+                buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+            });
+        }
+    });
 };
+
 
 window.copyManualText = function (type) {
     let text = "";
