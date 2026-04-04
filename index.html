@@ -28,9 +28,45 @@
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-X3JL0JDN2W');
     </script>
+
+    <style>
+        .locked-container {
+            position: relative;
+            margin-top: 2rem;
+            min-height: 500px;
+        }
+
+        .blur-content {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.5;
+            transition: all 0.5s ease;
+        }
+
+        .blur-content.unlocked {
+            filter: blur(0);
+            pointer-events: auto;
+            user-select: auto;
+            opacity: 1;
+        }
+
+        .unlock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.8) 15%, #121212 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 15%;
+            z-index: 10;
+        }
+    </style>
 </head>
 
 <body>
@@ -43,7 +79,6 @@
     </header>
 
     <div style="padding-top: 100px;"></div>
-
     <div class="star-bg-fixed"></div>
 
     <section id="gateway" class="gateway-section fade-in">
@@ -51,8 +86,8 @@
             <div class="section-header text-center">
                 <h2 class="obangsaek-text">운명의 문을 선택하세요</h2>
             </div>
-            <div class="gateway-grid">
-                <div class="gateway-card saju-card" onclick="selectPath('saju')">
+            <div class="gateway-grid" id="gatewayGrid">
+                <div class="gateway-card saju-card" id="sajuCard" onclick="selectPath('saju')">
                     <div class="gateway-icon">
                         <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="url(#gold-grad)"
                             stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
@@ -76,7 +111,7 @@
                     </div>
                 </div>
 
-                <div class="gateway-card tarot-card" onclick="selectPath('tarot')">
+                <div class="gateway-card tarot-card" id="tarotCard" onclick="selectPath('tarot')">
                     <div class="gateway-icon">
                         <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="url(#purple-grad)"
                             stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
@@ -106,7 +141,7 @@
                 style="text-align: center; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1);">
                 <p style="color: #a980d9; font-size: 1.1rem; margin-bottom: 1.5rem;">1초 만에 가입하고 내 운명의 기록을 평생 소장하세요 💌
                 </p>
-                <button onclick="loginWithKakao()" class="btn-premium kakao"
+                <button onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
                     style="width: auto; padding: 0 2rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.2);">
                     <span style="font-size: 1.2rem; margin-right: 8px;">💬</span> 카카오로 1초 만에 시작하기 (무료)
                 </button>
@@ -215,7 +250,10 @@
                         <span>[필수] 서비스 이용약관, 개인정보처리방침, 환불 불가 규정을 모두 확인하였으며 이에 동의합니다.</span>
                     </label>
                 </div>
-                <button type="submit" class="btn btn-primary full-width">결과 확인하기</button>
+                <button type="submit" class="btn btn-primary full-width kakao pulse-btn"
+                    style="background-color: #FEE500; color: #000; font-weight: bold; font-size: 1.1rem; border: none;">
+                    <span style="margin-right: 8px;">💬</span> 카카오로 시작하고 행운 기운 무료로 보기
+                </button>
             </form>
         </div>
     </section>
@@ -343,13 +381,10 @@
                 </div>
                 <p id="tarotResultSub" style="color: #a980d9; font-size: 1.1rem; margin-top: 1rem;"></p>
             </div>
-
             <div class="tarot-cards-reveal"></div>
-
             <div class="result-content" id="tarotResultContent"
                 style="color: #EEDCFF; line-height: 1.8; text-align: left; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(179, 136, 235, 0.2); margin-top: 2rem;">
             </div>
-
             <div class="result-actions no-print"></div>
         </div>
     </section>
@@ -357,12 +392,12 @@
     <div id="paymentModal" class="modal-overlay" style="display: none;">
         <div class="modal-content fade-in">
             <div class="modal-header">
-                <h3>운세 결제</h3>
+                <h3>심층 운세 결제</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="payment-info">선택하신 운세: <span id="paymentFortuneType" class="highlight">오늘의 운세</span></p>
-                <p class="payment-amount">결제 금액: <span id="paymentAmount" class="highlight-large">8,000원</span></p>
+                <p class="payment-amount">결제 금액: <span id="paymentAmount" class="highlight-large">3,900원</span></p>
 
                 <div class="payment-methods">
                     <div class="payment-method selected">
@@ -403,9 +438,24 @@
                 <div class="divider"></div>
             </div>
 
-            <div class="result-content" id="resultContent"></div>
+            <div id="freeContentArea"></div>
 
-            <div class="result-actions no-print"></div>
+            <div class="locked-container" id="lockedContainer">
+                <div id="premiumContentArea" class="blur-content"></div>
+                <div class="unlock-overlay" id="unlockOverlay">
+                    <h3
+                        style="color: #FFE082; margin-bottom: 1.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-size: 1.3rem;">
+                        🔒 상위 0.1% 심층 분석이 잠겨있습니다</h3>
+                    <p style="color: #ccc; margin-bottom: 2rem; font-size: 1rem; text-align: center; line-height: 1.6;">
+                        시간대별 재물운과 구체적인 행동 비책 등<br>나머지 상세 운세 결과를 확인하시겠습니까?</p>
+                    <button class="btn btn-primary pulse-btn" id="btnUnlockPremium"
+                        style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);">
+                        결제하고 전체 운세 해제하기
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-actions no-print" id="sajuActionsArea" style="display: none;"></div>
         </div>
     </section>
 
