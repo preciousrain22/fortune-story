@@ -1,8 +1,7 @@
 // ==========================================
-// 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 공유, 토스트 알림)
+// 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 피드 공유)
 // ==========================================
 
-// 🌟 토스트(Toast) 알림 UI
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -32,6 +31,13 @@ window.handlePdfPrint = function (type) {
     const actionArea = elementToCapture.querySelector('.result-actions');
     if (actionArea) actionArea.style.display = 'none';
 
+    // 🚨 핵심 수정: PDF 배경이 하얗게 날아가지 않도록 고급스러운 흑요석 색상(#1a1a1a) 강제 주입
+    const originalBg = elementToCapture.style.backgroundColor;
+    const originalPadding = elementToCapture.style.padding;
+    elementToCapture.style.backgroundColor = '#1a1a1a';
+    elementToCapture.style.padding = '20px';
+
+    // 스크롤 오류 방지
     overlay.style.setProperty('position', 'absolute', 'important');
     overlay.style.setProperty('overflow-y', 'visible', 'important');
     overlay.style.setProperty('height', 'auto', 'important');
@@ -44,22 +50,51 @@ window.handlePdfPrint = function (type) {
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: '#1a1a1a',
-            windowWidth: document.documentElement.scrollWidth
+            backgroundColor: '#1a1a1a', // 캔버스 배경도 블랙으로 강제 고정
+            windowWidth: document.documentElement.scrollWidth,
+            scrollY: -window.scrollY
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(elementToCapture).save().then(() => {
+        // PDF 저장이 끝나면 화면을 원래 상태로 복구
+        elementToCapture.style.backgroundColor = originalBg;
+        elementToCapture.style.padding = originalPadding;
+
         overlay.style.setProperty('position', 'fixed', 'important');
         overlay.style.setProperty('overflow-y', 'auto', 'important');
         overlay.style.setProperty('height', '100vh', 'important');
         if (actionArea) actionArea.style.display = 'block';
+
+        showToast("✅ PDF 저장이 완료되었습니다!");
     });
 };
 
-// 🌟 개선: 복사와 카카오톡 열기를 한 번에 처리하는 원클릭 함수
-window.shareKakaoCombo = async function (type) {
+// 🌟 깔끔하게 카카오 '링크 카드'만 공유하는 기능
+window.shareKakaoCard = function (type) {
+    let text = type === 'saju' ? (document.getElementById('freeContentArea').innerText || "") : (document.getElementById('tarotResultContent').innerText || "");
+
+    if (typeof Kakao !== 'undefined') {
+        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
+        const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
+
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
+                description: dynamicDesc,
+                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+            },
+            buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+        });
+    }
+};
+
+// 🌟 조용하게 전체 텍스트만 복사해주는 기능
+window.copyManualText = async function (type) {
     let freeText = "", premiumText = "";
     if (type === 'saju') {
         freeText = document.getElementById('freeContentArea').innerText || "";
@@ -70,7 +105,6 @@ window.shareKakaoCombo = async function (type) {
 
     const snippet = "[포춘스토리 정밀 운세 리포트]\n\n" + freeText + "\n\n" + premiumText + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    // 1. 전체 내용 클립보드에 자동 복사
     try {
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(snippet);
@@ -85,33 +119,10 @@ window.shareKakaoCombo = async function (type) {
             document.execCommand('copy');
             document.body.removeChild(textarea);
         }
-
-        // 2. 복사 성공 알림 (사용자가 인지할 수 있게)
-        showToast("✅ 결과가 복사되었습니다! 카톡 채팅방에 '붙여넣기' 하세요.");
-
+        showToast("✅ 결과 전체가 복사되었습니다! 원하는 곳에 붙여넣기 하세요.");
     } catch (err) {
-        showToast("❌ 텍스트를 수동으로 복사해 주세요.");
+        showToast("❌ 복사에 실패했습니다. 직접 텍스트를 드래그해주세요.");
     }
-
-    // 3. 1초 뒤 카카오톡 실행 (알림을 읽을 시간 부여)
-    setTimeout(() => {
-        if (typeof Kakao !== 'undefined') {
-            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-
-            const dynamicDesc = snippet.substring(0, 60).replace(/\n/g, ' ') + "...";
-
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
-                    description: dynamicDesc,
-                    imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                    link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-                },
-                buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
-            });
-        }
-    }, 1200); // 1.2초 대기 후 실행
 };
 
 function preventExit(e) {
@@ -461,20 +472,20 @@ ${specificInstructions}
                     document.getElementById('premiumContentArea').classList.add('unlocked');
                     document.getElementById('unlockOverlay').style.display = 'none';
 
-                    // 🌟 결제 완료 후 버튼 구역: 2개를 하나로 통합하여 디자인 깔끔하게 정리
                     const sajuActionsArea = document.getElementById('sajuActionsArea');
                     sajuActionsArea.style.display = 'block';
                     sajuActionsArea.innerHTML = `
                         <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;">
                             <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
+                            
                             <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                                <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakaoCard('saju')">💬 카카오톡으로 지인에게 공유하기</button>
                                 
-                                <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">
-                                    💬 카카오톡으로 전체 결과 보내기
-                                </button>
+                                <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copyManualText('saju')">📋 전체 텍스트 복사하기</button>
                                 
                                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
+                                    
                                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
                                 </div>
                             </div>
