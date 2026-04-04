@@ -2,7 +2,7 @@
 // 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 공유, 토스트 알림)
 // ==========================================
 
-// 🌟 신규 기능: 세련된 토스트(Toast) 알림 UI
+// 🌟 토스트(Toast) 알림 UI
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -58,36 +58,8 @@ window.handlePdfPrint = function (type) {
     });
 };
 
-// 🌟 개선: 복사 기능 빼고, 깔끔하게 카카오톡 피드만 전송
-window.shareKakao = function (type) {
-    let text = "";
-    if (type === 'saju') {
-        text = document.getElementById('freeContentArea').innerText || "";
-    } else {
-        text = document.getElementById('tarotResultContent').innerText || "";
-    }
-
-    if (typeof Kakao !== 'undefined') {
-        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-
-        // 너무 길면 카카오톡이 싫어하므로 딱 60자만 예쁘게 자르기
-        const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
-
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: {
-                title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
-                description: dynamicDesc,
-                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-            },
-            buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
-        });
-    }
-};
-
-// 🌟 개선: 알림창(Alert) 대신 부드러운 토스트(Toast) UI 적용 및 텍스트 줄바꿈 정리
-window.copyManualText = function (type) {
+// 🌟 개선: 복사와 카카오톡 열기를 한 번에 처리하는 원클릭 함수
+window.shareKakaoCombo = async function (type) {
     let freeText = "", premiumText = "";
     if (type === 'saju') {
         freeText = document.getElementById('freeContentArea').innerText || "";
@@ -96,37 +68,56 @@ window.copyManualText = function (type) {
         premiumText = document.getElementById('tarotResultContent').innerText || "";
     }
 
-    // 복사될 때 읽기 편하도록 간격 조정
     const snippet = "[포춘스토리 정밀 운세 리포트]\n\n" + freeText + "\n\n" + premiumText + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    const copyToClipboard = async () => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(snippet);
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = snippet;
-                textarea.style.position = "fixed";
-                textarea.style.left = "-999999px";
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-            showToast("✅ 결과 텍스트가 복사되었습니다!");
-        } catch (err) {
-            showToast("❌ 복사에 실패했습니다. 직접 텍스트를 드래그해주세요.");
+    // 1. 전체 내용 클립보드에 자동 복사
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(snippet);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = snippet;
+            textarea.style.position = "fixed";
+            textarea.style.left = "-999999px";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
         }
-    };
-    copyToClipboard();
+
+        // 2. 복사 성공 알림 (사용자가 인지할 수 있게)
+        showToast("✅ 결과가 복사되었습니다! 카톡 채팅방에 '붙여넣기' 하세요.");
+
+    } catch (err) {
+        showToast("❌ 텍스트를 수동으로 복사해 주세요.");
+    }
+
+    // 3. 1초 뒤 카카오톡 실행 (알림을 읽을 시간 부여)
+    setTimeout(() => {
+        if (typeof Kakao !== 'undefined') {
+            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
+            const dynamicDesc = snippet.substring(0, 60).replace(/\n/g, ' ') + "...";
+
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
+                    description: dynamicDesc,
+                    imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                    link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+                },
+                buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+            });
+        }
+    }, 1200); // 1.2초 대기 후 실행
 };
 
 function preventExit(e) {
     e.preventDefault();
     e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
 }
-
 
 // ==========================================
 // 2. 메인 로직 (이벤트 리스너 및 폼 처리)
@@ -432,7 +423,7 @@ ${specificInstructions}
 
         document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
 
-        // 🔥 여기가 핵심! 운세 결과가 뜰 때 수호 부적도 같이 나타나게 해줍니다 🔥
+        // 운세 결과가 뜰 때 수호 부적도 같이 나타남
         if (typeof showAmuletSection === 'function') {
             showAmuletSection();
         }
@@ -470,14 +461,18 @@ ${specificInstructions}
                     document.getElementById('premiumContentArea').classList.add('unlocked');
                     document.getElementById('unlockOverlay').style.display = 'none';
 
+                    // 🌟 결제 완료 후 버튼 구역: 2개를 하나로 통합하여 디자인 깔끔하게 정리
                     const sajuActionsArea = document.getElementById('sajuActionsArea');
                     sajuActionsArea.style.display = 'block';
                     sajuActionsArea.innerHTML = `
                         <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;">
                             <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                             <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                                <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakao('saju')">💬 카카오톡으로 결과 공유하기</button>
-                                <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copyManualText('saju')">📋 전체 텍스트 수동 복사하기</button>
+                                
+                                <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">
+                                    💬 카카오톡으로 전체 결과 보내기
+                                </button>
+                                
                                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
                                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
@@ -581,7 +576,6 @@ ${specificInstructions}
 
 let userAmuletCount = 1; // 카카오 로그인 시 기본 1회 무료 제공
 
-// 수호부 섹션 보여주기 함수
 window.showAmuletSection = function () {
     document.getElementById('amuletSection').style.display = 'block';
 };
@@ -625,7 +619,6 @@ window.checkSmishing = function () {
     }, 1500);
 };
 
-// 수호부 결제 연동
 window.buyAmulet = function (type, amount) {
     let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
 
