@@ -1,15 +1,29 @@
 // ==========================================
-// 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 공유)
+// 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 공유, 토스트 알림)
 // ==========================================
+
+// 🌟 신규 기능: 세련된 토스트(Toast) 알림 UI
+function showToast(message) {
+    let toast = document.getElementById('customToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'customToast';
+        toast.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#FFD54F; padding:12px 24px; border-radius:30px; font-size:1rem; z-index:10000; transition:opacity 0.5s; text-align:center; border:1px solid #D4AF37; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events:none; opacity:0;';
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
 
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
-        alert("⚠️ 카카오톡이나 인스타그램 내부에서는 PDF 저장이 차단됩니다.\n\n화면 우측 상단(또는 하단)의 메뉴(⋮)를 눌러서\n[다른 브라우저(사파리/크롬)에서 열기]를 선택하신 후 다시 시도해주세요!");
+        alert("⚠️ 카카오톡이나 인스타그램 내부에서는 PDF 저장이 차단됩니다.\n\n화면 우측 상단의 메뉴(⋮)를 눌러서\n[다른 브라우저에서 열기]를 선택하신 후 다시 시도해주세요!");
         return;
     }
 
-    alert("프리미엄 정밀 리포트를 생성 중입니다. 잠시만 기다려주세요... ⏳");
+    showToast("프리미엄 리포트를 PDF로 변환 중입니다... ⏳");
 
     const targetId = type === 'saju' ? 'result' : 'tarotResult';
     const overlay = document.getElementById(targetId);
@@ -44,68 +58,46 @@ window.handlePdfPrint = function (type) {
     });
 };
 
-window.shareKakaoCombo = function (type) {
+// 🌟 개선: 복사 기능 빼고, 깔끔하게 카카오톡 피드만 전송
+window.shareKakao = function (type) {
     let text = "";
     if (type === 'saju') {
-        const freeText = document.getElementById('freeContentArea').innerText || "";
-        const premiumText = document.getElementById('premiumContentArea').innerText || "";
-        text = freeText + "\n" + premiumText;
+        text = document.getElementById('freeContentArea').innerText || "";
     } else {
         text = document.getElementById('tarotResultContent').innerText || "";
     }
 
-    const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
+    if (typeof Kakao !== 'undefined') {
+        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
 
-    const copyToClipboard = async () => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(snippet);
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = snippet;
-                textarea.style.position = "fixed";
-                textarea.style.left = "-999999px";
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-            }
-        } catch (err) {
-            console.error('클립보드 복사 실패:', err);
-        }
-    };
+        // 너무 길면 카카오톡이 싫어하므로 딱 60자만 예쁘게 자르기
+        const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
 
-    copyToClipboard().then(() => {
-        alert("✅ 운세 결과 전체가 '자동 복사' 되었습니다!\n\n카카오톡 채팅방이 열리면, 대화창을 꾹 눌러서 [붙여넣기]를 하시면 전체 내용이 깔끔하게 전송됩니다. 📋");
-
-        if (typeof Kakao !== 'undefined') {
-            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-            const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
-                    description: dynamicDesc,
-                    imageUrl: 'https://fortune-story.com/images/og-image.jpg',
-                    link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
-                },
-                buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
-            });
-        }
-    });
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
+                description: dynamicDesc,
+                imageUrl: 'https://fortune-story.com/images/og-image.jpg',
+                link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
+            },
+            buttons: [{ title: '내 운세도 확인하기', link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' } }],
+        });
+    }
 };
 
+// 🌟 개선: 알림창(Alert) 대신 부드러운 토스트(Toast) UI 적용 및 텍스트 줄바꿈 정리
 window.copyManualText = function (type) {
-    let text = "";
+    let freeText = "", premiumText = "";
     if (type === 'saju') {
-        const freeText = document.getElementById('freeContentArea').innerText || "";
-        const premiumText = document.getElementById('premiumContentArea').innerText || "";
-        text = freeText + "\n" + premiumText;
+        freeText = document.getElementById('freeContentArea').innerText || "";
+        premiumText = document.getElementById('premiumContentArea').innerText || "";
     } else {
-        text = document.getElementById('tarotResultContent').innerText || "";
+        premiumText = document.getElementById('tarotResultContent').innerText || "";
     }
-    const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
+
+    // 복사될 때 읽기 편하도록 간격 조정
+    const snippet = "[포춘스토리 정밀 운세 리포트]\n\n" + freeText + "\n\n" + premiumText + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
     const copyToClipboard = async () => {
         try {
@@ -122,9 +114,9 @@ window.copyManualText = function (type) {
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
             }
-            alert("결과 내용이 완벽하게 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
+            showToast("✅ 결과 텍스트가 복사되었습니다!");
         } catch (err) {
-            alert("복사 기능이 지원되지 않는 기기입니다. 수동으로 텍스트를 드래그해주세요.");
+            showToast("❌ 복사에 실패했습니다. 직접 텍스트를 드래그해주세요.");
         }
     };
     copyToClipboard();
@@ -484,7 +476,7 @@ ${specificInstructions}
                         <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;">
                             <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                             <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                                <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 공유하기</button>
+                                <button class="btn-premium kakao" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 55px;" onclick="shareKakao('saju')">💬 카카오톡으로 결과 공유하기</button>
                                 <button class="btn-premium outline" style="font-size: 1.05rem; width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #fff; height: 55px;" onclick="copyManualText('saju')">📋 전체 텍스트 수동 복사하기</button>
                                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                                     <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
