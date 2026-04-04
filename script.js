@@ -1,3 +1,7 @@
+// ==========================================
+// 1. 공통 유틸리티 (PDF 저장, 텍스트 복사, 카카오 공유)
+// ==========================================
+
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
@@ -5,7 +9,7 @@ window.handlePdfPrint = function (type) {
         return;
     }
 
-    alert("프리미엄 PDF 결과지를 생성 중입니다. 잠시만 기다려주세요... ⏳");
+    alert("프리미엄 정밀 리포트를 생성 중입니다. 잠시만 기다려주세요... ⏳");
 
     const targetId = type === 'saju' ? 'result' : 'tarotResult';
     const overlay = document.getElementById(targetId);
@@ -21,7 +25,7 @@ window.handlePdfPrint = function (type) {
 
     const opt = {
         margin: [5, 0, 5, 0],
-        filename: `포춘스토리_프리미엄_${type === 'saju' ? '사주' : '타로'}.pdf`,
+        filename: `포춘스토리_정밀분석_${type === 'saju' ? '사주' : '타로'}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: {
             scale: 2,
@@ -39,8 +43,8 @@ window.handlePdfPrint = function (type) {
         if (actionArea) actionArea.style.display = 'block';
     });
 };
+
 window.shareKakaoCombo = function (type) {
-    // 1. 화면에 있는 텍스트 긁어오기
     let text = "";
     if (type === 'saju') {
         const freeText = document.getElementById('freeContentArea').innerText || "";
@@ -50,17 +54,13 @@ window.shareKakaoCombo = function (type) {
         text = document.getElementById('tarotResultContent').innerText || "";
     }
 
-    // 2. 맨 밑에 홍보 링크 살짝 붙이기
     const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    // 3. 최신 클립보드 복사 기술 (모바일 완벽 호환)
     const copyToClipboard = async () => {
         try {
-            // 최신 스마트폰 지원 방식
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(snippet);
             } else {
-                // 구형 스마트폰 우회 방식
                 const textarea = document.createElement('textarea');
                 textarea.value = snippet;
                 textarea.style.position = "fixed";
@@ -76,20 +76,16 @@ window.shareKakaoCombo = function (type) {
         }
     };
 
-    // 4. 복사 완료 후 카카오톡 실행하기
     copyToClipboard().then(() => {
         alert("✅ 운세 결과 전체가 '자동 복사' 되었습니다!\n\n카카오톡 채팅방이 열리면, 대화창을 꾹 눌러서 [붙여넣기]를 하시면 전체 내용이 깔끔하게 전송됩니다. 📋");
 
         if (typeof Kakao !== 'undefined') {
             if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-
-            // 카카오톡 말풍선에 보일 요약 내용 만들기
             const dynamicDesc = text.substring(0, 60).replace(/\n/g, ' ') + "...";
-
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: type === 'saju' ? '포춘스토리 프리미엄 운세 결과' : '포춘스토리 프리미엄 타로 결과',
+                    title: type === 'saju' ? '포춘스토리 정밀 사주 리포트' : '포춘스토리 정밀 타로 리포트',
                     description: dynamicDesc,
                     imageUrl: 'https://fortune-story.com/images/og-image.jpg',
                     link: { mobileWebUrl: 'https://fortune-story.com', webUrl: 'https://fortune-story.com' },
@@ -99,7 +95,6 @@ window.shareKakaoCombo = function (type) {
         }
     });
 };
-
 
 window.copyManualText = function (type) {
     let text = "";
@@ -112,20 +107,27 @@ window.copyManualText = function (type) {
     }
     const snippet = text + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
 
-    const textarea = document.createElement('textarea');
-    textarea.value = snippet;
-    textarea.style.position = "fixed";
-    textarea.style.left = "-999999px";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try {
-        document.execCommand('copy');
-        alert("결과 내용이 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
-    } catch (e) {
-        alert("복사 기능이 지원되지 않는 기기입니다.");
-    }
-    document.body.removeChild(textarea);
+    const copyToClipboard = async () => {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(snippet);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = snippet;
+                textarea.style.position = "fixed";
+                textarea.style.left = "-999999px";
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+            alert("결과 내용이 완벽하게 복사되었습니다! 📋\n인스타나 쓰레드에 길게 붙여넣기 해보세요.");
+        } catch (err) {
+            alert("복사 기능이 지원되지 않는 기기입니다. 수동으로 텍스트를 드래그해주세요.");
+        }
+    };
+    copyToClipboard();
 };
 
 function preventExit(e) {
@@ -133,9 +135,13 @@ function preventExit(e) {
     e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
 }
 
+
+// ==========================================
+// 2. 메인 로직 (이벤트 리스너 및 폼 처리)
+// ==========================================
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 🌍 [외국인 감지 로직] 한국어가 아닐 경우 타로 카드를 앞(왼쪽)으로 자동 배치
     const userLang = navigator.language || navigator.userLanguage;
     if (!userLang.startsWith('ko')) {
         const sajuCard = document.getElementById('sajuCard');
@@ -173,73 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const prices = {
-        daily: 3900,
-        weekly: 5900,
-        yearly: 9900,
-        love: 8900,
-        exam: 8900
-    };
-
-    const fortuneTypeSelect = document.getElementById('fortuneType');
-    const priceDisplay = document.getElementById('priceDisplay');
-
-    if (fortuneTypeSelect) {
-        fortuneTypeSelect.addEventListener('change', (e) => {
-            const selected = e.target.value;
-            if (prices[selected]) {
-                priceDisplay.textContent = `결제 금액: ${prices[selected].toLocaleString()}원`;
-            }
-        });
-    }
-
-    // 🌟 사주 폼 전송: 결제 대신 카카오 로그인 후 "부분 무료 공개"로 직행
-    const sajuForm = document.getElementById('sajuForm');
-    if (sajuForm) {
-        sajuForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const fortuneType = document.getElementById('fortuneType').value;
-            const name = document.getElementById('name').value;
-            const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
-            const year = document.getElementById('birthYear').value;
-            const month = document.getElementById('birthMonth').value.padStart(2, '0');
-            const day = document.getElementById('birthDay').value.padStart(2, '0');
-
-            if (!year || !month || !day) {
-                alert('생년월일을 모두 선택해주세요.');
-                return;
-            }
-
-            let displayTypeName = "";
-            switch (fortuneType) {
-                case 'daily': displayTypeName = "오늘의 운세"; break;
-                case 'weekly': displayTypeName = "주간 운세"; break;
-                case 'yearly': displayTypeName = "1년 운세"; break;
-                case 'love': displayTypeName = "연애운"; break;
-                case 'exam': displayTypeName = "수능 운세"; break;
-            }
-
-            // 카카오 로그인을 통해 DB(고객 접점) 확보 후 바로 무료 영역 분석 시작
-            if (!Kakao.isInitialized()) {
-                Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-            }
-
-            Kakao.Auth.login({
-                success: function (authObj) {
-                    // 로그인 성공 시 바로 분석 로딩창 띄움
-                    startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus);
-                },
-                fail: function (err) {
-                    // 로그인 거부/실패 시에도 일단 테스트나 진행을 위해 넘어가게 처리할 수 있습니다.
-                    alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다.");
-                    startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus);
-                }
-            });
-        });
-    }
-
-    // (생년월일 셀렉트 박스 생성 및 타로 폼 코드는 기존 유지 - 생략 없이 포함)
     const birthYearSelect = document.getElementById('birthYear');
     const birthMonthSelect = document.getElementById('birthMonth');
     const birthDaySelect = document.getElementById('birthDay');
@@ -262,6 +201,69 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i <= 12; i++) birthHourSelect.appendChild(new Option(`${i}시`, i));
         for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
     }
+
+    const sajuForm = document.getElementById('sajuForm');
+    if (sajuForm) {
+        sajuForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const fortuneType = document.getElementById('fortuneType').value;
+            const name = document.getElementById('name').value;
+            const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
+            const year = document.getElementById('birthYear').value;
+            const month = document.getElementById('birthMonth').value.padStart(2, '0');
+            const day = document.getElementById('birthDay').value.padStart(2, '0');
+
+            if (!year || !month || !day) {
+                alert('생년월일을 모두 선택해주세요.');
+                return;
+            }
+
+            let displayTypeName = "";
+            switch (fortuneType) {
+                case 'daily': displayTypeName = "오늘의 운세"; break;
+                case 'weekly': displayTypeName = "주간 운세"; break;
+                case 'yearly': displayTypeName = "1년 심층 운세"; break;
+                case 'love': displayTypeName = "애정/연애운"; break;
+                case 'exam': displayTypeName = "학업/시험운"; break;
+            }
+
+            if (!Kakao.isInitialized()) {
+                Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+            }
+
+            Kakao.Auth.login({
+                success: function (authObj) {
+                    startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus);
+                },
+                fail: function (err) {
+                    alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다.");
+                    startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus);
+                }
+            });
+        });
+    }
+
+    window.loginWithKakao = function () {
+        if (!Kakao.isInitialized()) {
+            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+        }
+        Kakao.Auth.login({
+            success: function (authObj) {
+                Kakao.API.request({
+                    url: '/v2/user/me',
+                    success: function (res) {
+                        const userName = res.kakao_account.profile.nickname;
+                        alert(userName + "님 환영합니다! 🎉\n성공적으로 로그인되었습니다. 아래에서 운세를 확인하세요.");
+                    }
+                });
+            }
+        });
+    };
+
+    // ==========================================
+    // 3. 사주 분석 및 결과 렌더링 로직
+    // ==========================================
 
     function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType, maritalStatus) {
         const loadingScreen = document.getElementById('analysisLoading');
@@ -309,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `/api/gemini`;
 
         let specificInstructions = "";
-        let lengthInstruction = ""; // 🚨 2번 해결: 상품별 글자 수 차등화 지시문
+        let lengthInstruction = "";
 
         if (fortuneType === 'daily') {
             specificInstructions = "오늘 하루의 운세이므로, 아침(태동), 점심(절정), 저녁(갈무리) 시간대별 기운의 변화와 구체적인 행동 지침을 작성하세요.";
@@ -398,7 +400,6 @@ ${specificInstructions}
         ];
         const keyword = keywords[hash % keywords.length];
 
-        // 🟢 무료 제공 HTML (오행 그래프와 타고난 기운 1개)
         let freeHTML = `
             <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2.5rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15);">
                 <div style="font-size: 1.15rem; color: ${personalColorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold;">[무료 공개] 당신의 행운 키워드</div>
@@ -413,7 +414,6 @@ ${specificInstructions}
         `;
         freeContentArea.innerHTML = freeHTML;
 
-        // 🔴 결제 유도 블러 처리용 HTML (AI가 작성한 심층 내용 5가지)
         let premiumHTML = "";
         for (let i = 1; i <= 5; i++) {
             if (aiResult[`title${i}`] && aiResult[`content${i}`]) {
@@ -433,14 +433,21 @@ ${specificInstructions}
         }
         premiumContentArea.innerHTML = premiumHTML;
 
-        // 결제 모달 띄우기 함수 연동
         const currentPrice = { daily: 3900, weekly: 5900, yearly: 9900, love: 8900, exam: 8900 }[fortuneType];
+
+        document.getElementById('lockTypeName').textContent = `[${typeName}]`;
+        document.getElementById('lockPriceAmount').textContent = `${currentPrice.toLocaleString()}원`;
+
         document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
+
+        // 🔥 여기가 핵심! 운세 결과가 뜰 때 수호 부적도 같이 나타나게 해줍니다 🔥
+        if (typeof showAmuletSection === 'function') {
+            showAmuletSection();
+        }
 
         window.scrollTo(0, 0);
     }
 
-    // 결제 창 띄우기 및 블러 해제 (1번 해결)
     window.openSajuPayment = function (typeName, amount) {
         const paymentModal = document.getElementById('paymentModal');
         document.getElementById('paymentFortuneType').textContent = typeName;
@@ -463,13 +470,11 @@ ${specificInstructions}
                 successUrl: window.location.href,
                 failUrl: window.location.href,
             }).catch(function (error) {
-                // [테스트용] 결제 취소 시에도 블러가 해제되도록 허용하여 진우님이 직접 볼 수 있게 함
                 if (error.code === 'USER_CANCEL') {
                     paymentModal.style.display = 'none';
                     confirmPaymentBtn.textContent = "결제하기";
                     confirmPaymentBtn.disabled = false;
 
-                    // ✨ 블러 해제 및 공유 버튼 표시 ✨
                     document.getElementById('premiumContentArea').classList.add('unlocked');
                     document.getElementById('unlockOverlay').style.display = 'none';
 
@@ -569,20 +574,91 @@ ${specificInstructions}
         `;
     }
 
-    window.loginWithKakao = function () {
-        if (!Kakao.isInitialized()) {
-            Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-        }
-        Kakao.Auth.login({
-            success: function (authObj) {
-                Kakao.API.request({
-                    url: '/v2/user/me',
-                    success: function (res) {
-                        const userName = res.kakao_account.profile.nickname;
-                        alert(userName + "님 환영합니다! 🎉\n성공적으로 로그인되었습니다. 아래에서 무료 운세를 확인하세요.");
-                    }
-                });
-            }
+    const tarotForm = document.getElementById('tarotForm');
+    if (tarotForm) {
+        tarotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert("타로 카드 뽑기로 이동합니다.");
         });
-    };
+    }
 });
+
+// ==========================================
+// 🛡️ 사이버 수호부 (스미싱 감별기) 로직
+// ==========================================
+
+let userAmuletCount = 1; // 카카오 로그인 시 기본 1회 무료 제공
+
+// 수호부 섹션 보여주기 함수
+window.showAmuletSection = function () {
+    document.getElementById('amuletSection').style.display = 'block';
+};
+
+window.checkSmishing = function () {
+    const urlInput = document.getElementById('suspectUrl').value.trim();
+    const resultDiv = document.getElementById('urlCheckResult');
+    const paywall = document.getElementById('amuletPaywall');
+
+    if (!urlInput) {
+        alert("검사할 링크(URL)를 입력해주세요.");
+        return;
+    }
+
+    if (userAmuletCount <= 0) {
+        paywall.style.display = 'flex';
+        return;
+    }
+
+    resultDiv.style.display = 'block';
+    resultDiv.style.color = '#ccc';
+    resultDiv.innerHTML = "⏳ 기운을 분석 중입니다...";
+
+    setTimeout(() => {
+        userAmuletCount--;
+        document.getElementById('checkCountDisplay').innerText = userAmuletCount;
+
+        if (urlInput.includes("bit.ly") || urlInput.includes("택배") || urlInput.includes("청첩장")) {
+            resultDiv.style.color = '#FF5252';
+            resultDiv.innerHTML = "❌ [경고] 매우 위험한 악성 스미싱/피싱 사이트입니다. 절대 접속하지 마십시오!";
+        } else {
+            resultDiv.style.color = '#4CAF50';
+            resultDiv.innerHTML = "✅ 현재 보안 데이터베이스에 보고된 위험이 없습니다. (단, 항상 주의하세요)";
+        }
+
+        if (userAmuletCount === 0) {
+            setTimeout(() => {
+                paywall.style.display = 'flex';
+            }, 2000);
+        }
+    }, 1500);
+};
+
+// 수호부 결제 연동
+window.buyAmulet = function (type, amount) {
+    let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
+
+    const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+    tossPayments.requestPayment('카드', {
+        amount: amount,
+        orderId: 'amulet_' + new Date().getTime(),
+        orderName: orderName,
+        customerName: "고객",
+        successUrl: window.location.href,
+        failUrl: window.location.href,
+    }).catch(function (error) {
+        if (error.code === 'USER_CANCEL') {
+            document.getElementById('amuletPaywall').style.display = 'none';
+            document.getElementById('suspectUrl').value = '';
+            document.getElementById('urlCheckResult').style.display = 'none';
+
+            if (type === 'basic') {
+                userAmuletCount += 3;
+                alert("결제 완료! 감별 횟수 3회가 충전되었습니다.");
+            } else {
+                userAmuletCount += 15;
+                alert("결제 완료! 감별 횟수 15회 충전 및 7일간 '오늘의 운세'가 무료 해제됩니다. 👑");
+            }
+            document.getElementById('checkCountDisplay').innerText = userAmuletCount;
+        }
+    });
+};
