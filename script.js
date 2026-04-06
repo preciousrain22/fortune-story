@@ -643,7 +643,7 @@ window.openSajuPayment = function (typeName, amount) {
             paymentModal.style.display = 'none';
         }, 500);
 
-        const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
+        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
         tossPayments.requestPayment('카드', {
             amount: amount,
             orderId: 'saju_' + new Date().getTime(),
@@ -802,7 +802,7 @@ window.buyAmulet = function (type, amount) {
     showToast("안전한 토스 결제창으로 이동합니다...");
     document.getElementById('amuletPaywall').style.display = 'none';
 
-    const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
+    const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
     tossPayments.requestPayment('카드', {
         amount: amount,
         orderId: 'amulet_' + new Date().getTime(),
