@@ -639,7 +639,7 @@ window.openSajuPayment = function (typeName, amount) {
         confirmPaymentBtn.textContent = "결제 진행 중...";
         confirmPaymentBtn.disabled = true;
 
-        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+        const tossPayments = TossPayments("live_gck_BX7zk2yd8yYX5LKXB6Gq8x9POLqK");
         tossPayments.requestPayment('카드', {
             amount: amount,
             orderId: 'saju_' + new Date().getTime(),
@@ -795,7 +795,7 @@ window.checkSmishing = function () {
 window.buyAmulet = function (type, amount) {
     let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
 
-    const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+    const tossPayments = TossPayments("live_gck_BX7zk2yd8yYX5LKXB6Gq8x9POLqK");
     tossPayments.requestPayment('카드', {
         amount: amount,
         orderId: 'amulet_' + new Date().getTime(),
