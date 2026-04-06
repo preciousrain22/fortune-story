@@ -22,19 +22,27 @@ window.handlePdfPrint = function (type) {
         return;
     }
 
-    showToast("프리미엄 리포트를 PDF로 변환 중입니다... ⏳");
+    showToast("프리미엄 리포트를 PDF로 변환 중입니다... ⏳\n(데이터량에 따라 5~10초 소요됩니다)");
 
     const targetId = type === 'saju' ? 'result' : 'tarotResult';
     const overlay = document.getElementById(targetId);
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
 
+    // 1. 공유/저장 버튼 임시 숨기기
     const actionArea = elementToCapture.querySelector('.result-actions');
     if (actionArea) actionArea.style.display = 'none';
 
-    const originalBg = elementToCapture.style.backgroundColor;
-    const originalPadding = elementToCapture.style.padding;
+    // 🚨 2. html2canvas 다운 현상을 일으키는 '복잡한 SVG 배경(질감)' 임시 제거
+    const originalBgImage = elementToCapture.style.backgroundImage;
+    elementToCapture.style.backgroundImage = 'none';
+
+    const originalBgColor = elementToCapture.style.backgroundColor;
     elementToCapture.style.backgroundColor = '#1a1a1a';
-    elementToCapture.style.padding = '20px';
+
+    // 🚨 3. 잘림 방지를 위해 스크롤 영역을 최대로 펼치기
+    const originalPosition = overlay.style.position;
+    const originalOverflow = overlay.style.overflowY;
+    const originalHeight = overlay.style.height;
 
     overlay.style.setProperty('position', 'absolute', 'important');
     overlay.style.setProperty('overflow-y', 'visible', 'important');
@@ -42,30 +50,37 @@ window.handlePdfPrint = function (type) {
     window.scrollTo(0, 0);
 
     const opt = {
-        margin: [5, 0, 5, 0],
+        margin: [10, 0, 10, 0],
         filename: `포춘스토리_정밀분석_${type === 'saju' ? '사주' : '타로'}.pdf`,
-        image: { type: 'jpeg', quality: 1.0 },
+        image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
             scale: 2,
             useCORS: true,
             backgroundColor: '#1a1a1a',
+            scrollY: 0, // 이전 코드의 -window.scrollY 버그 제거
+            scrollX: 0,
             windowWidth: document.documentElement.scrollWidth,
-            scrollY: -window.scrollY
+            allowTaint: true
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(elementToCapture).save().then(() => {
-        elementToCapture.style.backgroundColor = originalBg;
-        elementToCapture.style.padding = originalPadding;
+    // 🚨 4. 브라우저가 화면을 재정렬(Reflow)할 수 있도록 0.5초 대기 후 안전하게 캡처 시작
+    setTimeout(() => {
+        html2pdf().set(opt).from(elementToCapture).save().then(() => {
+            // 모든 디자인과 셋팅 원상 복구
+            elementToCapture.style.backgroundImage = originalBgImage;
+            elementToCapture.style.backgroundColor = originalBgColor;
 
-        overlay.style.setProperty('position', 'fixed', 'important');
-        overlay.style.setProperty('overflow-y', 'auto', 'important');
-        overlay.style.setProperty('height', '100vh', 'important');
-        if (actionArea) actionArea.style.display = 'block';
+            overlay.style.setProperty('position', originalPosition || 'fixed', 'important');
+            overlay.style.setProperty('overflow-y', originalOverflow || 'auto', 'important');
+            overlay.style.setProperty('height', originalHeight || '100vh', 'important');
 
-        showToast("✅ PDF 저장이 완료되었습니다!");
-    });
+            if (actionArea) actionArea.style.display = 'block';
+
+            showToast("✅ PDF 저장이 완료되었습니다!");
+        });
+    }, 500);
 };
 
 window.shareKakaoCombo = async function (type) {
