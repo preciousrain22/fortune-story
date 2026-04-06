@@ -2089,3 +2089,74 @@ p {
         height: 50px !important;
     }
 }
+
+/* 🔮 신규 사이버 수호부 (마법진 디자인) */
+.cyber-amulet-visual {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 3rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.amulet-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px dashed rgba(229, 57, 53, 0.4);
+    animation: spin-slow 15s linear infinite;
+    pointer-events: none;
+}
+
+.amulet-circle.outer {
+    width: 160px;
+    height: 160px;
+}
+
+.amulet-circle.inner {
+    width: 130px;
+    height: 130px;
+    border: 2px solid #FF5252;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    animation: spin-reverse 10s linear infinite;
+}
+
+.amulet-center {
+    position: absolute;
+    width: 95px;
+    height: 95px;
+    background: radial-gradient(circle, #8B0000 0%, #4A0000 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(229, 57, 53, 0.8), inset 0 0 15px rgba(0, 0, 0, 0.8);
+    z-index: 2;
+}
+
+.amulet-text {
+    color: #FFCDD2;
+    font-family: '궁서', 'Gungsuh', 'Batang', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-align: center;
+    text-shadow: 0 0 10px #FF5252;
+    letter-spacing: 2px;
+}
+
+.amulet-label {
+    position: absolute;
+    bottom: -20px;
+    background: #E53935;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.5);
+    z-index: 3;
+    border: 1px solid #FFCDD2;
+}

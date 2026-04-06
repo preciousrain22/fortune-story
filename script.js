@@ -194,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sajuForm = document.getElementById('sajuForm');
     if (sajuForm) {
-        // 🚨 오류 수정: sForm -> sajuForm
         sajuForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
@@ -274,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTarotDraw() {
         document.querySelector('.header').style.display = 'none';
-        // 🚨 오류 수정: .star.display -> .style.display
         document.querySelector('.star-bg-fixed').style.display = 'none';
         document.getElementById('tarot').style.display = 'none';
         document.getElementById('tarotDraw').style.display = 'block';
@@ -567,12 +565,13 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     for (let i = 0; i < hashString.length; i++) hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
     hash = Math.abs(hash);
 
+    // 🚨 뜻풀이(mean) 속성 추가 완료! 이제 한자에 맞게 정확한 한글 뜻이 나옵니다.
     const keywords = [
-        { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미' },
-        { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘' },
-        { hanja: '溫 和', title: '온화(溫和)', desc: '따뜻하고 부드러운 봄볕 같은 성품' },
-        { hanja: '明 哲', title: '명철(明哲)', desc: '사리를 밝게 분별하는 지혜로움' },
-        { hanja: '鎭 重', title: '진중(鎭重)', desc: '태도가 점잖고 무게가 있음' }
+        { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미', mean: '빼어날 수 / 넘을 월' },
+        { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘', mean: '기운 기 / 대개 개' },
+        { hanja: '溫 和', title: '온화(溫和)', desc: '따뜻하고 부드러운 봄볕 같은 성품', mean: '따뜻할 온 / 화할 화' },
+        { hanja: '明 哲', title: '명철(明哲)', desc: '사리를 밝게 분별하는 지혜로움', mean: '밝을 명 / 밝을 철' },
+        { hanja: '鎭 重', title: '진중(鎭重)', desc: '태도가 점잖고 무게가 있음', mean: '진압할 진 / 무거울 중' }
     ];
     const keyword = keywords[hash % keywords.length];
 
@@ -594,7 +593,7 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
                 <h3 style="font-size: 1.6rem; color: ${personalColorInfo.highlightHex}; font-weight: 800; margin-bottom: 10px; display: inline-block;">
                     <span style="font-size: 0.8em; color:rgba(255,255,255,0.7); vertical-align: middle;">비결 명(名):</span> ${keyword.title}
                 </h3>
-                <p style="color:rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 1.5rem;">(${keyword.hanja[0]} 빼어날 수 / ${keyword.hanja[1]} 넘을 월)</p>
+                <p style="color:rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 1.5rem;">( ${keyword.mean} )</p>
                 <p style="color: #FDFBF7; font-size: 1.15rem; line-height: 2.0; text-align: center; word-break: keep-all; max-width: 90%; margin: 0 auto; letter-spacing: -0.5px;">
                     ${keyword.desc}
                 </p>
