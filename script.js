@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 3. 타로(Tarot) 78장 생성 및 뽑기 로직 🔥 (부활한 코드)
+    // 3. 타로(Tarot) 78장 생성 및 뽑기 로직 🔥
     // ==========================================
 
     const tarotCards = [];
@@ -635,11 +635,23 @@ window.openSajuPayment = function (typeName, amount) {
     document.querySelector('.close-modal').onclick = () => paymentModal.style.display = 'none';
 
     const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+
+    // 🌟 모달이 열릴 때마다 버튼 상태 초기화
+    confirmPaymentBtn.textContent = "결제하기";
+    confirmPaymentBtn.disabled = false;
+
     confirmPaymentBtn.onclick = () => {
-        confirmPaymentBtn.textContent = "결제 진행 중...";
+        // 🚨 핵심 UX 개선: 이중 결제 불안감 해소
+        confirmPaymentBtn.textContent = "안전한 토스 결제창으로 이동 중...";
         confirmPaymentBtn.disabled = true;
 
-        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+        // 고객이 안내 문구를 0.5초 정도 볼 시간을 주고 모달을 싹 숨겨버립니다.
+        setTimeout(() => {
+            paymentModal.style.display = 'none';
+        }, 500);
+
+        // 🚨 실결제용 라이브 키 적용 완료
+        const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
         tossPayments.requestPayment('카드', {
             amount: amount,
             orderId: 'saju_' + new Date().getTime(),
@@ -648,11 +660,12 @@ window.openSajuPayment = function (typeName, amount) {
             successUrl: window.location.href,
             failUrl: window.location.href,
         }).catch(function (error) {
-            if (error.code === 'USER_CANCEL') {
-                paymentModal.style.display = 'none';
-                confirmPaymentBtn.textContent = "결제하기";
-                confirmPaymentBtn.disabled = false;
+            // 에러가 나거나 고객이 결제창을 닫으면 버튼 원상복구
+            confirmPaymentBtn.textContent = "결제하기";
+            confirmPaymentBtn.disabled = false;
 
+            if (error.code === 'USER_CANCEL') {
+                // (기존 테스트 로직 유지)
                 document.getElementById('premiumContentArea').classList.add('unlocked');
                 document.getElementById('unlockOverlay').style.display = 'none';
 
@@ -661,7 +674,6 @@ window.openSajuPayment = function (typeName, amount) {
                 sajuActionsArea.innerHTML = `
                     <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;">
                         <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
-                        
                         <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
                             <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
                             <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -671,6 +683,8 @@ window.openSajuPayment = function (typeName, amount) {
                         </div>
                     </div>
                 `;
+            } else {
+                alert("결제창 호출 실패:\n" + error.message);
             }
         });
     };
@@ -795,7 +809,12 @@ window.checkSmishing = function () {
 window.buyAmulet = function (type, amount) {
     let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
 
-    const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+    // 🚨 핵심 UX 개선: 부적 결제창도 누르는 즉시 숨기고 토스트 알림 띄우기
+    showToast("안전한 토스 결제창으로 이동합니다...");
+    document.getElementById('amuletPaywall').style.display = 'none';
+
+    // 🚨 실결제용 라이브 키 적용 완료
+    const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
     tossPayments.requestPayment('카드', {
         amount: amount,
         orderId: 'amulet_' + new Date().getTime(),
@@ -805,7 +824,6 @@ window.buyAmulet = function (type, amount) {
         failUrl: window.location.href,
     }).catch(function (error) {
         if (error.code === 'USER_CANCEL') {
-            document.getElementById('amuletPaywall').style.display = 'none';
             document.getElementById('suspectUrl').value = '';
             document.getElementById('urlCheckResult').style.display = 'none';
 
@@ -817,6 +835,10 @@ window.buyAmulet = function (type, amount) {
                 alert("결제 완료! 감별 횟수 15회 충전 및 7일간 '오늘의 운세'가 무료 해제됩니다. 👑");
             }
             document.getElementById('checkCountDisplay').innerText = userAmuletCount;
+        } else {
+            alert("결제창 호출 실패:\n" + error.message);
+            // 에러가 나면 부적 결제창 다시 보여주기
+            document.getElementById('amuletPaywall').style.display = 'flex';
         }
     });
 };
