@@ -194,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sajuForm = document.getElementById('sajuForm');
     if (sajuForm) {
-        sForm.addEventListener('submit', (e) => {
+        // 🚨 오류 수정: sForm -> sajuForm
+        sajuForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
             const name = document.getElementById('name').value;
@@ -273,7 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTarotDraw() {
         document.querySelector('.header').style.display = 'none';
-        document.querySelector('.star-bg-fixed').star.display = 'none';
+        // 🚨 오류 수정: .star.display -> .style.display
+        document.querySelector('.star-bg-fixed').style.display = 'none';
         document.getElementById('tarot').style.display = 'none';
         document.getElementById('tarotDraw').style.display = 'block';
 
@@ -595,7 +597,8 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
                 <p style="color:rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 1.5rem;">(${keyword.hanja[0]} 빼어날 수 / ${keyword.hanja[1]} 넘을 월)</p>
                 <p style="color: #FDFBF7; font-size: 1.15rem; line-height: 2.0; text-align: center; word-break: keep-all; max-width: 90%; margin: 0 auto; letter-spacing: -0.5px;">
                     ${keyword.desc}
-                </div>
+                </p>
+            </div>
         </div>
         ${generateSajuChartsHTML(personalColorInfo, hash)}
     `;
@@ -678,7 +681,7 @@ window.openSajuPayment = function (typeName, amount) {
                     <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
                         <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                         <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                            <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('tarot')">💬 카카오톡으로 전체 결과 보내기</button>
+                            <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
                             <div style="display: flex; gap: 10px; margin-top: 10px;">
                                 <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
                                 <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
