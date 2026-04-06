@@ -565,7 +565,7 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     for (let i = 0; i < hashString.length; i++) hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
     hash = Math.abs(hash);
 
-    // 🚨 오류 수정 완료: 이제 한자에 맞는 정확한 뜻풀이가 노출됩니다.
+    // 🚨 한자 뜻풀이 세련된 병기 적용 완료
     const keywords = [
         { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미', mean: '秀 빼어날 수 · 越 넘을 월' },
         { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘', mean: '氣 기운 기 · 槪 대개 개' },
@@ -709,9 +709,22 @@ function generateSajuChartsHTML(colorInfo, hash) {
     const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
     const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
 
-    let v1 = (hash % 30) + 5, v2 = ((hash >> 2) % 30) + 5, v3 = ((hash >> 4) % 30) + 5, v4 = ((hash >> 6) % 30) + 5, v5 = ((hash >> 8) % 30) + 5;
+    // 🚨 자바스크립트 버그(음수 퍼센트) 완벽 해결 안전한 오행 공식
+    let base = Math.abs(hash);
+    let v1 = (base % 25) + 10;
+    let v2 = ((base * 7) % 25) + 10;
+    let v3 = ((base * 13) % 25) + 10;
+    let v4 = ((base * 17) % 25) + 10;
+    let v5 = ((base * 23) % 25) + 10;
+
     const total = v1 + v2 + v3 + v4 + v5;
-    const percentages = [Math.round((v1 / total) * 100), Math.round((v2 / total) * 100), Math.round((v3 / total) * 100), Math.round((v4 / total) * 100)];
+    const percentages = [
+        Math.round((v1 / total) * 100),
+        Math.round((v2 / total) * 100),
+        Math.round((v3 / total) * 100),
+        Math.round((v4 / total) * 100)
+    ];
+    // 마지막 수(水)는 100에서 나머지를 빼서 무조건 합계 100%를 맞춤
     percentages.push(100 - percentages.reduce((a, b) => a + b, 0));
 
     const size = 320, center = 160, radius = 110;
