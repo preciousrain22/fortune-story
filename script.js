@@ -911,15 +911,41 @@ window.toggleQuickMenu = function () {
 };
 
 window.quickNav = function (path) {
+    const isSajuResultOpen = document.getElementById('result').style.display === 'block';
+    const isTarotResultOpen = document.getElementById('tarotResult').style.display === 'block';
+
+    // 1. 부적으로 이동할 때는 스크롤만 이동하므로 데이터가 날아가지 않음 (경고창 패스)
+    if (path === 'amulet') {
+        const amuletSec = document.getElementById('amuletSection');
+        amuletSec.style.display = 'block';
+        amuletSec.scrollIntoView({ behavior: 'smooth' });
+        window.toggleQuickMenu();
+        return;
+    }
+
+    // 2. 사주나 타로 결과가 떠 있는 상태에서 다른 메뉴로 이동하려 할 때 -> 경고창 발생!
+    if (isSajuResultOpen || isTarotResultOpen) {
+        const confirmMove = confirm("⚠️ 아직 결과를 저장하지 않으셨다면 데이터가 초기화될 수 있습니다.\n\n(이동 전 PDF 저장이나 카카오톡 공유를 권장합니다.)\n정말 다른 화면으로 이동하시겠습니까?");
+
+        // '취소'를 누르면 메뉴만 닫고 현재 결과창을 그대로 유지
+        if (!confirmMove) {
+            window.toggleQuickMenu();
+            return;
+        }
+
+        // '확인'을 눌렀다면 기존 결과창을 닫고 배경/헤더를 원상 복구해 줌
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('tarotResult').style.display = 'none';
+        document.querySelector('.header').style.display = 'flex';
+        document.querySelector('.star-bg-fixed').style.display = 'block';
+    }
+
+    // 3. 목적지로 안전하게 이동
     if (path === 'saju') {
         window.selectPath('saju');
     } else if (path === 'tarot') {
         window.selectPath('tarot');
-    } else if (path === 'amulet') {
-        // 결과창이 떠있지 않아 부적이 안보이는 상태라면 강제로 섹션 표시
-        const amuletSec = document.getElementById('amuletSection');
-        amuletSec.style.display = 'block';
-        amuletSec.scrollIntoView({ behavior: 'smooth' });
     }
-    window.toggleQuickMenu(); // 메뉴 닫기
+
+    window.toggleQuickMenu();
 };
