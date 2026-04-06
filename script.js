@@ -129,6 +129,14 @@ function preventExit(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // 🚨 핵심 추가: 토스페이먼츠에서 결제가 튕겼을 때 에러 메시지 감지 및 표시
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('message')) {
+        alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
+        // 경고창 띄운 후 주소창 깔끔하게 정리
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const userLang = navigator.language || navigator.userLanguage;
     if (!userLang.startsWith('ko')) {
         const sajuCard = document.getElementById('sajuCard');
@@ -230,12 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const tarotCards = [];
     const majorNames = ["바보 (The Fool)", "마법사 (The Magician)", "여사제 (The High Priestess)", "여황제 (The Empress)", "황제 (The Emperor)", "교황 (The Hierophant)", "연인 (The Lovers)", "전차 (The Chariot)", "힘 (Strength)", "은둔자 (The Hermit)", "운명의 수레바퀴 (Wheel of Fortune)", "정의 (Justice)", "매달린 사람 (The Hanged Man)", "죽음 (Death)", "절제 (Temperance)", "악마 (The Devil)", "탑 (The Tower)", "별 (The Star)", "달 (The Moon)", "태양 (The Sun)", "심판 (Judgement)", "세계 (The World)"];
 
-    // 0~21번: 메이저 아르카나 (0.jpeg ~ 21.jpeg)
     for (let i = 0; i <= 21; i++) {
         tarotCards.push({ id: i, name: majorNames[i], img: `images/${i}.jpeg` });
     }
 
-    // 22~77번: 마이너 아르카나 (진우님 폴더 배열 순서: 컵 -> 펜타클 -> 검 -> 지팡이)
     const suits = [
         { name: 'Cups', kr: '컵' },
         { name: 'Pents', kr: '펜타클' },
@@ -258,8 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tarotForm) {
         tarotForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
-            // 카카오 로그인 유도 (사주와 동일한 퍼널)
             if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
             Kakao.Auth.login({
                 success: function () { startTarotDraw(); },
@@ -268,7 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 타로 카드 펼치기
     function startTarotDraw() {
         document.querySelector('.header').style.display = 'none';
         document.querySelector('.star-bg-fixed').style.display = 'none';
@@ -283,13 +286,12 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRead.disabled = true;
         btnRead.classList.add('disable-btn');
 
-        // 카드 셔플
         const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
 
         shuffled.forEach((card) => {
             const cardEl = document.createElement('div');
             cardEl.className = 'tarot-card-back';
-            cardEl.dataset.isReversed = Math.random() > 0.5 ? "true" : "false"; // 50% 확률 역방향
+            cardEl.dataset.isReversed = Math.random() > 0.5 ? "true" : "false";
 
             cardEl.onclick = function () {
                 if (this.classList.contains('selected')) {
@@ -317,12 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
             deckContainer.appendChild(cardEl);
         });
 
-        // 3장 다 뽑고 버튼 누르면 AI 분석 시작
         btnRead.onclick = () => { startTarotAnalysis(); };
         window.scrollTo(0, 0);
     }
 
-    // 타로 분석 로딩 및 API 호출
     function startTarotAnalysis() {
         document.getElementById('tarotDraw').style.display = 'none';
         const loadingScreen = document.getElementById('tarotLoading');
@@ -334,7 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const category = categorySelect.options[categorySelect.selectedIndex].text;
         const concern = document.getElementById('tarotConcern').value;
 
-        // 뽑은 카드 정보 프롬프트화
         const cardInfoText = selectedTarotCards.map((c, i) => {
             const pos = i === 0 ? "과거/원인" : i === 1 ? "현재/상황" : "미래/조언";
             const direction = c.isReversed ? "역방향" : "정방향";
@@ -354,7 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // 타로 제미나이 API 통신
     async function getTarotFromGemini(name, category, concern, cardInfoText) {
         const url = `/api/gemini`;
         const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 신비롭고 통찰력 있는 타로 마스터입니다.
@@ -384,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
-    // 타로 결과 화면 렌더링
     function showTarotResult(name, category, aiResult) {
         document.getElementById('tarotResult').style.display = 'block';
         document.getElementById('tarotResultSub').innerText = `${name}님의 '${category}' 고민에 대한 우주의 응답입니다.`;
@@ -398,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const transform = isRev ? "transform: rotate(180deg);" : "";
             const dirText = isRev ? " (역방향)" : " (정방향)";
 
-            // 이미지가 카드 안에 예쁘게 들어가도록 HTML 생성
             revealContainer.innerHTML += `
                 <div class="revealed-card-col fade-in-up delay-${i + 1}">
                     <div class="revealed-card-pos" style="margin-bottom:10px;">${positions[i]}</div>
@@ -441,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 4. 사주 분석 및 결과 렌더링 (기존 유지)
+// 4. 사주 분석 및 결과 렌더링
 // ==========================================
 
 function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType, maritalStatus) {
@@ -636,21 +632,17 @@ window.openSajuPayment = function (typeName, amount) {
 
     const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
-    // 🌟 모달이 열릴 때마다 버튼 상태 초기화
     confirmPaymentBtn.textContent = "결제하기";
     confirmPaymentBtn.disabled = false;
 
     confirmPaymentBtn.onclick = () => {
-        // 🚨 핵심 UX 개선: 이중 결제 불안감 해소
         confirmPaymentBtn.textContent = "안전한 토스 결제창으로 이동 중...";
         confirmPaymentBtn.disabled = true;
 
-        // 고객이 안내 문구를 0.5초 정도 볼 시간을 주고 모달을 싹 숨겨버립니다.
         setTimeout(() => {
             paymentModal.style.display = 'none';
         }, 500);
 
-        // 🚨 실결제용 라이브 키 적용 완료
         const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
         tossPayments.requestPayment('카드', {
             amount: amount,
@@ -660,12 +652,10 @@ window.openSajuPayment = function (typeName, amount) {
             successUrl: window.location.href,
             failUrl: window.location.href,
         }).catch(function (error) {
-            // 에러가 나거나 고객이 결제창을 닫으면 버튼 원상복구
             confirmPaymentBtn.textContent = "결제하기";
             confirmPaymentBtn.disabled = false;
 
             if (error.code === 'USER_CANCEL') {
-                // (기존 테스트 로직 유지)
                 document.getElementById('premiumContentArea').classList.add('unlocked');
                 document.getElementById('unlockOverlay').style.display = 'none';
 
@@ -809,11 +799,9 @@ window.checkSmishing = function () {
 window.buyAmulet = function (type, amount) {
     let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
 
-    // 🚨 핵심 UX 개선: 부적 결제창도 누르는 즉시 숨기고 토스트 알림 띄우기
     showToast("안전한 토스 결제창으로 이동합니다...");
     document.getElementById('amuletPaywall').style.display = 'none';
 
-    // 🚨 실결제용 라이브 키 적용 완료
     const tossPayments = TossPayments("live_ck_GjLJoQ1aVZ29dvGAqRvwVw6KYe2R");
     tossPayments.requestPayment('카드', {
         amount: amount,
@@ -837,7 +825,6 @@ window.buyAmulet = function (type, amount) {
             document.getElementById('checkCountDisplay').innerText = userAmuletCount;
         } else {
             alert("결제창 호출 실패:\n" + error.message);
-            // 에러가 나면 부적 결제창 다시 보여주기
             document.getElementById('amuletPaywall').style.display = 'flex';
         }
     });
