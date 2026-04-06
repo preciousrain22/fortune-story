@@ -867,3 +867,31 @@ window.buyAmulet = function (type, amount) {
         }
     });
 };
+// ✦ 플로팅 메뉴 제어 함수
+window.toggleQuickMenu = function () {
+    const options = document.getElementById('fabOptions');
+    const mainBtn = document.getElementById('fabMainBtn');
+    options.classList.toggle('active');
+
+    // 버튼 아이콘 변경 (메뉴 열리면 X자로)
+    const icon = mainBtn.querySelector('.fab-icon');
+    if (options.classList.contains('active')) {
+        icon.innerText = '✕';
+    } else {
+        icon.innerText = '✦';
+    }
+};
+
+window.quickNav = function (path) {
+    if (path === 'saju') {
+        window.selectPath('saju');
+    } else if (path === 'tarot') {
+        window.selectPath('tarot');
+    } else if (path === 'amulet') {
+        // 결과창이 떠있지 않아 부적이 안보이는 상태라면 강제로 섹션 표시
+        const amuletSec = document.getElementById('amuletSection');
+        amuletSec.style.display = 'block';
+        amuletSec.scrollIntoView({ behavior: 'smooth' });
+    }
+    window.toggleQuickMenu(); // 메뉴 닫기
+};
