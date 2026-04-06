@@ -129,7 +129,6 @@ function preventExit(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 🚨 결제 성공/실패 여부를 판단하여 알림을 띄우는 로직
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('orderId')) {
         alert("✅ 결제가 완료되었습니다!\n(현재는 테스트 버전이므로 결제 후 화면이 새로고침되어 결과가 초기화되었습니다. 실서버 연동 시 DB에 안전하게 저장됩니다.)");
@@ -195,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sajuForm = document.getElementById('sajuForm');
     if (sajuForm) {
-        sajuForm.addEventListener('submit', (e) => {
+        sForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
             const name = document.getElementById('name').value;
@@ -274,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTarotDraw() {
         document.querySelector('.header').style.display = 'none';
-        document.querySelector('.star-bg-fixed').style.display = 'none';
+        document.querySelector('.star-bg-fixed').star.display = 'none';
         document.getElementById('tarot').style.display = 'none';
         document.getElementById('tarotDraw').style.display = 'block';
 
@@ -576,14 +575,27 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     const keyword = keywords[hash % keywords.length];
 
     let freeHTML = `
-        <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2.5rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.15);">
-            <div style="font-size: 1.15rem; color: ${personalColorInfo.textHex}; margin-bottom: 1.5rem; font-weight: bold;">[무료 공개] 당신의 행운 키워드</div>
-            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;">
-                <span class="red-seal" style="transform: scale(1.3); margin: 0 15px;">${keyword.hanja}</span>
+        <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 3rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);">
+            <div style="font-size: 1.2rem; color: ${personalColorInfo.textHex}; margin-bottom: 2.5rem; font-weight: bold; text-shadow: 0 0 5px ${personalColorInfo.textHex}; letter-spacing: 1px;">
+                ✨ [무료 공개] ${name}님의 고대 행운 비결
             </div>
-            <div style="font-size: 1.05rem; color: ${personalColorInfo.highlightHex}; line-height: 1.9; text-align: center; word-break: keep-all;">
-                <strong style="font-size: 1.15rem;">${keyword.title}</strong> : ${keyword.desc}
+            
+            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2.5rem;">
+                <div style="width: 140px; height: 140px; background-color: #8B0000; border: 5px solid #E53935; border-radius: 8px; box-shadow: 0 0 15px rgba(229, 57, 53, 0.8), inset 0 0 15px rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; transform: rotate(15deg);">
+                    <span style="color: #FFCDD2; font-size: 3rem; font-weight: 800; font-family: sans-serif; letter-spacing: -3px; text-shadow: 2px 2px 3px rgba(0,0,0,0.8), 0 0 10px #FFD54F;">
+                        ${keyword.hanja}
+                    </span>
+                </div>
             </div>
+            
+            <div style="margin-top: 1.5rem; background-color: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 10px;">
+                <h3 style="font-size: 1.6rem; color: ${personalColorInfo.highlightHex}; font-weight: 800; margin-bottom: 10px; display: inline-block;">
+                    <span style="font-size: 0.8em; color:rgba(255,255,255,0.7); vertical-align: middle;">비결 명(名):</span> ${keyword.title}
+                </h3>
+                <p style="color:rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 1.5rem;">(${keyword.hanja[0]} 빼어날 수 / ${keyword.hanja[1]} 넘을 월)</p>
+                <p style="color: #FDFBF7; font-size: 1.15rem; line-height: 2.0; text-align: center; word-break: keep-all; max-width: 90%; margin: 0 auto; letter-spacing: -0.5px;">
+                    ${keyword.desc}
+                </div>
         </div>
         ${generateSajuChartsHTML(personalColorInfo, hash)}
     `;
@@ -615,7 +627,6 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
 
     document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
 
-    // 🚨 수호 부적이 결과창 안으로 스며들어 나타나게 조치
     if (typeof showAmuletSection === 'function') {
         showAmuletSection();
     }
@@ -660,7 +671,6 @@ window.openSajuPayment = function (typeName, amount) {
                 document.getElementById('premiumContentArea').classList.add('unlocked');
                 document.getElementById('unlockOverlay').style.display = 'none';
 
-                // 🚨 불필요한 점선 테두리(border-top) 완전히 삭제
                 const sajuActionsArea = document.getElementById('sajuActionsArea');
                 sajuActionsArea.style.display = 'block';
                 sajuActionsArea.style.borderTop = 'none';
@@ -668,7 +678,7 @@ window.openSajuPayment = function (typeName, amount) {
                     <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
                         <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                         <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                            <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
+                            <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('tarot')">💬 카카오톡으로 전체 결과 보내기</button>
                             <div style="display: flex; gap: 10px; margin-top: 10px;">
                                 <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
                                 <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
@@ -770,7 +780,6 @@ window.showAmuletSection = function () {
     const paper = document.querySelector('#result .paper-container');
     const actionsArea = document.getElementById('sajuActionsArea');
 
-    // 🚨 숨겨져 있던 부적 섹션을 결과창(paper) 안쪽으로 이동시킵니다!
     if (amulet && paper) {
         amulet.style.padding = '2rem 0 0 0';
         amulet.style.marginTop = '2rem';
