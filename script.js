@@ -129,11 +129,13 @@ function preventExit(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 🚨 핵심 추가: 토스페이먼츠에서 결제가 튕겼을 때 에러 메시지 감지 및 표시
+    // 🚨 결제 성공/실패 여부를 판단하여 알림을 띄우는 로직
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('message')) {
+    if (urlParams.has('orderId')) {
+        alert("✅ 결제가 완료되었습니다!\n(현재는 테스트 버전이므로 결제 후 화면이 새로고침되어 결과가 초기화되었습니다. 실서버 연동 시 DB에 안전하게 저장됩니다.)");
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (urlParams.has('message')) {
         alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
-        // 경고창 띄운 후 주소창 깔끔하게 정리
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
@@ -174,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 생년월일 셀렉트 박스
     const birthYearSelect = document.getElementById('birthYear');
     const birthMonthSelect = document.getElementById('birthMonth');
     const birthDaySelect = document.getElementById('birthDay');
@@ -192,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
     }
 
-    // 사주 폼 전송 (카카오 로그인 유도)
     const sajuForm = document.getElementById('sajuForm');
     if (sajuForm) {
         sajuForm.addEventListener('submit', (e) => {
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 3. 타로(Tarot) 78장 생성 및 뽑기 로직 🔥
+    // 3. 타로(Tarot) 78장 생성 및 뽑기 로직
     // ==========================================
 
     const tarotCards = [];
@@ -615,6 +615,7 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
 
     document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
 
+    // 🚨 수호 부적이 결과창 안으로 스며들어 나타나게 조치
     if (typeof showAmuletSection === 'function') {
         showAmuletSection();
     }
@@ -649,7 +650,7 @@ window.openSajuPayment = function (typeName, amount) {
             orderId: 'saju_' + new Date().getTime(),
             orderName: typeName,
             customerName: "고객",
-            successUrl: window.location.href,
+            successUrl: window.location.href + "?orderId=" + new Date().getTime(),
             failUrl: window.location.href,
         }).catch(function (error) {
             confirmPaymentBtn.textContent = "결제하기";
@@ -659,10 +660,12 @@ window.openSajuPayment = function (typeName, amount) {
                 document.getElementById('premiumContentArea').classList.add('unlocked');
                 document.getElementById('unlockOverlay').style.display = 'none';
 
+                // 🚨 불필요한 점선 테두리(border-top) 완전히 삭제
                 const sajuActionsArea = document.getElementById('sajuActionsArea');
                 sajuActionsArea.style.display = 'block';
+                sajuActionsArea.style.borderTop = 'none';
                 sajuActionsArea.innerHTML = `
-                    <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; border-top: 1px dashed rgba(197, 160, 89, 0.6); padding-top: 2.5rem; padding-bottom: 2rem;">
+                    <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
                         <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                         <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
                             <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
@@ -717,7 +720,7 @@ function generateSajuChartsHTML(colorInfo, hash) {
     }
 
     percentages.forEach((p, idx) => {
-        let scaledRad = Math.max(10, Math.min((p / 40) * radius, radius));
+        let scaledRad = Math.max(5, Math.min((p / 50) * radius, radius));
         const angle = (Math.PI / 2) - (idx * 2 * Math.PI / 5);
         const px = center + scaledRad * Math.cos(angle), py = center - scaledRad * Math.sin(angle);
         dataPoints += `${px},${py} `;
@@ -763,7 +766,18 @@ function generateSajuChartsHTML(colorInfo, hash) {
 let userAmuletCount = 1;
 
 window.showAmuletSection = function () {
-    document.getElementById('amuletSection').style.display = 'block';
+    const amulet = document.getElementById('amuletSection');
+    const paper = document.querySelector('#result .paper-container');
+    const actionsArea = document.getElementById('sajuActionsArea');
+
+    // 🚨 숨겨져 있던 부적 섹션을 결과창(paper) 안쪽으로 이동시킵니다!
+    if (amulet && paper) {
+        amulet.style.padding = '2rem 0 0 0';
+        amulet.style.marginTop = '2rem';
+        amulet.style.borderTop = '1px solid rgba(197, 160, 89, 0.3)';
+        paper.insertBefore(amulet, actionsArea);
+        amulet.style.display = 'block';
+    }
 };
 
 window.checkSmishing = function () {
@@ -808,7 +822,7 @@ window.buyAmulet = function (type, amount) {
         orderId: 'amulet_' + new Date().getTime(),
         orderName: orderName,
         customerName: "고객",
-        successUrl: window.location.href,
+        successUrl: window.location.href + "?orderId=" + new Date().getTime(),
         failUrl: window.location.href,
     }).catch(function (error) {
         if (error.code === 'USER_CANCEL') {
