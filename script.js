@@ -630,7 +630,8 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
 
     if (typeof showAmuletSection === 'function') {
-        showAmuletSection();
+        // 🚨 true 값을 넘겨주어 "이 고객은 사주를 다 봤으니 무료 1회를 주어라"고 명령함
+        showAmuletSection(true);
     }
 
     window.scrollTo(0, 0);
@@ -788,18 +789,35 @@ function generateSajuChartsHTML(colorInfo, hash) {
 // 5. 사이버 수호부 (스미싱 감별기) 로직
 // ==========================================
 
-let userAmuletCount = 1;
+let userAmuletCount = 0; // 🚨 기본값 0으로 변경 (무임승차 방지)
+let isFreeGranted = false; // 1회 무료 제공 여부 추적
 
-window.showAmuletSection = function () {
+window.showAmuletSection = function (fromResult = false) {
     const amulet = document.getElementById('amuletSection');
     const paper = document.querySelector('#result .paper-container');
     const actionsArea = document.getElementById('sajuActionsArea');
 
-    if (amulet && paper) {
+    // 🚨 사주/타로 결과를 본 고객(DB 확보 완료)에게만 1회 무료 제공
+    if (fromResult && !isFreeGranted) {
+        userAmuletCount += 1;
+        isFreeGranted = true;
+
+        // 요소가 존재하는지 확인 후 업데이트 (에러 방지)
+        const countDisplay = document.getElementById('checkCountDisplay');
+        if (countDisplay) countDisplay.innerText = userAmuletCount;
+
+        setTimeout(() => showToast("🎁 운세 확인 보상: 스미싱 감별 1회 무료 제공!"), 1500);
+    }
+
+    if (amulet && paper && fromResult) {
+        // 결과창 안으로 스며들어가는 연출
         amulet.style.padding = '2rem 0 0 0';
         amulet.style.marginTop = '2rem';
         amulet.style.borderTop = '1px solid rgba(197, 160, 89, 0.3)';
         paper.insertBefore(amulet, actionsArea);
+        amulet.style.display = 'block';
+    } else if (amulet) {
+        // 플로팅 메뉴로 바로 접근한 경우 제자리에서 보여주기
         amulet.style.display = 'block';
     }
 };
@@ -810,7 +828,16 @@ window.checkSmishing = function () {
     const paywall = document.getElementById('amuletPaywall');
 
     if (!urlInput) { alert("검사할 링크(URL)를 입력해주세요."); return; }
-    if (userAmuletCount <= 0) { paywall.style.display = 'flex'; return; }
+
+    // 🚨 횟수가 0회일 때 감별을 시도하면
+    if (userAmuletCount <= 0) {
+        if (!isFreeGranted) {
+            // 카카오 로그인(운세)을 안 하고 들어온 얌체 고객에게 크로스셀링 유도!
+            alert("💡 사주 또는 타로 운세를 먼저 확인하시면\n스미싱 감별 1회 무료 혜택이 제공됩니다!\n\n(또는 하단의 패키지를 결제하여 즉시 이용 가능합니다.)");
+        }
+        paywall.style.display = 'flex';
+        return;
+    }
 
     resultDiv.style.display = 'block';
     resultDiv.style.color = '#ccc';
@@ -828,6 +855,7 @@ window.checkSmishing = function () {
             resultDiv.innerHTML = "✅ 현재 보안 데이터베이스에 보고된 위험이 없습니다. (단, 항상 주의하세요)";
         }
 
+        // 감별 횟수를 다 쓴 직후 결제창 띄우기
         if (userAmuletCount === 0) {
             setTimeout(() => { paywall.style.display = 'flex'; }, 2000);
         }
