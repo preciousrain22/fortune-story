@@ -484,17 +484,27 @@
                     "보이지 않는 그물이 당신의 금고를 노리고 있습니다. 출처가 불분명한 택배, 청첩장 링크를 이곳에 올려 사악한 기운(스미싱)을 감별하십시오."
                 </div>
 
-                <div class="url-check-container">
-                    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px; text-align: left;">남은 감별 횟수: <span
-                            id="checkCountDisplay" style="color: #FFD54F; font-weight: bold;">1</span>회 (무료 서비스)</p>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="suspectUrl" placeholder="의심되는 링크(URL)를 길게 눌러 붙여넣기..."
-                            class="obsidian-input">
+                <div class="url-check-container" style="max-width: 450px; margin: 0 auto;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px;">
+                        <span style="color: #aaa; font-size: 0.95rem;">남은 감별 횟수</span>
+                        <span style="color: #FFD54F; font-size: 0.95rem; font-weight: bold;"><span
+                                id="checkCountDisplay">1</span>회 (무료)</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="text" id="suspectUrl" placeholder="의심되는 링크(URL)를 길게 눌러 붙여넣으세요"
+                            style="width: 100%; padding: 1.2rem; background-color: rgba(10, 10, 10, 0.7); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; color: #fff; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.3s;"
+                            onfocus="this.style.borderColor='#FFD54F'"
+                            onblur="this.style.borderColor='rgba(212, 175, 55, 0.4)'">
+
                         <button onclick="checkSmishing()" class="btn-premium pulse-btn"
-                            style="width: auto; padding: 0 1.5rem; background: #8B0000; border: 1px solid #FF5252; color: #fff;">감별하기</button>
+                            style="width: 100%; height: 60px; padding: 0; background: linear-gradient(135deg, #2A2114 0%, #140F0A 100%); border: 1px solid #D4AF37; color: #FFD54F; border-radius: 12px; font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.15);">
+                            감별하기
+                        </button>
                     </div>
                     <div id="urlCheckResult"
-                        style="margin-top: 15px; font-weight: bold; font-size: 1.1rem; display: none;"></div>
+                        style="margin-top: 20px; font-weight: bold; font-size: 1.1rem; display: none;"></div>
                 </div>
 
                 <div id="amuletPaywall" class="unlock-overlay" style="display: none; border-radius: 15px;">
