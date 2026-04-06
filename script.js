@@ -565,13 +565,13 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     for (let i = 0; i < hashString.length; i++) hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
     hash = Math.abs(hash);
 
-    // 🚨 뜻풀이(mean) 속성 추가 완료! 이제 한자에 맞게 정확한 한글 뜻이 나옵니다.
+    // 🚨 오류 수정 완료: 이제 한자에 맞는 정확한 뜻풀이가 노출됩니다.
     const keywords = [
-        { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미', mean: '빼어날 수 / 넘을 월' },
-        { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘', mean: '기운 기 / 대개 개' },
-        { hanja: '溫 和', title: '온화(溫和)', desc: '따뜻하고 부드러운 봄볕 같은 성품', mean: '따뜻할 온 / 화할 화' },
-        { hanja: '明 哲', title: '명철(明哲)', desc: '사리를 밝게 분별하는 지혜로움', mean: '밝을 명 / 밝을 철' },
-        { hanja: '鎭 重', title: '진중(鎭重)', desc: '태도가 점잖고 무게가 있음', mean: '진압할 진 / 무거울 중' }
+        { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미', mean: '秀 빼어날 수 · 越 넘을 월' },
+        { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘', mean: '氣 기운 기 · 槪 대개 개' },
+        { hanja: '溫 和', title: '온화(溫和)', desc: '따뜻하고 부드러운 봄볕 같은 성품', mean: '溫 따뜻할 온 · 和 화할 화' },
+        { hanja: '明 哲', title: '명철(明哲)', desc: '사리를 밝게 분별하는 지혜로움', mean: '明 밝을 명 · 哲 밝을 철' },
+        { hanja: '鎭 重', title: '진중(鎭重)', desc: '태도가 점잖고 무게가 있음', mean: '鎭 진압할 진 · 重 무거울 중' }
     ];
     const keyword = keywords[hash % keywords.length];
 
