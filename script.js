@@ -143,10 +143,51 @@ function preventExit(e) {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-
+    // 뒤로 가기(popstate) 이벤트 처리
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.path) {
+            window.selectPath(e.state.path, true);
+        } else {
+            window.selectPath('gateway', true);
+        }
+    });
+    // 타로 30자 실시간 카운터
+    const tarotConcern = document.getElementById('tarotConcern');
+    const tarotTextCount = document.getElementById('tarotTextCount');
+    if (tarotConcern && tarotTextCount) {
+        tarotConcern.addEventListener('input', function () {
+            const len = this.value.trim().length;
+            tarotTextCount.innerText = `${len} / 최소 30자`;
+            tarotTextCount.style.color = len >= 30 ? '#4CAF50' : '#FF5252';
+        });
+    }
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('orderId')) {
-        alert("✅ 결제가 완료되었습니다!\n(현재는 테스트 버전이므로 결제 후 화면이 새로고침되어 결과가 초기화되었습니다. 실서버 연동 시 DB에 안전하게 저장됩니다.)");
+    if (urlParams.has('paymentKey') && urlParams.has('orderId') && urlParams.has('amount')) {
+        const paymentKey = urlParams.get('paymentKey');
+        const orderId = urlParams.get('orderId');
+        const amount = urlParams.get('amount');
+
+        showToast("안전하게 결제를 최종 승인하고 있습니다... ⏳");
+
+        // 🚨 새로 만든 Vercel 서버로 승인 요청 보내기
+        fetch('/api/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentKey, orderId, amount })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.orderId) { // 결제 성공 시
+                    alert("✅ 결제가 최종 완료되었습니다!\n프리미엄 리포트가 해제됩니다.");
+                    document.getElementById('premiumContentArea').classList.add('unlocked');
+                    document.getElementById('unlockOverlay').style.display = 'none';
+                    document.getElementById('sajuActionsArea').style.display = 'block';
+                } else {
+                    alert("❌ 결제 승인 실패: " + (data.message || "알 수 없는 오류"));
+                }
+            })
+            .catch(err => alert("서버 통신 오류가 발생했습니다."));
+
         window.history.replaceState({}, document.title, window.location.pathname);
     } else if (urlParams.has('message')) {
         alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
@@ -163,10 +204,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    window.selectPath = function (path) {
+    window.selectPath = function (path, isPopState = false) {
         const gateway = document.getElementById('gateway');
         const sajuSection = document.getElementById('daily');
         const tarotSection = document.getElementById('tarot');
+
+        // 히스토리 추가 (뒤로 가기시에는 push하지 않음)
+        if (!isPopState) {
+            window.history.pushState({ path: path }, '', path === 'gateway' ? window.location.pathname : `?path=${path}`);
+        }
+
+        // 어떤 경로로 가든 결과/로딩창/그리기창 등 모든 오버레이 닫고 기본 배경 보이기
+        const overlays = ['result', 'tarotResult', 'analysisLoading', 'tarotLoading', 'tarotDraw'];
+        overlays.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        document.querySelector('.header').style.display = 'flex';
+        document.querySelector('.star-bg-fixed').style.display = 'block';
+
+        if (path === 'gateway') {
+            if (gateway) gateway.style.display = 'block';
+            if (sajuSection) sajuSection.style.display = 'none';
+            if (tarotSection) tarotSection.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
 
         if (gateway) gateway.style.display = 'none';
 
@@ -212,7 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
         sajuForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
-            const name = document.getElementById('name').value;
+            const name = document.getElementById('name').value.trim();
+
+            if (name.length < 2) {
+                alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
+                return;
+            }
+
             const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
             const year = document.getElementById('birthYear').value;
             const month = document.getElementById('birthMonth').value.padStart(2, '0');
@@ -227,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
 
             Kakao.Auth.login({
+                throughTalk: false, // 🚨 모바일 화면 이탈(데이터 증발) 방지용 팝업 강제!
                 success: function () { startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); },
                 fail: function () { alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다."); startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); }
             });
@@ -278,8 +348,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tarotForm) {
         tarotForm.addEventListener('submit', (e) => {
             e.preventDefault();
+
+            const tarotName = document.getElementById('tarotName').value.trim();
+            if (tarotName.length < 2) {
+                alert("정확한 리딩을 위해 이름(별명)을 2글자 이상 입력해주세요.");
+                return;
+            }
+
+            const concern = document.getElementById('tarotConcern').value.trim();
+            if (concern.length < 30) {
+                alert("카드가 정확한 해답을 보여줄 수 있도록 고민을 30자 이상 자세히 작성해주세요.");
+                return;
+            }
+
             if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
             Kakao.Auth.login({
+                throughTalk: false, // 🚨 타로 쪽도 데이터 증발 방지
                 success: function () { startTarotDraw(); },
                 fail: function () { alert("로그인이 취소되었습니다. 타로를 시작합니다."); startTarotDraw(); }
             });
@@ -673,7 +757,7 @@ window.openSajuPayment = function (typeName, amount) {
             paymentModal.style.display = 'none';
         }, 500);
 
-        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+        const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
         tossPayments.requestPayment('카드', {
             amount: amount,
             orderId: 'saju_' + new Date().getTime(),
@@ -883,7 +967,7 @@ window.buyAmulet = function (type, amount) {
     showToast("안전한 토스 결제창으로 이동합니다...");
     document.getElementById('amuletPaywall').style.display = 'none';
 
-    const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+    const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
     tossPayments.requestPayment('카드', {
         amount: amount,
         orderId: 'amulet_' + new Date().getTime(),
