@@ -46,7 +46,7 @@ app.post('/api/confirm', async (req, res) => {
             return res.status(response.status).json(data);
         }
 
-        // 결제 성공 시 클라이언트에 성공 데이터 전달 (진짜 돈이 입금됨!)
+        // 결제 성공 시 클라이언트에 성공 데이터 전달
         return res.status(200).json(data);
 
     } catch (error) {
@@ -81,7 +81,7 @@ app.post('/api/gemini', async (req, res) => {
             return res.status(response.status).json(data);
         }
 
-        // AI가 작성한 소름 돋는 운세 결과를 다시 고객 화면으로 보내줍니다.
+        // AI가 작성한 운세 결과를 다시 고객 화면으로 보내줍니다.
         return res.status(200).json(data);
 
     } catch (error) {
@@ -94,7 +94,6 @@ app.post('/api/gemini', async (req, res) => {
 // 3. 서버 구동 및 배포 설정 (Vercel용)
 // ==========================================
 
-// 로컬 환경에서 테스트할 때만 3000번 포트로 서버를 켭니다.
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
@@ -102,5 +101,4 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Vercel 환경에서 서버리스(Serverless) 함수로 동작하도록 app 모듈을 밖으로 내보냅니다.
 module.exports = app;
