@@ -169,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showToast("안전하게 결제를 최종 승인하고 있습니다... ⏳");
 
-        // 🚨 새로 만든 Vercel 서버로 승인 요청 보내기
         fetch('/api/confirm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -179,9 +178,42 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.orderId) { // 결제 성공 시
                     alert("✅ 결제가 최종 완료되었습니다!\n프리미엄 리포트가 해제됩니다.");
-                    document.getElementById('premiumContentArea').classList.add('unlocked');
-                    document.getElementById('unlockOverlay').style.display = 'none';
-                    document.getElementById('sajuActionsArea').style.display = 'block';
+
+                    // 🚨 꼼수 복원: 결제 전 백업해둔 화면 데이터 꺼내기
+                    const savedResult = sessionStorage.getItem('savedSajuResultHTML');
+                    if (savedResult) {
+                        // 배경화면 및 입력폼 가리기
+                        document.querySelector('.header').style.display = 'none';
+                        document.querySelector('.star-bg-fixed').style.display = 'none';
+                        document.getElementById('daily').style.display = 'none';
+
+                        // 날아갔던 결과창 통째로 살려내기
+                        const resultSec = document.getElementById('result');
+                        resultSec.innerHTML = savedResult;
+                        resultSec.style.display = 'block';
+
+                        // 블러 처리 해제
+                        document.getElementById('premiumContentArea').classList.add('unlocked');
+                        document.getElementById('unlockOverlay').style.display = 'none';
+
+                        // 결과 저장/공유 하단 메뉴 활성화
+                        const sajuActionsArea = document.getElementById('sajuActionsArea');
+                        sajuActionsArea.style.display = 'block';
+                        sajuActionsArea.style.borderTop = 'none';
+                        sajuActionsArea.innerHTML = `
+                            <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+                                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
+                                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                                    <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
+                                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
+                                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        sessionStorage.removeItem('savedSajuResultHTML'); // 다 썼으면 깔끔하게 청소
+                    }
                 } else {
                     alert("❌ 결제 승인 실패: " + (data.message || "알 수 없는 오류"));
                 }
@@ -275,7 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sajuForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
-            const name = document.getElementById('name').value.trim();
+            // 🚨 이름에 들어간 특수문자(*, ') 강제 삭제 필터 적용
+            const name = document.getElementById('name').value.trim().replace(/[*']/g, '');
 
             if (name.length < 2) {
                 alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
@@ -546,7 +579,7 @@ function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType
     window.addEventListener('beforeunload', preventExit);
     document.body.style.overflow = 'hidden';
     if (loadingScreen) loadingScreen.style.display = 'flex';
-    if (loadingTitle) loadingTitle.innerHTML = `'${name}'님의 <span class="obangsaek-text">${typeName}</span> 분석 진행 중...`;
+    if (loadingTitle) loadingTitle.innerHTML = `${name}님의 <span class="obangsaek-text">${typeName}</span> 분석 진행 중...`;
 
     const messages = [
         `${name}님의 생년월일시를 바탕으로 사주 명식을 도출하고 있습니다...`,
@@ -757,6 +790,9 @@ window.openSajuPayment = function (typeName, amount) {
             paymentModal.style.display = 'none';
         }, 500);
 
+        // 🚨 매우 중요: 결제창으로 화면이 넘어가기 전에, 뽑아둔 사주 결과 전체를 브라우저 임시 저장소(sessionStorage)에 안전하게 백업합니다.
+        sessionStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
+
         const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
         tossPayments.requestPayment('카드', {
             amount: amount,
@@ -770,26 +806,12 @@ window.openSajuPayment = function (typeName, amount) {
             confirmPaymentBtn.disabled = false;
 
             if (error.code === 'USER_CANCEL') {
-                document.getElementById('premiumContentArea').classList.add('unlocked');
-                document.getElementById('unlockOverlay').style.display = 'none';
-
-                const sajuActionsArea = document.getElementById('sajuActionsArea');
-                sajuActionsArea.style.display = 'block';
-                sajuActionsArea.style.borderTop = 'none';
-                sajuActionsArea.innerHTML = `
-                    <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
-                        <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
-                        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                            <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
-                                <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                // 🚨 기존에 있던 결제 통과 꼼수(백도어)를 완벽하게 삭제하고 경고창 띄움
+                alert("결제가 취소되었습니다. 정밀 리포트를 보시려면 결제를 완료해주세요.");
+                sessionStorage.removeItem('savedSajuResultHTML'); // 취소했으므로 백업 데이터 파기
             } else {
                 alert("결제창 호출 실패:\n" + error.message);
+                sessionStorage.removeItem('savedSajuResultHTML');
             }
         });
     };

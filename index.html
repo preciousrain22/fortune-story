@@ -11,6 +11,11 @@
     <meta property="og:image" content="https://fortune-story.com/images/og-image.jpg">
     <meta property="og:url" content="https://fortune-story.com">
     <meta property="og:type" content="website">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="포춘스토리">
+    <link rel="apple-touch-icon" href="https://fortune-story.com/images/og-image.jpg">
 
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -455,8 +460,8 @@
                     <p style="color: #ccc; margin-bottom: 2rem; font-size: 1rem; text-align: center; line-height: 1.6;">
                         나의 타고난 기운과 구체적인 행동 비책 등<br>나머지 상세 운세 결과를 확인하시겠습니까?
                     </p>
-                    <button class="btn btn-primary pulse-btn" id="btnUnlockPremium"
-                        style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);">
+                    <button class="btn-premium pulse-btn" id="btnUnlockPremium"
+                        style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 50px; width: 100%; max-width: 400px; height: 60px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);">
                         결제하고 전체 운세 확인하기 (<span id="lockPriceAmount"></span>)
                     </button>
                 </div>
@@ -492,6 +497,19 @@
                 </div>
 
                 <div class="url-check-container" style="max-width: 450px; margin: 0 auto;">
+
+                    <div
+                        style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; text-align: left; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);">
+                        <div style="font-size: 2.2rem; filter: drop-shadow(0 0 5px rgba(255, 224, 130, 0.5));">📱</div>
+                        <div>
+                            <p style="color: #FFE082; font-weight: bold; margin: 0 0 0.4rem 0; font-size: 1.05rem;">위급할
+                                때 1초 만에 감별하는 꿀팁!</p>
+                            <p
+                                style="color: #a0a0a0; margin: 0; font-size: 0.85rem; line-height: 1.5; word-break: keep-all;">
+                                브라우저 메뉴(⋮) 또는 공유(⍐) 버튼을 눌러 <strong style="color: #fff;">[홈 화면에 추가]</strong>를 선택하세요.
+                                바탕화면에서 앱처럼 즉시 실행할 수 있습니다.</p>
+                        </div>
+                    </div>
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; padding: 0 5px;">
                         <span style="color: #aaa; font-size: 0.95rem;">남은 감별 횟수</span>
@@ -509,6 +527,7 @@
                             style="width: 100%; height: 60px; padding: 0; background: linear-gradient(135deg, #2A2114 0%, #140F0A 100%); border: 1px solid #D4AF37; color: #FFD54F; border-radius: 12px; font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.15);">
                             감별하기
                         </button>
+
                     </div>
                     <div id="urlCheckResult"
                         style="margin-top: 20px; font-weight: bold; font-size: 1.1rem; display: none;"></div>
