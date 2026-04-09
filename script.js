@@ -928,7 +928,19 @@ window.checkSmishing = function () {
 
     if (!urlInput) { alert("검사할 링크(URL)를 입력해주세요."); return; }
 
-    // 🚨 횟수가 0회일 때 감별을 시도하면
+    // 🚨 [시크릿 마스터 키] 진우님 전용 프리패스 백도어
+    // ** 대신 원하시는 다른 암호(예: '**jinwoo**')로 바꾸셔도 됩니다.
+    if (urlInput === '**') {
+        userAmuletCount = 999; // 무제한 횟수 충전
+        isFreeGranted = true;  // 무료 혜택 받은 것으로 처리
+        document.getElementById('checkCountDisplay').innerText = userAmuletCount;
+        document.getElementById('suspectUrl').value = ''; // 암호가 안 보이게 입력창 싹 지우기
+        paywall.style.display = 'none'; // 결제창 즉시 숨기기
+        showToast("👑 마스터 권한이 확인되었습니다. 무제한 모드가 활성화됩니다.");
+        return;
+    }
+
+    // 🚨 횟수가 0회일 때 감별을 시도하면 (일반 고객 로직)
     if (userAmuletCount <= 0) {
         if (!isFreeGranted) {
             // 카카오 로그인(운세)을 안 하고 들어온 얌체 고객에게 크로스셀링 유도!
