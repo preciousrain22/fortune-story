@@ -2250,3 +2250,59 @@ p {
     color: #1e1e1e;
     transform: scale(1.1);
 }
+
+/* ==========================================
+   📱 모바일 디바이스(스마트폰) 전용 완벽 대응 UI
+========================================== */
+@media (max-width: 768px) {
+
+    /* 1. 성별, 결혼여부 나란히 배치 해제 (위아래로 배치하여 찌그러짐 완벽 방지) */
+    .form-row {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    /* 2. 폼 전체 여백(패딩) 다이어트 (모바일 화면을 더 넓고 시원하게 사용) */
+    .saju-form,
+    .tarot-form {
+        padding: 1.5rem 1rem !important;
+    }
+
+    /* 3. 라디오 버튼(남성/여성) 글자 밀림 및 줄바꿈 방지 */
+    .radio-group {
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .radio-label {
+        white-space: nowrap !important;
+        /* 글자가 중간에 끊기거나 밀리지 않도록 고정 */
+        font-size: 1rem;
+    }
+
+    /* 4. 생년월일, 시간(년/월/일/시/분) 셀렉트 박스 최적화 (글자 잘림 방지) */
+    .date-select-group {
+        gap: 0.3rem !important;
+    }
+
+    .date-select-group select {
+        padding: 0.8rem 0.5rem !important;
+        font-size: 0.95rem !important;
+        background-position: right 0.3rem center !important;
+        /* 드롭다운 화살표 위치 미세조정 */
+    }
+
+    /* 5. 모바일 결제 팝업창 크기 조정 */
+    .modal-content {
+        padding: 1.5rem !important;
+    }
+
+    .payment-methods {
+        gap: 0.5rem !important;
+    }
+
+    .payment-method {
+        padding: 0.8rem 0.5rem !important;
+        font-size: 0.9rem;
+    }
+}
