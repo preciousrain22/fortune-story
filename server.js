@@ -7,9 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ==========================================
-// 1. 토스페이먼츠 결제 최종 승인 API 통로
-// ==========================================
+// 토스페이먼츠 결제 승인 API 엔드포인트
 app.post('/api/confirm', async (req, res) => {
     const { paymentKey, orderId, amount } = req.body;
 
@@ -17,7 +15,7 @@ app.post('/api/confirm', async (req, res) => {
     const secretKey = process.env.TOSS_SECRET_KEY;
 
     if (!secretKey) {
-        console.error('TOSS_SECRET_KEY가 설정되지 않았습니다.');
+        console.error('TOSS_SECRET_KEY is not defined in environment variables.');
         return res.status(500).json({ message: '서버 환경변수 설정 오류' });
     }
 
@@ -25,7 +23,7 @@ app.post('/api/confirm', async (req, res) => {
     const encryptedSecretKey = 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 
     try {
-        // 토스페이먼츠 본사 서버로 최종 승인 요청 보내기
+        // 토스페이먼츠 승인 API 호출
         const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
             method: 'POST',
             headers: {
@@ -55,9 +53,7 @@ app.post('/api/confirm', async (req, res) => {
     }
 });
 
-// ==========================================
-// 2. 제미나이(Gemini) AI 운세 분석 API 통로
-// ==========================================
+// 제미나이(Gemini) AI 운세 분석 API 통로 생성
 app.post('/api/gemini', async (req, res) => {
     // Vercel 환경변수에 등록하신 GEMINI_API_KEY를 가져옵니다.
     const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -81,7 +77,7 @@ app.post('/api/gemini', async (req, res) => {
             return res.status(response.status).json(data);
         }
 
-        // AI가 작성한 운세 결과를 다시 고객 화면으로 보내줍니다.
+        // AI가 작성한 소름 돋는 운세 결과를 다시 고객 화면으로 보내줍니다.
         return res.status(200).json(data);
 
     } catch (error) {
@@ -90,10 +86,7 @@ app.post('/api/gemini', async (req, res) => {
     }
 });
 
-// ==========================================
-// 3. 서버 구동 및 배포 설정 (Vercel용)
-// ==========================================
-
+// Vercel 환경이 아니거나 로컬 테스트를 위해 서버 실행
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
@@ -101,4 +94,5 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
+// Vercel 서버리스 함수로 동작하도록 app 모듈을 export 합니다.
 module.exports = app;
