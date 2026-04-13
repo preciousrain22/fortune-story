@@ -609,7 +609,8 @@ function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType
             if (loadingScreen) loadingScreen.style.display = 'none';
             document.body.style.overflow = 'auto';
             window.removeEventListener('beforeunload', preventExit);
-            alert("현재 분석 서버에 트래픽이 몰려 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
+            // 🚨 가짜 메시지 대신 진짜 에러 원인을 화면에 띄웁니다!
+            alert("🚨 [원인 추적 시스템 가동] 🚨\n에러의 진짜 원인을 찾았습니다!\n\n" + err.message + "\n\n진우님, 이 팝업창을 캡처해서 제미나이에게 보여주세요!");
         });
 }
 
@@ -668,7 +669,12 @@ ${specificInstructions}
         })
     });
 
-    if (!response.ok) throw new Error("API 연동 실패");
+    // 🚨 에러가 발생하면 무조건 퉁치지 않고 진짜 이유(상태 코드와 메시지)를 뽑아냅니다.
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`[HTTP 상태코드: ${response.status}]\n상세: ${errText}`);
+    }
+
     const data = await response.json();
     return JSON.parse(data.candidates[0].content.parts[0].text);
 }
