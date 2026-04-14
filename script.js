@@ -609,8 +609,9 @@ function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType
             if (loadingScreen) loadingScreen.style.display = 'none';
             document.body.style.overflow = 'auto';
             window.removeEventListener('beforeunload', preventExit);
-            // 🚨 가짜 메시지 대신 진짜 에러 원인을 화면에 띄웁니다!
-            alert("🚨 [원인 추적 시스템 가동] 🚨\n에러의 진짜 원인을 찾았습니다!\n\n" + err.message + "\n\n진우님, 이 팝업창을 캡처해서 제미나이에게 보여주세요!");
+
+            // 🚨 개발자용 추적 창을 지우고, 부드러운 고객용 안내 문구로 교체!
+            alert("현재 우주의 기운(서버 접속자)이 혼잡하여 정밀 분석이 지연되고 있습니다.\n1~2분 뒤에 다시 시도해 주세요. 🙏");
         });
 }
 
