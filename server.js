@@ -52,8 +52,8 @@ app.post('/api/gemini', async (req, res) => {
     }
 
     try {
-        // 🚨 초고속 flash 모델 완벽 적용 완료!
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        // 🚨 1.5를 2.5로 변경! (구글 최신 초고속 모델 완벽 적용)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req.body)
