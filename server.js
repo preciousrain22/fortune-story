@@ -23,34 +23,38 @@ app.post('/api/confirm', async (req, res) => {
     const encryptedSecretKey = 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 
     try {
-        // 토스페이먼츠 승인 API 호출
-        const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
-            headers: {
-                'Authorization': encryptedSecretKey,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                paymentKey,
-                orderId,
-                amount
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
         });
+        method: 'POST',
+            headers: {
+            'Authorization': encryptedSecretKey,
+                'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            paymentKey,
+            orderId,
+            amount
+        })
+    });
 
-        const data = await response.json();
+const data = await response.json();
 
-        if (!response.ok) {
-            // 결제 실패 시 토스에서 보낸 에러 응답 전달
-            return res.status(response.status).json(data);
-        }
+if (!response.ok) {
+    // 결제 실패 시 토스에서 보낸 에러 응답 전달
+    return res.status(response.status).json(data);
+}
 
-        // 결제 성공 시 클라이언트에 성공 데이터 전달
-        return res.status(200).json(data);
+// 결제 성공 시 클라이언트에 성공 데이터 전달
+return res.status(200).json(data);
 
     } catch (error) {
-        console.error('토스페이먼츠 결제 승인 중 서버 에러 발생:', error);
-        return res.status(500).json({ message: '결제 승인 중 서버 에러가 발생했습니다.', error: error.message });
-    }
+    console.error('토스페이먼츠 결제 승인 중 서버 에러 발생:', error);
+    return res.status(500).json({ message: '결제 승인 중 서버 에러가 발생했습니다.', error: error.message });
+}
 });
 
 // 제미나이(Gemini) AI 운세 분석 API 통로 생성
