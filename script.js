@@ -620,22 +620,23 @@ async function getSajuFromGemini(name, typeName, year, month, day, fortuneType, 
     let specificInstructions = "";
     let lengthInstruction = "";
 
+    // 💡 퀄리티와 서버 10초 제한 사이의 완벽한 타협점 (800~1000자)
     if (fortuneType === 'daily') {
         specificInstructions = "오늘 하루의 운세이므로, 아침(태동), 점심(절정), 저녁(갈무리) 시간대별 기운의 변화와 구체적인 행동 지침을 작성하세요.";
-        lengthInstruction = "모바일에서 가볍게 읽을 수 있도록 각 섹션당 300~400자 내외로 짧고 강렬하게 핵심만 작성하세요. 절대 길게 쓰지 마세요.";
+        lengthInstruction = "모바일에서 읽기 좋게 각 섹션당 500자 내외로 작성하세요.";
     } else if (fortuneType === 'weekly') {
         specificInstructions = "일주일간의 운세이므로, 월요일부터 일요일까지 요일별 기운의 흐름과 일진을 풀어쓰세요.";
-        lengthInstruction = "각 섹션당 500자 내외로 흐름이 잘 보이게 적절히 작성하세요.";
+        lengthInstruction = "각 섹션당 600자 내외로 핵심을 깊이 있게 작성하세요.";
     } else if (fortuneType === 'yearly') {
         specificInstructions = "1년 전체의 흐름을 분석하는 것이므로, 1월부터 12월까지 각 월별 운세 흐름을 상세하게 풀어쓰세요.";
-        lengthInstruction = "1년 전체의 방대한 흐름이므로 돈을 지불한 고객이 감동하도록 각 섹션마다 최소 1500자 이상 아주 방대하고 깊이 있게 작성하세요.";
+        lengthInstruction = "돈을 지불한 고객이 감동하도록 각 섹션마다 800~1000자 내외로 아주 깊이 있고 방대하게 작성하세요.";
     } else if (fortuneType === 'love') {
         const mStatus = maritalStatus === 'married' ? '기혼' : '미혼';
-        specificInstructions = `현재 고객은 ${mStatus} 상태입니다. 이에 맞추어 현재의 애정 전선, 인연의 작용을 심리학적, 명리학적으로 매우 깊이 있게 분석하세요.`;
-        lengthInstruction = "각 섹션마다 최소 1000자 이상 깊이 있게 작성하세요.";
+        specificInstructions = `현재 고객은 ${mStatus} 상태입니다. 이에 맞추어 현재의 애정 전선, 인연의 작용을 심리학적, 명리학적으로 분석하세요.`;
+        lengthInstruction = "각 섹션마다 800~1000자 내외로 아주 깊이 있게 작성하세요.";
     } else {
         specificInstructions = "고객의 전반적인 삶의 궤적과 운기의 흐름을 심도 있게 분석하세요.";
-        lengthInstruction = "각 섹션마다 최소 1000자 이상 깊이 있게 작성하세요.";
+        lengthInstruction = "각 섹션마다 800~1000자 내외로 아주 깊이 있게 작성하세요.";
     }
 
     const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 대한민국 최고 수준의 명리학자입니다.
