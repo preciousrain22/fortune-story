@@ -10,8 +10,6 @@ app.use(express.json());
 // 토스페이먼츠 결제 승인 API 엔드포인트
 app.post('/api/confirm', async (req, res) => {
     const { paymentKey, orderId, amount } = req.body;
-
-    // 환경변수에서 Secret Key 가져오기 (Vercel 환경변수에서 설정)
     const secretKey = process.env.TOSS_SECRET_KEY;
 
     if (!secretKey) {
@@ -19,47 +17,33 @@ app.post('/api/confirm', async (req, res) => {
         return res.status(500).json({ message: '서버 환경변수 설정 오류' });
     }
 
-    // Secret Key를 Base64로 인코딩 ('Basic ' 인증 방식)
     const encryptedSecretKey = 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 
     try {
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body)
-        });
-        method: 'POST',
             headers: {
-            'Authorization': encryptedSecretKey,
+                'Authorization': encryptedSecretKey,
                 'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            paymentKey,
-            orderId,
-            amount
-        })
-    });
+            },
+            body: JSON.stringify({ paymentKey, orderId, amount })
+        });
 
-const data = await response.json();
+        const data = await response.json();
 
-if (!response.ok) {
-    // 결제 실패 시 토스에서 보낸 에러 응답 전달
-    return res.status(response.status).json(data);
-}
+        if (!response.ok) {
+            return res.status(response.status).json(data);
+        }
 
-// 결제 성공 시 클라이언트에 성공 데이터 전달
-return res.status(200).json(data);
-
+        return res.status(200).json(data);
     } catch (error) {
-    console.error('토스페이먼츠 결제 승인 중 서버 에러 발생:', error);
-    return res.status(500).json({ message: '결제 승인 중 서버 에러가 발생했습니다.', error: error.message });
-}
+        console.error('토스페이먼츠 결제 승인 중 서버 에러 발생:', error);
+        return res.status(500).json({ message: '결제 승인 중 서버 에러가 발생했습니다.', error: error.message });
+    }
 });
 
 // 제미나이(Gemini) AI 운세 분석 API 통로 생성
 app.post('/api/gemini', async (req, res) => {
-    // Vercel 환경변수에 등록하신 GEMINI_API_KEY를 가져옵니다.
     const geminiApiKey = process.env.GEMINI_API_KEY;
 
     if (!geminiApiKey) {
@@ -68,8 +52,8 @@ app.post('/api/gemini', async (req, res) => {
     }
 
     try {
-        // 프론트엔드(script.js)에서 보낸 질문 데이터를 구글 AI 서버로 전달합니다.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${geminiApiKey}`, {
+        // 🚨 초고속 flash 모델 완벽 적용 완료!
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req.body)
@@ -81,7 +65,6 @@ app.post('/api/gemini', async (req, res) => {
             return res.status(response.status).json(data);
         }
 
-        // AI가 작성한 소름 돋는 운세 결과를 다시 고객 화면으로 보내줍니다.
         return res.status(200).json(data);
 
     } catch (error) {
