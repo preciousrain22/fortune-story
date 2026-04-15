@@ -478,9 +478,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 showTarotResult(name, category, aiResult);
             })
             .catch(err => {
-                loadingScreen.style.display = 'none';
+                clearInterval(msgInterval);
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                document.body.style.overflow = 'auto';
                 window.removeEventListener('beforeunload', preventExit);
-                alert("현재 우주의 기운(서버)이 혼잡합니다. 잠시 후 다시 시도해주세요.");
+
+                // 🚨 개발자용 경고창 삭제 및 부드러운 고객용 안내 멘트로 교체 완료!
+                alert("현재 우주의 기운(서버 접속자)이 혼잡하여 정밀 분석이 지연되고 있습니다.\n1~2분 뒤에 다시 시도해 주세요. 🙏");
             });
     }
 
