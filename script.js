@@ -610,8 +610,8 @@ function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType
             document.body.style.overflow = 'auto';
             window.removeEventListener('beforeunload', preventExit);
 
-            // 🚨 개발자용 추적 창을 지우고, 부드러운 고객용 안내 문구로 교체!
-            alert("현재 우주의 기운(서버 접속자)이 혼잡하여 정밀 분석이 지연되고 있습니다.\n1~2분 뒤에 다시 시도해 주세요. 🙏");
+            // 🚨 고객용 알림을 잠시 끄고, 진짜 에러 원인을 팝업에 띄웁니다!
+            alert("🚨 [원인 추적 시스템 가동] 🚨\n진짜 에러를 발견했습니다:\n\n" + err.message);
         });
 }
 
