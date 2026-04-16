@@ -307,8 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sajuForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const fortuneType = document.getElementById('fortuneType').value;
-            // 🚨 이름에 들어간 특수문자(*, ') 강제 삭제 필터 적용
-            const name = document.getElementById('name').value.trim().replace(/[*']/g, '');
+
+            // 👇 사주 전용 마스터키 로직 추가 👇
+            const rawName = document.getElementById('name').value.trim();
+            window.isMasterKey = rawName.includes('**'); // **가 있으면 마스터로 인정!
+            const name = rawName.replace(/[*']/g, ''); // 출력할 때는 **를 깔끔하게 지워줌
 
             if (name.length < 2) {
                 alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
@@ -771,129 +774,148 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     document.getElementById('lockTypeName').textContent = `[${typeName}]`;
     document.getElementById('lockPriceAmount').textContent = `${currentPrice.toLocaleString()}원`;
 
-    document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
+    // 👇 마스터 권한이면 결제 패스, 일반인이면 토스 결제창 띄우기 👇
+    if (window.isMasterKey) {
+        document.getElementById('premiumContentArea').classList.add('unlocked');
+        document.getElementById('unlockOverlay').style.display = 'none';
+
+        const sajuActionsArea = document.getElementById('sajuActionsArea');
+        sajuActionsArea.style.display = 'block';
+        sajuActionsArea.innerHTML = `
+            <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                    <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📄 PDF로 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => showToast("👑 마스터 권한으로 결제가 패스되었습니다."), 500);
+    } else {
+        document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
+    }
 
     if (typeof showAmuletSection === 'function') {
-        // 🚨 true 값을 넘겨주어 "이 고객은 사주를 다 봤으니 무료 1회를 주어라"고 명령함
-        showAmuletSection(true);
+
+        window.scrollTo(0, 0);
     }
 
-    window.scrollTo(0, 0);
-}
+    window.openSajuPayment = function (typeName, amount) {
+        const paymentModal = document.getElementById('paymentModal');
+        document.getElementById('paymentFortuneType').textContent = typeName;
+        document.getElementById('paymentAmount').textContent = amount.toLocaleString() + "원";
+        paymentModal.style.display = 'flex';
 
-window.openSajuPayment = function (typeName, amount) {
-    const paymentModal = document.getElementById('paymentModal');
-    document.getElementById('paymentFortuneType').textContent = typeName;
-    document.getElementById('paymentAmount').textContent = amount.toLocaleString() + "원";
-    paymentModal.style.display = 'flex';
+        document.querySelector('.close-modal').onclick = () => paymentModal.style.display = 'none';
 
-    document.querySelector('.close-modal').onclick = () => paymentModal.style.display = 'none';
+        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
-    const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+        confirmPaymentBtn.textContent = "결제하기";
+        confirmPaymentBtn.disabled = false;
 
-    confirmPaymentBtn.textContent = "결제하기";
-    confirmPaymentBtn.disabled = false;
+        confirmPaymentBtn.onclick = () => {
+            confirmPaymentBtn.textContent = "안전한 토스 결제창으로 이동 중...";
+            confirmPaymentBtn.disabled = true;
 
-    confirmPaymentBtn.onclick = () => {
-        confirmPaymentBtn.textContent = "안전한 토스 결제창으로 이동 중...";
-        confirmPaymentBtn.disabled = true;
+            setTimeout(() => {
+                paymentModal.style.display = 'none';
+            }, 500);
 
-        setTimeout(() => {
-            paymentModal.style.display = 'none';
-        }, 500);
+            // 🚨 매우 중요: 결제창으로 화면이 넘어가기 전에, 뽑아둔 사주 결과 전체를 브라우저 임시 저장소(sessionStorage)에 안전하게 백업합니다.
+            sessionStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
 
-        // 🚨 매우 중요: 결제창으로 화면이 넘어가기 전에, 뽑아둔 사주 결과 전체를 브라우저 임시 저장소(sessionStorage)에 안전하게 백업합니다.
-        sessionStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
+            const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
+            tossPayments.requestPayment('카드', {
+                amount: amount,
+                orderId: 'saju_' + new Date().getTime(),
+                orderName: typeName,
+                customerName: "고객",
+                successUrl: window.location.href + "?orderId=" + new Date().getTime(),
+                failUrl: window.location.href,
+            }).catch(function (error) {
+                confirmPaymentBtn.textContent = "결제하기";
+                confirmPaymentBtn.disabled = false;
 
-        const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
-        tossPayments.requestPayment('카드', {
-            amount: amount,
-            orderId: 'saju_' + new Date().getTime(),
-            orderName: typeName,
-            customerName: "고객",
-            successUrl: window.location.href + "?orderId=" + new Date().getTime(),
-            failUrl: window.location.href,
-        }).catch(function (error) {
-            confirmPaymentBtn.textContent = "결제하기";
-            confirmPaymentBtn.disabled = false;
-
-            if (error.code === 'USER_CANCEL') {
-                // 🚨 기존에 있던 결제 통과 꼼수(백도어)를 완벽하게 삭제하고 경고창 띄움
-                alert("결제가 취소되었습니다. 정밀 리포트를 보시려면 결제를 완료해주세요.");
-                sessionStorage.removeItem('savedSajuResultHTML'); // 취소했으므로 백업 데이터 파기
-            } else {
-                alert("결제창 호출 실패:\n" + error.message);
-                sessionStorage.removeItem('savedSajuResultHTML');
-            }
-        });
+                if (error.code === 'USER_CANCEL') {
+                    // 🚨 기존에 있던 결제 통과 꼼수(백도어)를 완벽하게 삭제하고 경고창 띄움
+                    alert("결제가 취소되었습니다. 정밀 리포트를 보시려면 결제를 완료해주세요.");
+                    sessionStorage.removeItem('savedSajuResultHTML'); // 취소했으므로 백업 데이터 파기
+                } else {
+                    alert("결제창 호출 실패:\n" + error.message);
+                    sessionStorage.removeItem('savedSajuResultHTML');
+                }
+            });
+        };
     };
-};
 
-function getPersonalColor(yearStr) {
-    const yearNum = parseInt(yearStr);
-    const lastDigit = yearNum % 10;
-    if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', colorName: '초록', textHex: '#DCE775', bgHex: '#1B5E20', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
-    if (lastDigit === 6 || lastDigit === 7) return { element: '화(火)', colorName: '빨강', textHex: '#FFCCBC', bgHex: '#B71C1C', highlightHex: '#FFAB91', borderRgba: 'rgba(255, 171, 145, 0.4)' };
-    if (lastDigit === 8 || lastDigit === 9) return { element: '토(土)', colorName: '노랑', textHex: '#FFE082', bgHex: '#3E2723', highlightHex: '#FFD54F', borderRgba: 'rgba(255, 213, 79, 0.4)' };
-    if (lastDigit === 0 || lastDigit === 1) return { element: '금(金)', colorName: '은백색', textHex: '#EEEEEE', bgHex: '#263238', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
-    return { element: '수(水)', colorName: '검정/푸른색', textHex: '#B3E5FC', bgHex: '#0D47A1', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
-}
+    function getPersonalColor(yearStr) {
+        const yearNum = parseInt(yearStr);
+        const lastDigit = yearNum % 10;
+        if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', colorName: '초록', textHex: '#DCE775', bgHex: '#1B5E20', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
+        if (lastDigit === 6 || lastDigit === 7) return { element: '화(火)', colorName: '빨강', textHex: '#FFCCBC', bgHex: '#B71C1C', highlightHex: '#FFAB91', borderRgba: 'rgba(255, 171, 145, 0.4)' };
+        if (lastDigit === 8 || lastDigit === 9) return { element: '토(土)', colorName: '노랑', textHex: '#FFE082', bgHex: '#3E2723', highlightHex: '#FFD54F', borderRgba: 'rgba(255, 213, 79, 0.4)' };
+        if (lastDigit === 0 || lastDigit === 1) return { element: '금(金)', colorName: '은백색', textHex: '#EEEEEE', bgHex: '#263238', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
+        return { element: '수(水)', colorName: '검정/푸른색', textHex: '#B3E5FC', bgHex: '#0D47A1', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
+    }
 
-function generateSajuChartsHTML(colorInfo, hash) {
-    const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
-    const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
+    function generateSajuChartsHTML(colorInfo, hash) {
+        const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
+        const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
 
-    // 🚨 자바스크립트 버그(음수 퍼센트) 완벽 해결 안전한 오행 공식
-    let base = Math.abs(hash);
-    let v1 = (base % 25) + 10;
-    let v2 = ((base * 7) % 25) + 10;
-    let v3 = ((base * 13) % 25) + 10;
-    let v4 = ((base * 17) % 25) + 10;
-    let v5 = ((base * 23) % 25) + 10;
+        // 🚨 자바스크립트 버그(음수 퍼센트) 완벽 해결 안전한 오행 공식
+        let base = Math.abs(hash);
+        let v1 = (base % 25) + 10;
+        let v2 = ((base * 7) % 25) + 10;
+        let v3 = ((base * 13) % 25) + 10;
+        let v4 = ((base * 17) % 25) + 10;
+        let v5 = ((base * 23) % 25) + 10;
 
-    const total = v1 + v2 + v3 + v4 + v5;
-    const percentages = [
-        Math.round((v1 / total) * 100),
-        Math.round((v2 / total) * 100),
-        Math.round((v3 / total) * 100),
-        Math.round((v4 / total) * 100)
-    ];
-    // 마지막 수(水)는 100에서 나머지를 빼서 무조건 합계 100%를 맞춤
-    percentages.push(100 - percentages.reduce((a, b) => a + b, 0));
+        const total = v1 + v2 + v3 + v4 + v5;
+        const percentages = [
+            Math.round((v1 / total) * 100),
+            Math.round((v2 / total) * 100),
+            Math.round((v3 / total) * 100),
+            Math.round((v4 / total) * 100)
+        ];
+        // 마지막 수(水)는 100에서 나머지를 빼서 무조건 합계 100%를 맞춤
+        percentages.push(100 - percentages.reduce((a, b) => a + b, 0));
 
-    const size = 320, center = 160, radius = 110;
-    let webPaths = '', dataSegmentHTML = '', dataPoints = '';
+        const size = 320, center = 160, radius = 110;
+        let webPaths = '', dataSegmentHTML = '', dataPoints = '';
 
-    for (let level = 1; level <= 5; level++) {
-        let points = '';
+        for (let level = 1; level <= 5; level++) {
+            let points = '';
+            for (let i = 0; i < 5; i++) {
+                const angle = (Math.PI / 2) - (i * 2 * Math.PI / 5);
+                points += `${center + (radius * (level / 5)) * Math.cos(angle)},${center - (radius * (level / 5)) * Math.sin(angle)} `;
+            }
+            webPaths += `<polygon points="${points.trim()}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />`;
+        }
+
         for (let i = 0; i < 5; i++) {
             const angle = (Math.PI / 2) - (i * 2 * Math.PI / 5);
-            points += `${center + (radius * (level / 5)) * Math.cos(angle)},${center - (radius * (level / 5)) * Math.sin(angle)} `;
+            webPaths += `<line x1="${center}" y1="${center}" x2="${center + radius * Math.cos(angle)}" y2="${center - radius * Math.sin(angle)}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />`;
         }
-        webPaths += `<polygon points="${points.trim()}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />`;
-    }
 
-    for (let i = 0; i < 5; i++) {
-        const angle = (Math.PI / 2) - (i * 2 * Math.PI / 5);
-        webPaths += `<line x1="${center}" y1="${center}" x2="${center + radius * Math.cos(angle)}" y2="${center - radius * Math.sin(angle)}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />`;
-    }
+        percentages.forEach((p, idx) => {
+            let scaledRad = Math.max(5, Math.min((p / 50) * radius, radius));
+            const angle = (Math.PI / 2) - (idx * 2 * Math.PI / 5);
+            const px = center + scaledRad * Math.cos(angle), py = center - scaledRad * Math.sin(angle);
+            dataPoints += `${px},${py} `;
 
-    percentages.forEach((p, idx) => {
-        let scaledRad = Math.max(5, Math.min((p / 50) * radius, radius));
-        const angle = (Math.PI / 2) - (idx * 2 * Math.PI / 5);
-        const px = center + scaledRad * Math.cos(angle), py = center - scaledRad * Math.sin(angle);
-        dataPoints += `${px},${py} `;
+            dataSegmentHTML += `<circle cx="${px}" cy="${py}" r="4" fill="${eColors[idx]}" filter="drop-shadow(0 0 4px ${eColors[idx]})" />`;
 
-        dataSegmentHTML += `<circle cx="${px}" cy="${py}" r="4" fill="${eColors[idx]}" filter="drop-shadow(0 0 4px ${eColors[idx]})" />`;
-
-        const tx = center + (radius + 25) * Math.cos(angle), ty = center - (radius + 25) * Math.sin(angle);
-        const anchor = Math.abs(tx - center) > 10 ? (tx > center ? "start" : "end") : "middle";
-        dataSegmentHTML += `
+            const tx = center + (radius + 25) * Math.cos(angle), ty = center - (radius + 25) * Math.sin(angle);
+            const anchor = Math.abs(tx - center) > 10 ? (tx > center ? "start" : "end") : "middle";
+            dataSegmentHTML += `
             <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="16" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
             <text x="${tx}" y="${ty + 12}" fill="#ddd" font-size="12" text-anchor="${anchor}">(${elements[idx].split('(')[1]} ${p}%</text>`;
-    });
+        });
 
-    return `
+        return `
         <div style="margin-top: 3rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
             <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">오행(五行) 분포도</div>
             <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">상생(相生)과 상극(相剋)의 조화</div>
@@ -916,181 +938,181 @@ function generateSajuChartsHTML(colorInfo, hash) {
             </div>
         </div>
     `;
-}
-
-// ==========================================
-// 5. 사이버 수호부 (스미싱 감별기) 로직
-// ==========================================
-
-let userAmuletCount = 0; // 🚨 기본값 0으로 변경 (무임승차 방지)
-let isFreeGranted = false; // 1회 무료 제공 여부 추적
-
-window.showAmuletSection = function (fromResult = false) {
-    const amulet = document.getElementById('amuletSection');
-    const paper = document.querySelector('#result .paper-container');
-    const actionsArea = document.getElementById('sajuActionsArea');
-
-    // 🚨 사주/타로 결과를 본 고객(DB 확보 완료)에게만 1회 무료 제공
-    if (fromResult && !isFreeGranted) {
-        userAmuletCount += 1;
-        isFreeGranted = true;
-
-        // 요소가 존재하는지 확인 후 업데이트 (에러 방지)
-        const countDisplay = document.getElementById('checkCountDisplay');
-        if (countDisplay) countDisplay.innerText = userAmuletCount;
-
-        setTimeout(() => showToast("🎁 운세 확인 보상: 스미싱 감별 1회 무료 제공!"), 1500);
     }
 
-    if (amulet && paper && fromResult) {
-        // 결과창 안으로 스며들어가는 연출
-        amulet.style.padding = '2rem 0 0 0';
-        amulet.style.marginTop = '2rem';
-        amulet.style.borderTop = '1px solid rgba(197, 160, 89, 0.3)';
-        paper.insertBefore(amulet, actionsArea);
-        amulet.style.display = 'block';
-    } else if (amulet) {
-        // 플로팅 메뉴로 바로 접근한 경우 제자리에서 보여주기
-        amulet.style.display = 'block';
-    }
-};
+    // ==========================================
+    // 5. 사이버 수호부 (스미싱 감별기) 로직
+    // ==========================================
 
-window.checkSmishing = function () {
-    const urlInput = document.getElementById('suspectUrl').value.trim();
-    const resultDiv = document.getElementById('urlCheckResult');
-    const paywall = document.getElementById('amuletPaywall');
+    let userAmuletCount = 0; // 🚨 기본값 0으로 변경 (무임승차 방지)
+    let isFreeGranted = false; // 1회 무료 제공 여부 추적
 
-    if (!urlInput) { alert("검사할 링크(URL)를 입력해주세요."); return; }
+    window.showAmuletSection = function (fromResult = false) {
+        const amulet = document.getElementById('amuletSection');
+        const paper = document.querySelector('#result .paper-container');
+        const actionsArea = document.getElementById('sajuActionsArea');
 
-    // 🚨 [시크릿 마스터 키] 진우님 전용 프리패스 백도어
-    // ** 대신 원하시는 다른 암호(예: '**jinwoo**')로 바꾸셔도 됩니다.
-    if (urlInput === '**') {
-        userAmuletCount = 999; // 무제한 횟수 충전
-        isFreeGranted = true;  // 무료 혜택 받은 것으로 처리
-        document.getElementById('checkCountDisplay').innerText = userAmuletCount;
-        document.getElementById('suspectUrl').value = ''; // 암호가 안 보이게 입력창 싹 지우기
-        paywall.style.display = 'none'; // 결제창 즉시 숨기기
-        showToast("👑 마스터 권한이 확인되었습니다. 무제한 모드가 활성화됩니다.");
-        return;
-    }
+        // 🚨 사주/타로 결과를 본 고객(DB 확보 완료)에게만 1회 무료 제공
+        if (fromResult && !isFreeGranted) {
+            userAmuletCount += 1;
+            isFreeGranted = true;
 
-    // 🚨 횟수가 0회일 때 감별을 시도하면 (일반 고객 로직)
-    if (userAmuletCount <= 0) {
-        if (!isFreeGranted) {
-            // 카카오 로그인(운세)을 안 하고 들어온 얌체 고객에게 크로스셀링 유도!
-            alert("💡 사주 또는 타로 운세를 먼저 확인하시면\n스미싱 감별 1회 무료 혜택이 제공됩니다!\n\n(또는 하단의 패키지를 결제하여 즉시 이용 가능합니다.)");
-        }
-        paywall.style.display = 'flex';
-        return;
-    }
+            // 요소가 존재하는지 확인 후 업데이트 (에러 방지)
+            const countDisplay = document.getElementById('checkCountDisplay');
+            if (countDisplay) countDisplay.innerText = userAmuletCount;
 
-    resultDiv.style.display = 'block';
-    resultDiv.style.color = '#ccc';
-    resultDiv.innerHTML = "⏳ 기운을 분석 중입니다...";
-
-    setTimeout(() => {
-        userAmuletCount--;
-        document.getElementById('checkCountDisplay').innerText = userAmuletCount;
-
-        if (urlInput.includes("bit.ly") || urlInput.includes("택배") || urlInput.includes("청첩장")) {
-            resultDiv.style.color = '#FF5252';
-            resultDiv.innerHTML = "❌ [경고] 매우 위험한 악성 스미싱/피싱 사이트입니다. 절대 접속하지 마십시오!";
-        } else {
-            resultDiv.style.color = '#4CAF50';
-            resultDiv.innerHTML = "✅ 현재 보안 데이터베이스에 보고된 위험이 없습니다. (단, 항상 주의하세요)";
+            setTimeout(() => showToast("🎁 운세 확인 보상: 스미싱 감별 1회 무료 제공!"), 1500);
         }
 
-        // 감별 횟수를 다 쓴 직후 결제창 띄우기
-        if (userAmuletCount === 0) {
-            setTimeout(() => { paywall.style.display = 'flex'; }, 2000);
+        if (amulet && paper && fromResult) {
+            // 결과창 안으로 스며들어가는 연출
+            amulet.style.padding = '2rem 0 0 0';
+            amulet.style.marginTop = '2rem';
+            amulet.style.borderTop = '1px solid rgba(197, 160, 89, 0.3)';
+            paper.insertBefore(amulet, actionsArea);
+            amulet.style.display = 'block';
+        } else if (amulet) {
+            // 플로팅 메뉴로 바로 접근한 경우 제자리에서 보여주기
+            amulet.style.display = 'block';
         }
-    }, 1500);
-};
+    };
 
-window.buyAmulet = function (type, amount) {
-    let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
+    window.checkSmishing = function () {
+        const urlInput = document.getElementById('suspectUrl').value.trim();
+        const resultDiv = document.getElementById('urlCheckResult');
+        const paywall = document.getElementById('amuletPaywall');
 
-    showToast("안전한 토스 결제창으로 이동합니다...");
-    document.getElementById('amuletPaywall').style.display = 'none';
+        if (!urlInput) { alert("검사할 링크(URL)를 입력해주세요."); return; }
 
-    const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
-    tossPayments.requestPayment('카드', {
-        amount: amount,
-        orderId: 'amulet_' + new Date().getTime(),
-        orderName: orderName,
-        customerName: "고객",
-        successUrl: window.location.href + "?orderId=" + new Date().getTime(),
-        failUrl: window.location.href,
-    }).catch(function (error) {
-        if (error.code === 'USER_CANCEL') {
-            document.getElementById('suspectUrl').value = '';
-            document.getElementById('urlCheckResult').style.display = 'none';
-
-            if (type === 'basic') {
-                userAmuletCount += 3;
-                alert("결제 완료! 감별 횟수 3회가 충전되었습니다.");
-            } else {
-                userAmuletCount += 15;
-                alert("결제 완료! 감별 횟수 15회 충전 및 7일간 '오늘의 운세'가 무료 해제됩니다. 👑");
-            }
+        // 🚨 [시크릿 마스터 키] 진우님 전용 프리패스 백도어
+        // ** 대신 원하시는 다른 암호(예: '**jinwoo**')로 바꾸셔도 됩니다.
+        if (urlInput === '**') {
+            userAmuletCount = 999; // 무제한 횟수 충전
+            isFreeGranted = true;  // 무료 혜택 받은 것으로 처리
             document.getElementById('checkCountDisplay').innerText = userAmuletCount;
-        } else {
-            alert("결제창 호출 실패:\n" + error.message);
-            document.getElementById('amuletPaywall').style.display = 'flex';
+            document.getElementById('suspectUrl').value = ''; // 암호가 안 보이게 입력창 싹 지우기
+            paywall.style.display = 'none'; // 결제창 즉시 숨기기
+            showToast("👑 마스터 권한이 확인되었습니다. 무제한 모드가 활성화됩니다.");
+            return;
         }
-    });
-};
-// ✦ 플로팅 메뉴 제어 함수
-window.toggleQuickMenu = function () {
-    const options = document.getElementById('fabOptions');
-    const mainBtn = document.getElementById('fabMainBtn');
-    options.classList.toggle('active');
 
-    // 버튼 아이콘 변경 (메뉴 열리면 X자로)
-    const icon = mainBtn.querySelector('.fab-icon');
-    if (options.classList.contains('active')) {
-        icon.innerText = '✕';
-    } else {
-        icon.innerText = '✦';
-    }
-};
+        // 🚨 횟수가 0회일 때 감별을 시도하면 (일반 고객 로직)
+        if (userAmuletCount <= 0) {
+            if (!isFreeGranted) {
+                // 카카오 로그인(운세)을 안 하고 들어온 얌체 고객에게 크로스셀링 유도!
+                alert("💡 사주 또는 타로 운세를 먼저 확인하시면\n스미싱 감별 1회 무료 혜택이 제공됩니다!\n\n(또는 하단의 패키지를 결제하여 즉시 이용 가능합니다.)");
+            }
+            paywall.style.display = 'flex';
+            return;
+        }
 
-window.quickNav = function (path) {
-    const isSajuResultOpen = document.getElementById('result').style.display === 'block';
-    const isTarotResultOpen = document.getElementById('tarotResult').style.display === 'block';
+        resultDiv.style.display = 'block';
+        resultDiv.style.color = '#ccc';
+        resultDiv.innerHTML = "⏳ 기운을 분석 중입니다...";
 
-    // 1. 부적으로 이동할 때는 스크롤만 이동하므로 데이터가 날아가지 않음 (경고창 패스)
-    if (path === 'amulet') {
-        const amuletSec = document.getElementById('amuletSection');
-        amuletSec.style.display = 'block';
-        amuletSec.scrollIntoView({ behavior: 'smooth' });
-        window.toggleQuickMenu();
-        return;
-    }
+        setTimeout(() => {
+            userAmuletCount--;
+            document.getElementById('checkCountDisplay').innerText = userAmuletCount;
 
-    // 2. 사주나 타로 결과가 떠 있는 상태에서 다른 메뉴로 이동하려 할 때 -> 경고창 발생!
-    if (isSajuResultOpen || isTarotResultOpen) {
-        const confirmMove = confirm("⚠️ 아직 결과를 저장하지 않으셨다면 데이터가 초기화될 수 있습니다.\n\n(이동 전 PDF 저장이나 카카오톡 공유를 권장합니다.)\n정말 다른 화면으로 이동하시겠습니까?");
+            if (urlInput.includes("bit.ly") || urlInput.includes("택배") || urlInput.includes("청첩장")) {
+                resultDiv.style.color = '#FF5252';
+                resultDiv.innerHTML = "❌ [경고] 매우 위험한 악성 스미싱/피싱 사이트입니다. 절대 접속하지 마십시오!";
+            } else {
+                resultDiv.style.color = '#4CAF50';
+                resultDiv.innerHTML = "✅ 현재 보안 데이터베이스에 보고된 위험이 없습니다. (단, 항상 주의하세요)";
+            }
 
-        // '취소'를 누르면 메뉴만 닫고 현재 결과창을 그대로 유지
-        if (!confirmMove) {
+            // 감별 횟수를 다 쓴 직후 결제창 띄우기
+            if (userAmuletCount === 0) {
+                setTimeout(() => { paywall.style.display = 'flex'; }, 2000);
+            }
+        }, 1500);
+    };
+
+    window.buyAmulet = function (type, amount) {
+        let orderName = type === 'basic' ? '기본 수호권(3회)' : 'VIP 수호 패키지(15회+운세)';
+
+        showToast("안전한 토스 결제창으로 이동합니다...");
+        document.getElementById('amuletPaywall').style.display = 'none';
+
+        const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
+        tossPayments.requestPayment('카드', {
+            amount: amount,
+            orderId: 'amulet_' + new Date().getTime(),
+            orderName: orderName,
+            customerName: "고객",
+            successUrl: window.location.href + "?orderId=" + new Date().getTime(),
+            failUrl: window.location.href,
+        }).catch(function (error) {
+            if (error.code === 'USER_CANCEL') {
+                document.getElementById('suspectUrl').value = '';
+                document.getElementById('urlCheckResult').style.display = 'none';
+
+                if (type === 'basic') {
+                    userAmuletCount += 3;
+                    alert("결제 완료! 감별 횟수 3회가 충전되었습니다.");
+                } else {
+                    userAmuletCount += 15;
+                    alert("결제 완료! 감별 횟수 15회 충전 및 7일간 '오늘의 운세'가 무료 해제됩니다. 👑");
+                }
+                document.getElementById('checkCountDisplay').innerText = userAmuletCount;
+            } else {
+                alert("결제창 호출 실패:\n" + error.message);
+                document.getElementById('amuletPaywall').style.display = 'flex';
+            }
+        });
+    };
+    // ✦ 플로팅 메뉴 제어 함수
+    window.toggleQuickMenu = function () {
+        const options = document.getElementById('fabOptions');
+        const mainBtn = document.getElementById('fabMainBtn');
+        options.classList.toggle('active');
+
+        // 버튼 아이콘 변경 (메뉴 열리면 X자로)
+        const icon = mainBtn.querySelector('.fab-icon');
+        if (options.classList.contains('active')) {
+            icon.innerText = '✕';
+        } else {
+            icon.innerText = '✦';
+        }
+    };
+
+    window.quickNav = function (path) {
+        const isSajuResultOpen = document.getElementById('result').style.display === 'block';
+        const isTarotResultOpen = document.getElementById('tarotResult').style.display === 'block';
+
+        // 1. 부적으로 이동할 때는 스크롤만 이동하므로 데이터가 날아가지 않음 (경고창 패스)
+        if (path === 'amulet') {
+            const amuletSec = document.getElementById('amuletSection');
+            amuletSec.style.display = 'block';
+            amuletSec.scrollIntoView({ behavior: 'smooth' });
             window.toggleQuickMenu();
             return;
         }
 
-        // '확인'을 눌렀다면 기존 결과창을 닫고 배경/헤더를 원상 복구해 줌
-        document.getElementById('result').style.display = 'none';
-        document.getElementById('tarotResult').style.display = 'none';
-        document.querySelector('.header').style.display = 'flex';
-        document.querySelector('.star-bg-fixed').style.display = 'block';
-    }
+        // 2. 사주나 타로 결과가 떠 있는 상태에서 다른 메뉴로 이동하려 할 때 -> 경고창 발생!
+        if (isSajuResultOpen || isTarotResultOpen) {
+            const confirmMove = confirm("⚠️ 아직 결과를 저장하지 않으셨다면 데이터가 초기화될 수 있습니다.\n\n(이동 전 PDF 저장이나 카카오톡 공유를 권장합니다.)\n정말 다른 화면으로 이동하시겠습니까?");
 
-    // 3. 목적지로 안전하게 이동
-    if (path === 'saju') {
-        window.selectPath('saju');
-    } else if (path === 'tarot') {
-        window.selectPath('tarot');
-    }
+            // '취소'를 누르면 메뉴만 닫고 현재 결과창을 그대로 유지
+            if (!confirmMove) {
+                window.toggleQuickMenu();
+                return;
+            }
 
-    window.toggleQuickMenu();
-};
+            // '확인'을 눌렀다면 기존 결과창을 닫고 배경/헤더를 원상 복구해 줌
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('tarotResult').style.display = 'none';
+            document.querySelector('.header').style.display = 'flex';
+            document.querySelector('.star-bg-fixed').style.display = 'block';
+        }
+
+        // 3. 목적지로 안전하게 이동
+        if (path === 'saju') {
+            window.selectPath('saju');
+        } else if (path === 'tarot') {
+            window.selectPath('tarot');
+        }
+
+        window.toggleQuickMenu();
+    };
