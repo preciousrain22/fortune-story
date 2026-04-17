@@ -1101,12 +1101,20 @@ window.startFaceReading = async function () {
         return;
     }
 
-    showToast("관상을 분석 중입니다... ⏳\n(약 5~10초 소요)");
+    // 1. 로딩창 띄우기 (사주 로딩창 재활용)
+    const loadingScreen = document.getElementById('analysisLoading');
+    const loadingTitle = document.getElementById('loadingTitle');
+    const loadingMessage = document.getElementById('loadingMessage');
 
+    if (loadingScreen) loadingScreen.style.display = 'flex';
+    if (loadingTitle) loadingTitle.innerHTML = `<span style="color:#81D4FA;">프리미엄 정밀 관상</span> 분석 진행 중...`;
+    if (loadingMessage) loadingMessage.innerText = "AI가 이목구비의 비율과 찰색(얼굴빛)을 스캔하고 있습니다...";
+
+    // 2. VIP 전용 고품질 AI 프롬프트
     const payload = {
         contents: [{
             parts: [
-                { text: "당신은 최고 권위의 관상가입니다. 사진 속 인물의 이마(초년), 눈과 코(중년), 입과 턱(말년)을 분석하고 운의 흐름을 3문단으로 상세히 풀어주세요. 긍정적인 어조를 유지하세요." },
+                { text: "당신은 최고 권위의 관상가입니다. 사진 속 인물의 이마(초년/부모), 눈과 코(중년/재물/성공), 입과 턱(말년/자식)의 특징을 아주 디테일하게 짚어내고, 운의 흐름을 4문단 이상으로 방대하고 상세히 풀어주세요.\n\n[작성 규칙]\n1. 각 운세(초년, 중년, 말년, 총평)마다 앞에 무조건 **[소제목]** 형태로 굵게 강조해주세요.\n2. 9,900원을 결제한 VIP 고객을 대하듯 확신에 찬 어조와 긍정적인 방향을 제시하세요." },
                 { inlineData: { mimeType: "image/jpeg", data: base64FaceImage } }
             ]
         }]
@@ -1120,18 +1128,68 @@ window.startFaceReading = async function () {
         });
         const data = await response.json();
 
-        // 에러 처리
         if (!response.ok) {
             alert("관상 분석 중 서버 에러가 발생했습니다.");
+            if (loadingScreen) loadingScreen.style.display = 'none';
             return;
         }
 
         const faceResultText = data.candidates[0].content.parts[0].text;
+        if (loadingScreen) loadingScreen.style.display = 'none';
 
-        alert("✨ 관상 분석이 완료되었습니다!\n\n" + faceResultText);
-        // 추후 화면에 예쁘게 뿌려주는 HTML 영역을 만드시면 이 위치에서 DOM 업데이트를 하시면 됩니다!
+        // 3. 결과 화면 전환 (사주 결과창 완벽 재활용)
+        document.querySelector('.header').style.display = 'none';
+        document.querySelector('.star-bg-fixed').style.display = 'none';
+        document.getElementById('faceSection').style.display = 'none';
+
+        const resultSection = document.getElementById('result');
+        const freeContentArea = document.getElementById('freeContentArea');
+        const premiumContentArea = document.getElementById('premiumContentArea');
+
+        resultSection.style.display = 'block';
+        document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: #81D4FA; letter-spacing: 1px;">얼굴에 새겨진 운명의 기록</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">프리미엄 정밀 관상</span>`;
+
+        // 4. 무료 영역: 얼굴 스캔 완료 시각화 연출
+        freeContentArea.innerHTML = `
+            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 3rem 1.5rem; border: 1px solid rgba(129, 212, 250, 0.4); border-radius: 12px; background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(129, 212, 250, 0.1);">
+                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;">
+                    <div style="position: relative; width: 160px; height: 160px;">
+                        <img src="${document.getElementById('facePreview').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #81D4FA; box-shadow: 0 0 20px rgba(129, 212, 250, 0.5);">
+                        <div style="position: absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border: 2px dashed #4FC3F7; animation: spin-slow 10s linear infinite;"></div>
+                    </div>
+                </div>
+                <h3 style="color: #81D4FA; font-size: 1.4rem; font-weight: bold; margin-bottom: 10px;">기운 스캔 완료</h3>
+                <p style="color: #ccc; font-size: 1rem; line-height: 1.6;">당신의 초년, 중년, 말년에 걸친 운명의 흐름과<br>재물운, 성공운의 단서를 모두 해독했습니다.</p>
+            </div>
+        `;
+
+        // 5. 프리미엄 영역: AI 텍스트를 예쁘게 포맷팅 (블러 처리 상태로 렌더링)
+        const formattedContent = faceResultText.split(/\n|\\n/).filter(p => p.trim() !== '').map(p => {
+            if (p.includes('**')) { // AI가 달아준 소제목 강조
+                return `<h4 style="color: #4FC3F7; font-size: 1.3rem; margin-top: 2.5rem; margin-bottom: 1rem; text-align: center; font-weight:bold;">${p.replace(/\*\*/g, '').trim()}</h4>`;
+            }
+            return `<p style="color: #FDFBF7; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.5rem; text-align: justify; word-break: keep-all;">${p.replace(/\*/g, '').trim()}</p>`;
+        }).join('');
+
+        premiumContentArea.innerHTML = `<div style="margin-top: 3.5rem;">${formattedContent}</div>`;
+
+        // 6. 결제 블러창 및 버튼 세팅 (9,900원 설정)
+        const price = 9900;
+        document.getElementById('lockTypeName').textContent = `[정밀 관상]`;
+        document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
+
+        premiumContentArea.classList.remove('unlocked');
+        premiumContentArea.classList.add('blur-content');
+        document.getElementById('unlockOverlay').style.display = 'flex';
+        document.getElementById('sajuActionsArea').style.display = 'none';
+
+        // 🚨 토스 결제창 호출 (결제 성공 시 사주와 동일하게 자동으로 화면 해제됨)
+        document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment("프리미엄 정밀 관상", price);
+
+        window.scrollTo(0, 0);
 
     } catch (err) {
-        alert("분석 중 통신 에러가 발생했습니다.");
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        alert("분석 중 에러가 발생했습니다.");
     }
 };
