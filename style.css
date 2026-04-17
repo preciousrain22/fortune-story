@@ -626,9 +626,11 @@ p {
 
 .gateway-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 3rem;
-    max-width: 900px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    /* 폭 축소 */
+    gap: 1.5rem;
+    max-width: 1100px;
+    /* 3개가 들어가도록 전체 영역 확장 */
     margin: 0 auto;
 }
 
@@ -638,14 +640,16 @@ p {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    padding: 4rem 2.5rem;
+    padding: 3rem 1.5rem;
+    /* 내부 여백 다이어트 */
     text-align: center;
     cursor: pointer;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
+    /* 간격 다이어트 */
     position: relative;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
@@ -694,8 +698,20 @@ p {
     filter: drop-shadow(0 0 20px rgba(179, 136, 235, 0.4));
 }
 
+/* 🚨 신규 관상 카드 마우스 호버 효과 추가 */
+.gateway-card.face-card:hover {
+    border-color: rgba(129, 212, 250, 0.4);
+    box-shadow: 0 20px 50px rgba(129, 212, 250, 0.15), inset 0 0 20px rgba(129, 212, 250, 0.05);
+}
+
+.gateway-card.face-card:hover .gateway-icon {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 20px rgba(129, 212, 250, 0.4));
+}
+
 .gateway-icon {
-    font-size: 5rem;
+    font-size: 4rem;
+    /* 아이콘 다이어트 */
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
     display: flex;
     justify-content: center;
@@ -705,16 +721,18 @@ p {
 }
 
 .gateway-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    /* 글씨 다이어트 */
     font-weight: 400;
     margin-bottom: 0.5rem;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
 }
 
 .gateway-desc {
     color: var(--text-secondary);
-    font-size: 1.05rem;
-    line-height: 1.8;
+    font-size: 0.95rem;
+    /* 글씨 다이어트 */
+    line-height: 1.6;
     font-weight: 300;
 }
 

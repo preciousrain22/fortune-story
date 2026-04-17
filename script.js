@@ -190,11 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
         window.history.replaceState({}, document.title, window.location.pathname);
     }
-
     window.selectPath = function (path, isPopState = false) {
         const gateway = document.getElementById('gateway');
         const sajuSection = document.getElementById('daily');
         const tarotSection = document.getElementById('tarot');
+        const faceSection = document.getElementById('faceSection'); // 🚨 신규 추가
 
         if (!isPopState) {
             window.history.pushState({ path: path }, '', path === 'gateway' ? window.location.pathname : `?path=${path}`);
@@ -208,32 +208,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.header').style.display = 'flex';
         document.querySelector('.star-bg-fixed').style.display = 'block';
 
+        // 🚨 모든 섹션 일단 숨기기
+        if (gateway) gateway.style.display = 'none';
+        if (sajuSection) sajuSection.style.display = 'none';
+        if (tarotSection) tarotSection.style.display = 'none';
+        if (faceSection) faceSection.style.display = 'none';
+
         if (path === 'gateway') {
             if (gateway) gateway.style.display = 'block';
-            if (sajuSection) sajuSection.style.display = 'none';
-            if (tarotSection) tarotSection.style.display = 'none';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
-        if (gateway) gateway.style.display = 'none';
-
-        if (path === 'saju') {
-            if (sajuSection) {
-                sajuSection.style.display = 'block';
-                sajuSection.classList.remove('fade-in');
-                void sajuSection.offsetWidth;
-                sajuSection.classList.add('fade-in');
-            }
-            if (tarotSection) tarotSection.style.display = 'none';
-        } else if (path === 'tarot') {
-            if (sajuSection) sajuSection.style.display = 'none';
-            if (tarotSection) {
-                tarotSection.style.display = 'block';
-                tarotSection.classList.remove('fade-in');
-                void tarotSection.offsetWidth;
-                tarotSection.classList.add('fade-in');
-            }
+        // 🚨 선택한 섹션만 보여주기
+        if (path === 'saju' && sajuSection) {
+            sajuSection.style.display = 'block';
+            sajuSection.classList.remove('fade-in');
+            void sajuSection.offsetWidth;
+            sajuSection.classList.add('fade-in');
+        } else if (path === 'tarot' && tarotSection) {
+            tarotSection.style.display = 'block';
+            tarotSection.classList.remove('fade-in');
+            void tarotSection.offsetWidth;
+            tarotSection.classList.add('fade-in');
+        } else if (path === 'face' && faceSection) {
+            faceSection.style.display = 'block';
+            faceSection.classList.remove('fade-in');
+            void faceSection.offsetWidth;
+            faceSection.classList.add('fade-in');
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
