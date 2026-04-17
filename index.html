@@ -104,9 +104,21 @@
                                 </linearGradient>
                             </defs>
                             <circle cx="12" cy="12" r="10"></circle>
+
                             <path d="M12 2a5 5 0 0 0 0 10 5 5 0 0 1 0 10"></path>
                             <circle cx="12" cy="7" r="1.5" fill="#D4AF37" stroke="none"></circle>
                             <circle cx="12" cy="17" r="1.5" fill="#D4AF37" stroke="none"></circle>
+
+                            <path d="M12 12l6 -6" stroke-width="1.8" stroke-linecap="round" stroke="#F9F6CA"></path>
+                            <circle cx="18" cy="6" r="1" fill="#F9F6CA" stroke="none"></circle>
+                            <path d="M12 2v1"></path>
+                            <path d="M22 12h-1"></path>
+                            <path d="M12 22v-1"></path>
+                            <path d="M2 12h-1"></path>
+                            <path d="M19.07 4.93l-0.71 0.71"></path>
+                            <path d="M19.07 19.07l-0.71 -0.71"></path>
+                            <path d="M4.93 19.07l0.71 -0.71"></path>
+                            <path d="M4.93 4.93l0.71 0.71"></path>
                         </svg>
                     </div>
                     <div class="gateway-title" style="color: #E8D080;">천명의 지혜, 사주</div>
@@ -631,6 +643,10 @@
                 <span class="option-label">신비 타로</span>
                 <div class="option-icon">🃏</div>
             </div>
+            <div class="fab-option" onclick="quickNav('face')">
+                <span class="option-label">관상 분석</span>
+                <div class="option-icon">👤</div>
+            </div>
             <div class="fab-option" onclick="quickNav('amulet')">
                 <span class="option-label">사이버 수호부</span>
                 <div class="option-icon">🛡️</div>
@@ -639,24 +655,6 @@
         <button class="fab-main" id="fabMainBtn" onclick="toggleQuickMenu()">
             <span class="fab-icon">✦</span>
         </button>
-    </div>
-    <div class="fab-options" id="fabOptions">
-        <div class="fab-option" onclick="quickNav('saju')">
-            <span class="option-label">명리 사주</span>
-            <div class="option-icon">☯</div>
-        </div>
-        <div class="fab-option" onclick="quickNav('tarot')">
-            <span class="option-label">신비 타로</span>
-            <div class="option-icon">🃏</div>
-        </div>
-        <div class="fab-option" onclick="quickNav('face')">
-            <span class="option-label">관상 분석</span>
-            <div class="option-icon">👤</div>
-        </div>
-        <div class="fab-option" onclick="quickNav('amulet')">
-            <span class="option-label">사이버 수호부</span>
-            <div class="option-icon">🛡️</div>
-        </div>
     </div>
 </body>
 
