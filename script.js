@@ -1043,6 +1043,7 @@ window.toggleQuickMenu = function () {
 };
 
 window.quickNav = function (path) {
+    // 현재 결과창이 열려있는지 체크 (관상 결과도 'result' 창을 쓰므로 자동으로 체크됩니다)
     const isSajuResultOpen = document.getElementById('result').style.display === 'block';
     const isTarotResultOpen = document.getElementById('tarotResult').style.display === 'block';
 
@@ -1055,23 +1056,24 @@ window.quickNav = function (path) {
     }
 
     if (isSajuResultOpen || isTarotResultOpen) {
-        const confirmMove = confirm("⚠️ 아직 결과를 저장하지 않으셨다면 데이터가 초기화될 수 있습니다.\n\n(이동 전 이미지 저장이나 카카오톡 공유를 권장합니다.)\n정말 다른 화면으로 이동하시겠습니까?");
-
+        const confirmMove = confirm("⚠️ 아직 결과를 저장하지 않으셨다면 데이터가 초기화될 수 있습니다.\n\n정말 다른 화면으로 이동하시겠습니까?");
         if (!confirmMove) {
             window.toggleQuickMenu();
             return;
         }
-
         document.getElementById('result').style.display = 'none';
         document.getElementById('tarotResult').style.display = 'none';
         document.querySelector('.header').style.display = 'flex';
         document.querySelector('.star-bg-fixed').style.display = 'block';
     }
 
+    // 경로에 따라 화면 전환
     if (path === 'saju') {
         window.selectPath('saju');
     } else if (path === 'tarot') {
         window.selectPath('tarot');
+    } else if (path === 'face') { // 👈 관상 경로 추가!
+        window.selectPath('face');
     }
 
     window.toggleQuickMenu();
