@@ -45,7 +45,8 @@ window.handlePdfPrint = function (type) {
     const isMobile = window.innerWidth <= 768;
 
     const dpr = window.devicePixelRatio || 1;
-    const captureScale = isMobile ? Math.max(dpr * 1.5, 2.5) : Math.max(dpr * 2, 3);
+    // 🚨 PC 환경에서는 무조건 4배수(초고해상도)로 렌더링하여 칼주름 화질 보장
+    const captureScale = isMobile ? Math.max(dpr * 2, 3) : 4;
 
     setTimeout(() => {
         html2canvas(elementToCapture, {
@@ -1160,11 +1161,11 @@ window.startFaceReading = async function () {
     if (loadingTitle) loadingTitle.innerHTML = `<span style="color:#81D4FA;">프리미엄 정밀 관상</span> 분석 진행 중...`;
     if (loadingMessage) loadingMessage.innerText = "AI가 이목구비의 비율과 찰색(얼굴빛)을 스캔하고 있습니다...";
 
-    // 2. VIP 전용 고품질 AI 프롬프트
+    // 2. VIP 전용 고품질 AI 프롬프트 (품격 및 톤앤매너 강화)
     const payload = {
         contents: [{
             parts: [
-                { text: "당신은 최고 권위의 관상가입니다. 사진 속 인물의 이마(초년/부모), 눈과 코(중년/재물/성공), 입과 턱(말년/자식)의 특징을 아주 디테일하게 짚어내고, 운의 흐름을 4문단 이상으로 방대하고 상세히 풀어주세요.\n\n[작성 규칙]\n1. 각 운세(초년, 중년, 말년, 총평)마다 앞에 무조건 **[소제목]** 형태로 굵게 강조해주세요.\n2. 9,900원을 결제한 VIP 고객을 대하듯 확신에 찬 어조와 긍정적인 방향을 제시하세요." },
+                { text: "당신은 최고 권위의 관상가입니다. 사진 속 인물의 이마(초년/부모), 눈과 코(중년/재물/성공), 입과 턱(말년/자식)의 특징을 아주 디테일하게 짚어내고, 운의 흐름을 4문단 이상으로 방대하고 상세히 풀어주세요.\n\n[작성 규칙]\n1. 각 운세(초년, 중년, 말년, 총평)마다 앞에 무조건 **[소제목]** 형태로 굵게 강조해주세요.\n2. 상위 0.1% VIP 고객을 대하듯 품격 있고 진중하며 확신에 찬 어조로 작성하세요. (단, 분석 내용에 '결제', '금액' 등 돈과 관련된 상업적인 단어는 절대 언급하지 마세요.)" },
                 { inlineData: { mimeType: "image/jpeg", data: base64FaceImage } }
             ]
         }]
