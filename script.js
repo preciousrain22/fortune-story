@@ -1095,20 +1095,48 @@ window.quickNav = function (path) {
     window.toggleQuickMenu();
 };
 
-// ==========================================
-// 6. AI 관상 (사진 분석) 로직
-// ==========================================
-let base64FaceImage = "";
-
 window.previewFaceImage = function (event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function (e) {
+        // 화면에 미리보기 이미지 띄우기
         document.getElementById('facePreview').src = e.target.result;
         document.getElementById('facePreview').style.display = 'block';
-        base64FaceImage = e.target.result.split(',')[1];
+
+        // 🚨 고화질 사진을 서버 전송용으로 가볍게 압축하는 로직 추가
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 가로/세로 최대 800px로 제한하여 용량 최적화
+            const MAX_SIZE = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width;
+                    width = MAX_SIZE;
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height;
+                    height = MAX_SIZE;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 가벼운 JPEG 형식으로 변환하여 AI 전송 준비
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            base64FaceImage = compressedDataUrl.split(',')[1];
+        };
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 };
