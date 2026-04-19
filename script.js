@@ -36,13 +36,13 @@ window.handlePdfPrint = function (type) {
 
     showToast("결과 이미지를 생성 중입니다... 📸\n(3~5초 소요)");
 
-    const targetId = type === 'saju' ? 'result' : 'tarotResult';
+    // 🚨 수정 포인트: 관상('face')일 때도 사주와 같은 결과창을 캡처하도록 연결
+    const targetId = (type === 'saju' || type === 'face') ? 'result' : 'tarotResult';
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
     const actionArea = elementToCapture.querySelector('.result-actions');
 
     if (actionArea) actionArea.style.display = 'none';
     const isMobile = window.innerWidth <= 768;
-
 
     const dpr = window.devicePixelRatio || 1;
     const captureScale = isMobile ? Math.max(dpr * 1.5, 2.5) : Math.max(dpr * 2, 3);
@@ -58,7 +58,11 @@ window.handlePdfPrint = function (type) {
         }).then(canvas => {
             if (actionArea) actionArea.style.display = 'block';
             const link = document.createElement('a');
-            link.download = `포춘스토리_정밀분석_${type === 'saju' ? '사주' : '타로'}.jpg`;
+
+            // 🚨 수정 포인트: 저장되는 파일 이름에 '관상'도 정상적으로 반영
+            const fileNameType = type === 'saju' ? '사주' : (type === 'face' ? '관상' : '타로');
+            link.download = `포춘스토리_정밀분석_${fileNameType}.jpg`;
+
             link.href = canvas.toDataURL('image/jpeg', 1.0);
             link.click();
             showToast("✅ 사진첩에 저장이 완료되었습니다!");
@@ -1209,12 +1213,19 @@ window.startFaceReading = async function () {
             </div>
         `;
 
-        // 5. 프리미엄 영역: AI 텍스트를 예쁘게 포맷팅 (블러 처리 상태로 렌더링)
+        // 5. 프리미엄 영역: 고급화 텍스트 포맷팅 (색상 통일, 괄호 제거, 단어 끊김 방지)
         const formattedContent = faceResultText.split(/\n|\\n/).filter(p => p.trim() !== '').map(p => {
-            if (p.includes('**')) { // AI가 달아준 소제목 강조
-                return `<h4 style="color: #4FC3F7; font-size: 1.3rem; margin-top: 2.5rem; margin-bottom: 1rem; text-align: center; font-weight:bold;">${p.replace(/\*\*/g, '').trim()}</h4>`;
+            let text = p.replace(/\*\*/g, '').trim();
+
+            // 소제목 감지 (대괄호로 시작하거나 끝나는 경우)
+            if (text.startsWith('[') || p.includes('**')) {
+                text = text.replace(/\[|\]/g, '').trim(); // 촌스러운 대괄호 날리기
+                // 사주처럼 밑줄을 넣고, 단어 중간에 끊기지 않도록(keep-all) 설정. 색상은 은은한 아이스 블루 통일.
+                return `<h4 style="color: #81D4FA; font-size: 1.25rem; margin-top: 3rem; margin-bottom: 1.5rem; text-align: center; font-weight: 800; word-break: keep-all; line-height: 1.5; border-bottom: 1px solid rgba(129, 212, 250, 0.3); padding-bottom: 10px;">${text}</h4>`;
             }
-            return `<p style="color: #FDFBF7; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.5rem; text-align: justify; word-break: keep-all;">${p.replace(/\*/g, '').trim()}</p>`;
+
+            // 본문 내용 (소제목과 톤앤매너를 맞춘 화이트 블루 색상 통일)
+            return `<p style="color: #E1F5FE; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.8rem; text-align: justify; word-break: keep-all; opacity: 0.95;">${text.replace(/\*/g, '').trim()}</p>`;
         }).join('');
 
         premiumContentArea.innerHTML = `<div style="margin-top: 3.5rem;">${formattedContent}</div>`;

@@ -149,36 +149,27 @@ p {
     letter-spacing: 1.5px;
 }
 
-/* Obangsaek Animated Gradient */
+/* 색이 변하는 텍스트 (모바일에서도 밝게 빛나도록 네온/파스텔 톤으로 수정) */
 .obangsaek-text {
-    background: linear-gradient(to right,
-            #0066cc 0%,
-            #cc0000 10%,
-            #ffcc00 20%,
-            #ffffff 30%,
-            #555555 40%,
-            #0066cc 50%,
-            #cc0000 60%,
-            #ffcc00 70%,
-            #ffffff 80%,
-            #555555 90%,
-            #0066cc 100%);
-    background-size: 200% auto;
-    color: transparent;
+    background: linear-gradient(90deg, #4FC3F7, #FF8A80, #FFD54F, #E1F5FE, #B388EB);
+    background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: flow 4s linear infinite;
-    display: inline-block;
+    animation: gradient-text 5s ease infinite;
+    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.2));
 }
 
-@keyframes flow {
+@keyframes gradient-text {
     0% {
         background-position: 0% 50%;
     }
 
-    100% {
+    50% {
         background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
     }
 }
 
