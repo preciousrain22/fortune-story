@@ -1,7 +1,19 @@
 // ==========================================
 // 1. 공통 유틸리티 (이미지 캡처 저장, 텍스트 복사, 카카오 피드 공유)
 // ==========================================
-
+// ==========================================
+// 👑 마스터(VIP) 백도어 로직: 접속 시 주소창에 ?master=jinwoo 를 붙이세요
+// ==========================================
+(function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('master') === 'jinwoo') {
+        sessionStorage.setItem('isFortuneMaster', 'true');
+        // 주소창을 깔끔하게 정리 (다른 사람이 못 보게)
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    // 전역 변수로 마스터 여부 저장
+    window.isMasterKey = sessionStorage.getItem('isFortuneMaster') === 'true';
+})();
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -1184,13 +1196,33 @@ window.startFaceReading = async function () {
         document.getElementById('lockTypeName').textContent = `[정밀 관상]`;
         document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
 
-        premiumContentArea.classList.remove('unlocked');
-        premiumContentArea.classList.add('blur-content');
-        document.getElementById('unlockOverlay').style.display = 'flex';
-        document.getElementById('sajuActionsArea').style.display = 'none';
-
-        // 🚨 토스 결제창 호출 (결제 성공 시 사주와 동일하게 자동으로 화면 해제됨)
-        document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment("프리미엄 정밀 관상", price);
+        // 🚨 마스터 백도어 적용 🚨
+        if (window.isMasterKey) {
+            premiumContentArea.classList.remove('blur-content');
+            premiumContentArea.classList.add('unlocked');
+            document.getElementById('unlockOverlay').style.display = 'none';
+            // 버튼 영역은 사주와 동일하게 표시 (공유/저장용)
+            const actionsArea = document.getElementById('sajuActionsArea');
+            if (actionsArea) {
+                actionsArea.style.display = 'block';
+                actionsArea.innerHTML = `
+                    <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+                        <p style="color: #81D4FA; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="handlePdfPrint('face')">📸 이미지 저장</button>
+                            <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="location.reload()">🔄 다시 하기</button>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // 일반 고객은 결제창
+            premiumContentArea.classList.remove('unlocked');
+            premiumContentArea.classList.add('blur-content');
+            document.getElementById('unlockOverlay').style.display = 'flex';
+            document.getElementById('sajuActionsArea').style.display = 'none';
+            document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment("프리미엄 정밀 관상", price);
+        }
 
         window.scrollTo(0, 0);
 
