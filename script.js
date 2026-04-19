@@ -31,9 +31,13 @@ window.handlePdfPrint = function (type) {
     if (actionArea) actionArea.style.display = 'none';
     const isMobile = window.innerWidth <= 768;
 
+
+    const dpr = window.devicePixelRatio || 1;
+    const captureScale = isMobile ? Math.max(dpr * 1.5, 2.5) : Math.max(dpr * 2, 3);
+
     setTimeout(() => {
         html2canvas(elementToCapture, {
-            scale: isMobile ? 1.5 : 2,
+            scale: captureScale,
             useCORS: true,
             backgroundColor: '#1a1a1a',
             scrollY: 0,
@@ -43,7 +47,7 @@ window.handlePdfPrint = function (type) {
             if (actionArea) actionArea.style.display = 'block';
             const link = document.createElement('a');
             link.download = `포춘스토리_정밀분석_${type === 'saju' ? '사주' : '타로'}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.href = canvas.toDataURL('image/jpeg', 1.0);
             link.click();
             showToast("✅ 사진첩에 저장이 완료되었습니다!");
         }).catch(err => {
@@ -572,10 +576,9 @@ async function getSajuFromGemini(name, typeName, year, month, day, fortuneType, 
 
     let specificInstructions = "";
     let lengthInstruction = "";
-
     if (fortuneType === 'daily') {
-        specificInstructions = "오늘 하루의 운세이므로, 아침(태동), 점심(절정), 저녁(갈무리) 시간대별 기운의 변화와 구체적인 행동 지침을 작성하세요.";
-        lengthInstruction = "모바일에서 읽기 좋게 각 섹션당 500자 내외로 작성하세요.";
+        specificInstructions = "오늘 하루의 종합적인 기운을 분석하세요. [오늘의 총운], [금전/재물운], [사랑/애정운], [건강/활력운] 순서로 작성하고, 마지막에는 [행운의 아이템과 색상]을 하나씩 콕 짚어주세요.";
+        lengthInstruction = "대중적인 운세 서비스처럼 핵심 위주로 명확하게, 섹션당 500자 내외로 작성하세요.";
     } else if (fortuneType === 'weekly') {
         specificInstructions = "일주일간의 운세이므로, 월요일부터 일요일까지 요일별 기운의 흐름과 일진을 풀어쓰세요.";
         lengthInstruction = "각 섹션당 600자 내외로 핵심을 깊이 있게 작성하세요.";
@@ -882,11 +885,12 @@ function generateSajuChartsHTML(colorInfo, hash) {
 
         dataSegmentHTML += `<circle cx="${px}" cy="${py}" r="4" fill="${eColors[idx]}" filter="drop-shadow(0 0 4px ${eColors[idx]})" />`;
 
-        const tx = center + (radius + 25) * Math.cos(angle), ty = center - (radius + 25) * Math.sin(angle);
-        const anchor = Math.abs(tx - center) > 10 ? (tx > center ? "start" : "end") : "middle";
+        // 🚨 간격을 넓히고(25 -> 38), 폰트 크기 조정 및 닫는 괄호 ')' 추가
+        const tx = center + (radius + 38) * Math.cos(angle), ty = center - (radius + 38) * Math.sin(angle);
+        const anchor = Math.abs(tx - center) > 15 ? (tx > center ? "start" : "end") : "middle";
         dataSegmentHTML += `
-            <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="16" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
-            <text x="${tx}" y="${ty + 12}" fill="#ddd" font-size="12" text-anchor="${anchor}">(${elements[idx].split('(')[1]} ${p}%</text>`;
+            <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="14" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
+            <text x="${tx}" y="${ty + 15}" fill="#ddd" font-size="11" text-anchor="${anchor}">(${elements[idx].split('(')[1]} ${p}%)</text>`;
     });
 
     return `
