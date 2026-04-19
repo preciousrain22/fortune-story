@@ -154,6 +154,7 @@ p {
     background: linear-gradient(90deg, #4FC3F7, #FF8A80, #FFD54F, #E1F5FE, #B388EB);
     background-size: 300% 300%;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gradient-text 5s ease infinite;
     filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.2));
