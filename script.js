@@ -133,60 +133,59 @@ function preventExit(e) {
 // 2. 사주 메인 로직 및 공통 이벤트
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.path) {
-            window.selectPath(e.state.path, true);
-        } else {
-            window.selectPath('gateway', true);
-        }
-    });
-
-    const tarotConcern = document.getElementById('tarotConcern');
-    const tarotTextCount = document.getElementById('tarotTextCount');
-    if (tarotConcern && tarotTextCount) {
-        tarotConcern.addEventListener('input', function () {
-            const len = this.value.trim().length;
-            tarotTextCount.innerText = `${len} / 최소 30자`;
-            tarotTextCount.style.color = len >= 30 ? '#4CAF50' : '#FF5252';
-        });
+document.addEventListener('DOMContentLoaded', () => window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.path) {
+        window.selectPath(e.state.path, true);
+    } else {
+        window.selectPath('gateway', true);
     }
+}));
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('paymentKey') && urlParams.has('orderId') && urlParams.has('amount')) {
-        const paymentKey = urlParams.get('paymentKey');
-        const orderId = urlParams.get('orderId');
-        const amount = urlParams.get('amount');
+const tarotConcern = document.getElementById('tarotConcern');
+const tarotTextCount = document.getElementById('tarotTextCount');
+if (tarotConcern && tarotTextCount) {
+    tarotConcern.addEventListener('input', function () {
+        const len = this.value.trim().length;
+        tarotTextCount.innerText = `${len} / 최소 30자`;
+        tarotTextCount.style.color = len >= 30 ? '#4CAF50' : '#FF5252';
+    });
+}
 
-        showToast("안전하게 결제를 최종 승인하고 있습니다... ⏳");
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('paymentKey') && urlParams.has('orderId') && urlParams.has('amount')) {
+    const paymentKey = urlParams.get('paymentKey');
+    const orderId = urlParams.get('orderId');
+    const amount = urlParams.get('amount');
 
-        fetch('/api/confirm', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentKey, orderId, amount })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.orderId) {
-                    alert("✅ 결제가 최종 완료되었습니다!\n프리미엄 리포트가 해제됩니다.");
+    showToast("안전하게 결제를 최종 승인하고 있습니다... ⏳");
 
-                    const savedResult = sessionStorage.getItem('savedSajuResultHTML');
-                    if (savedResult) {
-                        document.querySelector('.header').style.display = 'none';
-                        document.querySelector('.star-bg-fixed').style.display = 'none';
-                        document.getElementById('daily').style.display = 'none';
+    fetch('/api/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentKey, orderId, amount })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.orderId) {
+                alert("✅ 결제가 최종 완료되었습니다!\n프리미엄 리포트가 해제됩니다.");
 
-                        const resultSec = document.getElementById('result');
-                        resultSec.innerHTML = savedResult;
-                        resultSec.style.display = 'block';
+                const savedResult = sessionStorage.getItem('savedSajuResultHTML');
+                if (savedResult) {
+                    document.querySelector('.header').style.display = 'none';
+                    document.querySelector('.star-bg-fixed').style.display = 'none';
+                    document.getElementById('daily').style.display = 'none';
 
-                        document.getElementById('premiumContentArea').classList.add('unlocked');
-                        document.getElementById('unlockOverlay').style.display = 'none';
+                    const resultSec = document.getElementById('result');
+                    resultSec.innerHTML = savedResult;
+                    resultSec.style.display = 'block';
 
-                        const sajuActionsArea = document.getElementById('sajuActionsArea');
-                        sajuActionsArea.style.display = 'block';
-                        sajuActionsArea.style.borderTop = 'none';
-                        sajuActionsArea.innerHTML = `
+                    document.getElementById('premiumContentArea').classList.add('unlocked');
+                    document.getElementById('unlockOverlay').style.display = 'none';
+
+                    const sajuActionsArea = document.getElementById('sajuActionsArea');
+                    sajuActionsArea.style.display = 'block';
+                    sajuActionsArea.style.borderTop = 'none';
+                    sajuActionsArea.innerHTML = `
                             <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
                                 <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
                                 <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
@@ -198,281 +197,270 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             </div>
                         `;
-                        sessionStorage.removeItem('savedSajuResultHTML');
-                    }
-                } else {
-                    alert("❌ 결제 승인 실패: " + (data.message || "알 수 없는 오류"));
+                    sessionStorage.removeItem('savedSajuResultHTML');
                 }
-            })
-            .catch(err => alert("서버 통신 오류가 발생했습니다."));
+            } else {
+                alert("❌ 결제 승인 실패: " + (data.message || "알 수 없는 오류"));
+            }
+        })
+        .catch(err => alert("서버 통신 오류가 발생했습니다."));
 
-        window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (urlParams.has('message')) {
-        alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
-        window.history.replaceState({}, document.title, window.location.pathname);
+    window.history.replaceState({}, document.title, window.location.pathname);
+} else if (urlParams.has('message')) {
+    alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+window.selectPath = function (path, isPopState = false) {
+    const gateway = document.getElementById('gateway');
+    const sajuSection = document.getElementById('daily');
+    const tarotSection = document.getElementById('tarot');
+    const faceSection = document.getElementById('faceSection');
+
+    if (!isPopState) {
+        window.history.pushState({ path: path }, '', path === 'gateway' ? window.location.pathname : `?path=${path}`);
     }
-    window.selectPath = function (path, isPopState = false) {
-        const gateway = document.getElementById('gateway');
-        const sajuSection = document.getElementById('daily');
-        const tarotSection = document.getElementById('tarot');
-        const faceSection = document.getElementById('faceSection'); // 🚨 신규 추가
 
-        if (!isPopState) {
-            window.history.pushState({ path: path }, '', path === 'gateway' ? window.location.pathname : `?path=${path}`);
-        }
+    const overlays = ['result', 'tarotResult', 'analysisLoading', 'tarotLoading', 'tarotDraw'];
+    overlays.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    document.querySelector('.header').style.display = 'flex';
+    document.querySelector('.star-bg-fixed').style.display = 'block';
 
-        const overlays = ['result', 'tarotResult', 'analysisLoading', 'tarotLoading', 'tarotDraw'];
-        overlays.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        });
-        document.querySelector('.header').style.display = 'flex';
-        document.querySelector('.star-bg-fixed').style.display = 'block';
+    // 1. 모든 섹션 숨기기
+    if (gateway) gateway.style.display = 'none';
+    if (sajuSection) sajuSection.style.display = 'none';
+    if (tarotSection) tarotSection.style.display = 'none';
+    if (faceSection) faceSection.style.display = 'none';
 
-        // 🚨 모든 섹션 일단 숨기기
-        if (gateway) gateway.style.display = 'none';
-        if (sajuSection) sajuSection.style.display = 'none';
-        if (tarotSection) tarotSection.style.display = 'none';
-        if (faceSection) faceSection.style.display = 'none';
+    // 2. 선택된 메뉴만 켜주기 (복구 완료!)
+    if (path === 'gateway') {
+        if (gateway) gateway.style.display = 'block';
+    } else if (path === 'saju') {
+        if (sajuSection) sajuSection.style.display = 'block';
+    } else if (path === 'tarot') {
+        if (tarotSection) tarotSection.style.display = 'block';
+    } else if (path === 'face') {
+        if (faceSection) faceSection.style.display = 'block';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}; // 🚨 화면 전환 함수를 확실히 닫아줍니다!
 
-        if (path === 'gateway') {
-            if (gateway) gateway.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+// ==========================================
+// 아래부터는 폼 전송 등 1번만 세팅되어야 하는 로직
+// ==========================================
+
+const birthHourSelect = document.getElementById('birthHour');
+const birthMinuteSelect = document.getElementById('birthMinute');
+// 무한 증식 방지 방어막 추가
+if (birthHourSelect && birthMinuteSelect && birthHourSelect.options.length <= 1) {
+    for (let i = 1; i <= 12; i++) birthHourSelect.appendChild(new Option(`${i}시`, i));
+    for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
+}
+
+const sajuForm = document.getElementById('sajuForm');
+if (sajuForm) {
+    sajuForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fortuneType = document.getElementById('fortuneType').value;
+
+        const rawName = document.getElementById('name').value.trim();
+        window.isMasterKey = rawName.includes('**');
+        const name = rawName.replace(/[*']/g, '');
+
+        if (name.length < 2) {
+            alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
             return;
         }
 
-        // 🚨 선택한 섹션만 보여주기
-        if (path === 'saju' && sajuSection) {
-            sajuSection.style.display = 'block';
-            sajuSection.classList.remove('fade-in');
-            void sajuSection.offsetWidth;
-            sajuSection.classList.add('fade-in');
-        } else if (path === 'tarot' && tarotSection) {
-            tarotSection.style.display = 'block';
-            tarotSection.classList.remove('fade-in');
-            void tarotSection.offsetWidth;
-            tarotSection.classList.add('fade-in');
-        } else if (path === 'face' && faceSection) {
-            faceSection.style.display = 'block';
-            faceSection.classList.remove('fade-in');
-            void faceSection.offsetWidth;
-            faceSection.classList.add('fade-in');
+        const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
+
+        const year = document.getElementById('birthYear').value;
+        let month = document.getElementById('birthMonth').value;
+        let day = document.getElementById('birthDay').value;
+
+        if (!year || !month || !day) { alert('생년월일을 모두 입력해주세요.'); return; }
+
+        const monthNum = parseInt(month, 10);
+        const dayNum = parseInt(day, 10);
+        if (monthNum < 1 || monthNum > 12) {
+            alert("태어난 '월'을 정확히 입력해주세요. (1~12)");
+            return;
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+        if (dayNum < 1 || dayNum > 31) {
+            alert("태어난 '일'을 정확히 입력해주세요. (1~31)");
+            return;
+        }
 
-    const year = document.getElementById('birthYear').value;
-    const month = document.getElementById('birthMonth').value.padStart(2, '0');
-    const day = document.getElementById('birthDay').value.padStart(2, '0');
+        month = month.padStart(2, '0');
+        day = day.padStart(2, '0');
 
-    if (!year || !month || !day) { alert('생년월일을 모두 입력해주세요.'); return; }
+        let displayTypeName = {
+            'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운", 'exam': "학업/시험운"
+        }[fortuneType];
 
-    // 🚨 비정상적인 월/일 입력 방지 로직
-    const monthNum = parseInt(month, 10);
-    const dayNum = parseInt(day, 10);
-    if (monthNum < 1 || monthNum > 12) {
-        alert("태어난 '월'을 정확히 입력해주세요. (1~12)");
-        return;
-    }
-    if (dayNum < 1 || dayNum > 31) {
-        alert("태어난 '일'을 정확히 입력해주세요. (1~31)");
-        return;
-    }
+        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
 
-    const birthHourSelect = document.getElementById('birthHour');
-    const birthMinuteSelect = document.getElementById('birthMinute');
-    if (birthHourSelect && birthMinuteSelect) {
-        for (let i = 1; i <= 12; i++) birthHourSelect.appendChild(new Option(`${i}시`, i));
-        for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
-    }
-
-    const sajuForm = document.getElementById('sajuForm');
-    if (sajuForm) {
-        sajuForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const fortuneType = document.getElementById('fortuneType').value;
-
-            const rawName = document.getElementById('name').value.trim();
-            window.isMasterKey = rawName.includes('**');
-            const name = rawName.replace(/[*']/g, '');
-
-            if (name.length < 2) {
-                alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
-                return;
-            }
-
-            const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
-            const year = document.getElementById('birthYear').value;
-            const month = document.getElementById('birthMonth').value.padStart(2, '0');
-            const day = document.getElementById('birthDay').value.padStart(2, '0');
-
-            if (!year || !month || !day) { alert('생년월일을 모두 선택/입력해주세요.'); return; }
-
-            let displayTypeName = {
-                'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운", 'exam': "학업/시험운"
-            }[fortuneType];
-
-            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-
-            Kakao.Auth.login({
-                throughTalk: false,
-                success: function () { startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); },
-                fail: function () { alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다."); startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); }
-            });
+        Kakao.Auth.login({
+            throughTalk: false,
+            success: function () { startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); },
+            fail: function () { alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다."); startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); }
         });
-    }
+    });
+}
 
-    window.loginWithKakao = function () {
+window.loginWithKakao = function () {
+    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+    Kakao.Auth.login({
+        success: function () {
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function (res) { alert(res.kakao_account.profile.nickname + "님 환영합니다! 🎉\n아래에서 운세를 확인하세요."); }
+            });
+        }
+    });
+};
+
+// ==========================================
+// 3. 타로(Tarot) 로직
+// ==========================================
+const tarotCards = [];
+const majorNames = ["바보", "마법사", "여사제", "여황제", "황제", "교황", "연인", "전차", "힘", "은둔자", "운명의 수레바퀴", "정의", "매달린 사람", "죽음", "절제", "악마", "탑", "별", "달", "태양", "심판", "세계"];
+
+for (let i = 0; i <= 21; i++) {
+    tarotCards.push({ id: i, name: majorNames[i], img: `images/${i}.jpeg` });
+}
+
+const suits = [
+    { name: 'Cups', kr: '컵' },
+    { name: 'Pents', kr: '펜타클' },
+    { name: 'Swords', kr: '검' },
+    { name: 'Wands', kr: '지팡이' }
+];
+const ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Page", "Knight", "Queen", "King"];
+
+let minorId = 22;
+for (let suit of suits) {
+    for (let i = 0; i < 14; i++) {
+        tarotCards.push({ id: minorId, name: `${suit.kr} ${ranks[i]}`, img: `images/${minorId}.jpeg` });
+        minorId++;
+    }
+}
+
+let selectedTarotCards = [];
+
+const tarotForm = document.getElementById('tarotForm');
+if (tarotForm) {
+    tarotForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const tarotName = document.getElementById('tarotName').value.trim();
+        if (tarotName.length < 2) {
+            alert("정확한 리딩을 위해 이름(별명)을 2글자 이상 입력해주세요.");
+            return;
+        }
+
+        const concern = document.getElementById('tarotConcern').value.trim();
+        if (concern.length < 30) {
+            alert("카드가 정확한 해답을 보여줄 수 있도록 고민을 30자 이상 자세히 작성해주세요.");
+            return;
+        }
+
         if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
         Kakao.Auth.login({
-            success: function () {
-                Kakao.API.request({
-                    url: '/v2/user/me',
-                    success: function (res) { alert(res.kakao_account.profile.nickname + "님 환영합니다! 🎉\n아래에서 운세를 확인하세요."); }
-                });
-            }
+            throughTalk: false,
+            success: function () { startTarotDraw(); },
+            fail: function () { alert("로그인이 취소되었습니다. 타로를 시작합니다."); startTarotDraw(); }
         });
-    };
+    });
+}
 
-    // ==========================================
-    // 3. 타로(Tarot) 로직
-    // ==========================================
-    const tarotCards = [];
-    const majorNames = ["바보", "마법사", "여사제", "여황제", "황제", "교황", "연인", "전차", "힘", "은둔자", "운명의 수레바퀴", "정의", "매달린 사람", "죽음", "절제", "악마", "탑", "별", "달", "태양", "심판", "세계"];
+function startTarotDraw() {
+    document.querySelector('.header').style.display = 'none';
+    document.querySelector('.star-bg-fixed').style.display = 'none';
+    document.getElementById('tarot').style.display = 'none';
+    document.getElementById('tarotDraw').style.display = 'block';
 
-    for (let i = 0; i <= 21; i++) {
-        tarotCards.push({ id: i, name: majorNames[i], img: `images/${i}.jpeg` });
-    }
+    const deckContainer = document.getElementById('tarotDeck');
+    deckContainer.innerHTML = '';
+    selectedTarotCards = [];
+    document.getElementById('tarotDrawCount').innerText = '3';
+    const btnRead = document.getElementById('btnReadTarot');
+    btnRead.disabled = true;
+    btnRead.classList.add('disable-btn');
 
-    const suits = [
-        { name: 'Cups', kr: '컵' },
-        { name: 'Pents', kr: '펜타클' },
-        { name: 'Swords', kr: '검' },
-        { name: 'Wands', kr: '지팡이' }
-    ];
-    const ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Page", "Knight", "Queen", "King"];
+    const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
 
-    let minorId = 22;
-    for (let suit of suits) {
-        for (let i = 0; i < 14; i++) {
-            tarotCards.push({ id: minorId, name: `${suit.kr} ${ranks[i]}`, img: `images/${minorId}.jpeg` });
-            minorId++;
-        }
-    }
+    shuffled.forEach((card) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'tarot-card-back';
+        cardEl.dataset.isReversed = Math.random() > 0.5 ? "true" : "false";
 
-    let selectedTarotCards = [];
-
-    const tarotForm = document.getElementById('tarotForm');
-    if (tarotForm) {
-        tarotForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const tarotName = document.getElementById('tarotName').value.trim();
-            if (tarotName.length < 2) {
-                alert("정확한 리딩을 위해 이름(별명)을 2글자 이상 입력해주세요.");
-                return;
-            }
-
-            const concern = document.getElementById('tarotConcern').value.trim();
-            if (concern.length < 30) {
-                alert("카드가 정확한 해답을 보여줄 수 있도록 고민을 30자 이상 자세히 작성해주세요.");
-                return;
-            }
-
-            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-            Kakao.Auth.login({
-                throughTalk: false,
-                success: function () { startTarotDraw(); },
-                fail: function () { alert("로그인이 취소되었습니다. 타로를 시작합니다."); startTarotDraw(); }
-            });
-        });
-    }
-
-    function startTarotDraw() {
-        document.querySelector('.header').style.display = 'none';
-        document.querySelector('.star-bg-fixed').style.display = 'none';
-        document.getElementById('tarot').style.display = 'none';
-        document.getElementById('tarotDraw').style.display = 'block';
-
-        const deckContainer = document.getElementById('tarotDeck');
-        deckContainer.innerHTML = '';
-        selectedTarotCards = [];
-        document.getElementById('tarotDrawCount').innerText = '3';
-        const btnRead = document.getElementById('btnReadTarot');
-        btnRead.disabled = true;
-        btnRead.classList.add('disable-btn');
-
-        const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
-
-        shuffled.forEach((card) => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'tarot-card-back';
-            cardEl.dataset.isReversed = Math.random() > 0.5 ? "true" : "false";
-
-            cardEl.onclick = function () {
-                if (this.classList.contains('selected')) {
-                    this.classList.remove('selected');
-                    selectedTarotCards = selectedTarotCards.filter(c => c.el !== this);
-                } else {
-                    if (selectedTarotCards.length < 3) {
-                        this.classList.add('selected');
-                        selectedTarotCards.push({ el: this, card: card, isReversed: this.dataset.isReversed === "true" });
-                    }
+        cardEl.onclick = function () {
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                selectedTarotCards = selectedTarotCards.filter(c => c.el !== this);
+            } else {
+                if (selectedTarotCards.length < 3) {
+                    this.classList.add('selected');
+                    selectedTarotCards.push({ el: this, card: card, isReversed: this.dataset.isReversed === "true" });
                 }
-                const remain = 3 - selectedTarotCards.length;
-                document.getElementById('tarotDrawCount').innerText = remain;
+            }
+            const remain = 3 - selectedTarotCards.length;
+            document.getElementById('tarotDrawCount').innerText = remain;
 
-                if (selectedTarotCards.length === 3) {
-                    btnRead.disabled = false;
-                    btnRead.classList.remove('disable-btn');
-                    document.querySelectorAll('.tarot-card-back:not(.selected)').forEach(c => c.classList.add('disabled'));
-                } else {
-                    btnRead.disabled = true;
-                    btnRead.classList.add('disable-btn');
-                    document.querySelectorAll('.tarot-card-back.disabled').forEach(c => c.classList.remove('disabled'));
-                }
-            };
-            deckContainer.appendChild(cardEl);
+            if (selectedTarotCards.length === 3) {
+                btnRead.disabled = false;
+                btnRead.classList.remove('disable-btn');
+                document.querySelectorAll('.tarot-card-back:not(.selected)').forEach(c => c.classList.add('disabled'));
+            } else {
+                btnRead.disabled = true;
+                btnRead.classList.add('disable-btn');
+                document.querySelectorAll('.tarot-card-back.disabled').forEach(c => c.classList.remove('disabled'));
+            }
+        };
+        deckContainer.appendChild(cardEl);
+    });
+
+    btnRead.onclick = () => { startTarotAnalysis(); };
+    window.scrollTo(0, 0);
+}
+
+function startTarotAnalysis() {
+    document.getElementById('tarotDraw').style.display = 'none';
+    const loadingScreen = document.getElementById('tarotLoading');
+    loadingScreen.style.display = 'flex';
+    window.addEventListener('beforeunload', preventExit);
+
+    const name = document.getElementById('tarotName').value;
+    const categorySelect = document.getElementById('tarotCategory');
+    const category = categorySelect.options[categorySelect.selectedIndex].text;
+    const concern = document.getElementById('tarotConcern').value;
+
+    const cardInfoText = selectedTarotCards.map((c, i) => {
+        const pos = i === 0 ? "과거/원인" : i === 1 ? "현재/상황" : "미래/조언";
+        const direction = c.isReversed ? "역방향" : "정방향";
+        return `[위치: ${pos}] ${c.card.name} - ${direction}`;
+    }).join("\n");
+
+    getTarotFromGemini(name, category, concern, cardInfoText)
+        .then(aiResult => {
+            loadingScreen.style.display = 'none';
+            window.removeEventListener('beforeunload', preventExit);
+            showTarotResult(name, category, aiResult);
+        })
+        .catch(err => {
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            window.removeEventListener('beforeunload', preventExit);
+            alert("현재 우주의 기운(서버 접속자)이 혼잡하여 정밀 분석이 지연되고 있습니다.\n1~2분 뒤에 다시 시도해 주세요. 🙏");
         });
+}
 
-        btnRead.onclick = () => { startTarotAnalysis(); };
-        window.scrollTo(0, 0);
-    }
-
-    function startTarotAnalysis() {
-        document.getElementById('tarotDraw').style.display = 'none';
-        const loadingScreen = document.getElementById('tarotLoading');
-        loadingScreen.style.display = 'flex';
-        window.addEventListener('beforeunload', preventExit);
-
-        const name = document.getElementById('tarotName').value;
-        const categorySelect = document.getElementById('tarotCategory');
-        const category = categorySelect.options[categorySelect.selectedIndex].text;
-        const concern = document.getElementById('tarotConcern').value;
-
-        const cardInfoText = selectedTarotCards.map((c, i) => {
-            const pos = i === 0 ? "과거/원인" : i === 1 ? "현재/상황" : "미래/조언";
-            const direction = c.isReversed ? "역방향" : "정방향";
-            return `[위치: ${pos}] ${c.card.name} - ${direction}`;
-        }).join("\n");
-
-        getTarotFromGemini(name, category, concern, cardInfoText)
-            .then(aiResult => {
-                loadingScreen.style.display = 'none';
-                window.removeEventListener('beforeunload', preventExit);
-                showTarotResult(name, category, aiResult);
-            })
-            .catch(err => {
-                if (loadingScreen) loadingScreen.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                window.removeEventListener('beforeunload', preventExit);
-                alert("현재 우주의 기운(서버 접속자)이 혼잡하여 정밀 분석이 지연되고 있습니다.\n1~2분 뒤에 다시 시도해 주세요. 🙏");
-            });
-    }
-
-    async function getTarotFromGemini(name, category, concern, cardInfoText) {
-        const url = `/api/gemini`;
-        const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 신비롭고 통찰력 있는 타로 마스터입니다.
+async function getTarotFromGemini(name, category, concern, cardInfoText) {
+    const url = `/api/gemini`;
+    const systemPrompt = `당신은 상위 0.1% VIP를 전담하는 신비롭고 통찰력 있는 타로 마스터입니다.
 [🔥 핵심 작성 규칙 🔥]
 1. 분량 강제: 각 섹션당 최소 800자 이상 아주 깊이 있고 영적이며 문학적으로 작성하세요.
 2. 호칭: 무조건 '${name}님'이라고 부르세요.
@@ -483,36 +471,36 @@ document.addEventListener('DOMContentLoaded', () => {
   "content2": "(현재/상황) 카드에 대한 심층 해석...",
   "content3": "(미래/조언) 카드에 대한 심층 해석 및 최종 솔루션..."
 }`;
-        const userPrompt = `- 내담자: ${name}\n- 질문 주제: ${category}\n- 구체적 고민: ${concern}\n- 뽑은 타로 카드:\n${cardInfoText}\n\n이 카드들을 바탕으로 깊이 있는 프리미엄 타로 리딩을 해주세요.`;
+    const userPrompt = `- 내담자: ${name}\n- 질문 주제: ${category}\n- 구체적 고민: ${concern}\n- 뽑은 타로 카드:\n${cardInfoText}\n\n이 카드들을 바탕으로 깊이 있는 프리미엄 타로 리딩을 해주세요.`;
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                system_instruction: { parts: [{ text: systemPrompt }] },
-                contents: [{ parts: [{ text: userPrompt }] }],
-                generationConfig: { response_mime_type: "application/json", temperature: 0.8 }
-            })
-        });
-        if (!response.ok) throw new Error("API 연동 실패");
-        const data = await response.json();
-        return JSON.parse(data.candidates[0].content.parts[0].text);
-    }
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ parts: [{ text: userPrompt }] }],
+            generationConfig: { response_mime_type: "application/json", temperature: 0.8 }
+        })
+    });
+    if (!response.ok) throw new Error("API 연동 실패");
+    const data = await response.json();
+    return JSON.parse(data.candidates[0].content.parts[0].text);
+}
 
-    function showTarotResult(name, category, aiResult) {
-        document.getElementById('tarotResult').style.display = 'block';
-        document.getElementById('tarotResultSub').innerText = `${name}님의 '${category}' 고민에 대한 우주의 응답입니다.`;
+function showTarotResult(name, category, aiResult) {
+    document.getElementById('tarotResult').style.display = 'block';
+    document.getElementById('tarotResultSub').innerText = `${name}님의 '${category}' 고민에 대한 우주의 응답입니다.`;
 
-        const revealContainer = document.querySelector('.tarot-cards-reveal');
-        revealContainer.innerHTML = '';
-        const positions = ["과거 / 원인", "현재 / 상황", "미래 / 조언"];
+    const revealContainer = document.querySelector('.tarot-cards-reveal');
+    revealContainer.innerHTML = '';
+    const positions = ["과거 / 원인", "현재 / 상황", "미래 / 조언"];
 
-        selectedTarotCards.forEach((c, i) => {
-            const isRev = c.isReversed;
-            const transform = isRev ? "transform: rotate(180deg);" : "";
-            const dirText = isRev ? " (역방향)" : " (정방향)";
+    selectedTarotCards.forEach((c, i) => {
+        const isRev = c.isReversed;
+        const transform = isRev ? "transform: rotate(180deg);" : "";
+        const dirText = isRev ? " (역방향)" : " (정방향)";
 
-            revealContainer.innerHTML += `
+        revealContainer.innerHTML += `
                 <div class="revealed-card-col fade-in-up delay-${i + 1}">
                     <div class="revealed-card-pos" style="margin-bottom:10px;">${positions[i]}</div>
                     <div class="revealed-card" style="background-image: url('${c.card.img}'); background-size: cover; background-position: center; ${transform} border: 2px solid #D3B8F8; border-radius: 8px;">
@@ -522,10 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-        });
+    });
 
-        const contentDiv = document.getElementById('tarotResultContent');
-        contentDiv.innerHTML = `
+    const contentDiv = document.getElementById('tarotResultContent');
+    contentDiv.innerHTML = `
             <h3 style="color:#D3B8F8; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(211, 184, 248, 0.3); padding-bottom:10px;">1. 과거의 잔영 (원인)</h3>
             <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content1.replace(/\\n/g, '<br>')}</p>
             
@@ -536,8 +524,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content3.replace(/\\n/g, '<br>')}</p>
         `;
 
-        const actionArea = document.querySelector('#tarotResult .result-actions');
-        actionArea.innerHTML = `
+    const actionArea = document.querySelector('#tarotResult .result-actions');
+    actionArea.innerHTML = `
             <div style="margin-top: 3rem; text-align: center; border-top: 1px dashed rgba(179, 136, 235, 0.4); padding-top: 2rem;">
                 <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">영혼의 거울이 비춘 결과를 보관하시겠습니까?</p>
                 <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
@@ -549,9 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        window.scrollTo(0, 0);
-    }
-});
+    window.scrollTo(0, 0);
+}
 
 // ==========================================
 // 4. 사주 분석 및 결과 렌더링
