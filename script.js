@@ -261,11 +261,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const birthMonthSelect = document.getElementById('birthMonth');
-    const birthDaySelect = document.getElementById('birthDay');
-    if (birthMonthSelect && birthDaySelect) {
-        for (let i = 1; i <= 12; i++) birthMonthSelect.appendChild(new Option(`${i}월`, i));
-        for (let i = 1; i <= 31; i++) birthDaySelect.appendChild(new Option(`${i}일`, i));
+    const year = document.getElementById('birthYear').value;
+    const month = document.getElementById('birthMonth').value.padStart(2, '0');
+    const day = document.getElementById('birthDay').value.padStart(2, '0');
+
+    if (!year || !month || !day) { alert('생년월일을 모두 입력해주세요.'); return; }
+
+    // 🚨 비정상적인 월/일 입력 방지 로직
+    const monthNum = parseInt(month, 10);
+    const dayNum = parseInt(day, 10);
+    if (monthNum < 1 || monthNum > 12) {
+        alert("태어난 '월'을 정확히 입력해주세요. (1~12)");
+        return;
+    }
+    if (dayNum < 1 || dayNum > 31) {
+        alert("태어난 '일'을 정확히 입력해주세요. (1~31)");
+        return;
     }
 
     const birthHourSelect = document.getElementById('birthHour');
