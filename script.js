@@ -634,7 +634,8 @@ ${specificInstructions}
     let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
     let bazi = lunarObj.getEightChar();
     let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일`;
-    let wuXing = bazi.getWuXing();
+    // 🚨 오행 추출 에러 수정 (년/월/일/시 각각 가져와서 합치기)
+    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing() + bazi.getTimeWuXing();
 
     const userPrompt = `- 이름: ${name}\n- 생년월일: ${year}년 ${month}월 ${day}일 (${calendarType})\n- 실제 명식(사주팔자): ${sajuStr}\n- 오행 구성: ${wuXing}\n- 요청한 운세: ${typeName}\n위 사람의 정확한 사주 명식과 오행 데이터를 바탕으로 정밀 분석해 주세요. 절대 다른 오행을 지어내지 마세요.`;
     const response = await fetch(url, {
@@ -843,7 +844,9 @@ function generateSajuChartsHTML(colorInfo, year, month, day) {
 
     const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
     let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
-    let wuXing = lunarObj.getEightChar().getWuXing();
+    let bazi = lunarObj.getEightChar();
+    // 🚨 오행 추출 에러 수정 (년/월/일/시 각각 가져와서 합치기)
+    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing() + bazi.getTimeWuXing();
 
     let counts = [
         (wuXing.match(/木/g) || []).length,
