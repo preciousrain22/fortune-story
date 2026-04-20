@@ -27,6 +27,7 @@
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
     <script src="https://js.tosspayments.com/v1/payment"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-X3JL0JDN2W"></script>
     <script>
@@ -265,17 +266,19 @@
                 </div>
                 <div class="form-group">
                     <label>양력/음력</label>
-                    <div class="radio-group">
-                        <label class="radio-label"><input type="radio" name="calendarType" value="solar" checked>
-                            양력</label>
-                        <label class="radio-label"><input type="radio" name="calendarType" value="lunar"> 음력</label>
-                        <label class="radio-label"><input type="radio" name="calendarType" value="lunar_leap">
-                            음력(윤달)</label>
+                    <div class="radio-group"
+                        style="display: flex; justify-content: space-between; flex-wrap: nowrap; gap: 0.5rem; padding-top: 0.5rem;">
+                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
+                                name="calendarType" value="solar" checked> 양력</label>
+                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
+                                name="calendarType" value="lunar"> 음력</label>
+                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
+                                name="calendarType" value="lunar_leap"> 음력(윤달)</label>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary full-width kakao pulse-btn"
-                    style="background-color: #FEE500; color: #000; font-weight: bold; border: none;">
-                    <span style="margin-right: 8px;">💬</span> 카카오로 시작하고 행운 기운 무료로 보기
+                    style="background-color: #FEE500; color: #000; font-weight: 800; border: none; font-size: 1.05rem; word-break: keep-all; display: flex; justify-content: center; align-items: center; padding: 1rem; margin-top: 1.5rem;">
+                    <span style="margin-right: 8px; font-size: 1.2rem;">💬</span> 카카오로 1초 만에 무료 운세 보기
                 </button>
             </form>
         </div>

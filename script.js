@@ -629,8 +629,14 @@ ${specificInstructions}
 // 🚨 분석 항목 수(최대 20개)에 맞춰 title과 content의 숫자를 자유롭게 늘려서 응답하세요. (예: title1~title17)
 }`;
 
-    const userPrompt = `- 이름: ${name}\n- 생년월일: ${year}년 ${month}월 ${day}일\n- 요청한 운세: ${typeName}\n위 사람의 사주 명식을 분석해 주세요.`;
+    // 🚨 AI의 환각을 막기 위해 Lunar-JS로 정확한 명식과 오행을 직접 추출
+    const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
+    let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
+    let bazi = lunarObj.getEightChar();
+    let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일`;
+    let wuXing = bazi.getWuXing();
 
+    const userPrompt = `- 이름: ${name}\n- 생년월일: ${year}년 ${month}월 ${day}일 (${calendarType})\n- 실제 명식(사주팔자): ${sajuStr}\n- 오행 구성: ${wuXing}\n- 요청한 운세: ${typeName}\n위 사람의 정확한 사주 명식과 오행 데이터를 바탕으로 정밀 분석해 주세요. 절대 다른 오행을 지어내지 마세요.`;
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -674,76 +680,52 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     for (let i = 0; i < hashString.length; i++) hash = ((hash << 5) - hash) + hashString.charCodeAt(i);
     hash = Math.abs(hash);
 
-    const keywords = [
-        { hanja: '秀 越', title: '수월(秀越)', desc: '남달리 빼어나고 훌륭하다는 의미', mean: '秀 빼어날 수 · 越 넘을 월' },
-        { hanja: '氣 槪', title: '기개(氣槪)', desc: '굽히지 않고 꿋꿋하게 뻗어나가는 힘', mean: '氣 기운 기 · 槪 대개 개' },
-        { hanja: '溫 和', title: '온화(溫和)', desc: '따뜻하고 부드러운 봄볕 같은 성품', mean: '溫 따뜻할 온 · 和 화할 화' },
-        { hanja: '明 哲', title: '명철(明哲)', desc: '사리를 밝게 분별하는 지혜로움', mean: '明 밝을 명 · 哲 밝을 철' },
-        { hanja: '鎭 重', title: '진중(鎭重)', desc: '태도가 점잖고 무게가 있음', mean: '鎭 진압할 진 · 重 무거울 중' }
-    ];
-    const keyword = keywords[hash % keywords.length];
+    const keywords = ['明哲(명철)', '和合(화합)', '發展(발전)', '安寧(안녕)', '通達(통달)', '繁榮(번영)', '平穩(평온)', '福祿(복록)', '成功(성공)', '幸運(행운)'];
+    const randomKeyword = keywords[hash % keywords.length];
 
     let freeHTML = `
-        <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 3rem 1.5rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);">
-            <div style="font-size: 1.2rem; color: ${personalColorInfo.textHex}; margin-bottom: 2.5rem; font-weight: bold; text-shadow: 0 0 5px ${personalColorInfo.textHex}; letter-spacing: 1px;">
-                ✨ [무료 공개] ${name}님의 고대 행운 비결
-            </div>
-            
-            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2.5rem;">
-                <div style="width: 140px; height: 140px; background-color: #8B0000; border: 5px solid #E53935; border-radius: 8px; box-shadow: 0 0 15px rgba(229, 57, 53, 0.8), inset 0 0 15px rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; transform: rotate(15deg);">
-                    <span style="color: #FFCDD2; font-size: 3rem; font-weight: 800; font-family: sans-serif; letter-spacing: -3px; text-shadow: 2px 2px 3px rgba(0,0,0,0.8), 0 0 10px #FFD54F;">
-                        ${keyword.hanja}
-                    </span>
-                </div>
-            </div>
-            
-            <div style="margin-top: 1.5rem; background-color: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 10px;">
-                <h3 style="font-size: 1.6rem; color: ${personalColorInfo.highlightHex}; font-weight: 800; margin-bottom: 10px; display: inline-block;">
-                    <span style="font-size: 0.8em; color:rgba(255,255,255,0.7); vertical-align: middle;">비결 명(名):</span> ${keyword.title}
-                </h3>
-                <p style="color:rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 1.5rem;">( ${keyword.mean} )</p>
-                <p style="color: #FDFBF7; font-size: 1.15rem; line-height: 2.0; text-align: center; word-break: keep-all; max-width: 90%; margin: 0 auto; letter-spacing: -0.5px;">
-                    ${keyword.desc}
-                </p>
-            </div>
+        <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
+            <div style="font-size: 0.9rem; color: ${personalColorInfo.textHex}; margin-bottom: 10px;">${name}님의 기운을 상징하는 고유 명리 키워드</div>
+            <div class="red-seal" style="font-size: 2.5rem; margin-bottom: 15px; color: ${personalColorInfo.highlightHex} !important; border-color: ${personalColorInfo.highlightHex}; display: inline-block; padding: 10px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.5);">${randomKeyword}</div>
+            <div style="font-size: 1.1rem; color: #fff;">수호 오행: <strong style="color: ${personalColorInfo.highlightHex};">${personalColorInfo.element} (${personalColorInfo.colorName})</strong></div>
+            <div style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">이 키워드와 색상을 가까이하시면 좋은 기운이 증폭됩니다.</div>
         </div>
-        ${generateSajuChartsHTML(personalColorInfo, hash)}
+        ${generateSajuChartsHTML(personalColorInfo, year, month, day)}
     `;
     freeContentArea.innerHTML = freeHTML;
 
     let premiumHTML = "";
 
-    // 🚨 운기 막대그래프 렌더링
     if (aiResult.scores) {
         const s = aiResult.scores;
         premiumHTML += `
-            <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
-                <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
-                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                        <div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
-                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                        <div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
-                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                        <div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div>
-                    </div>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
-                    <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                        <div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div>
-                    </div>
+        <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
+            <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                    <div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div>
                 </div>
             </div>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                    <div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                    <div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                    <div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div>
+                </div>
+            </div>
+        </div>
         `;
     }
 
@@ -754,12 +736,12 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
             }).join('');
 
             premiumHTML += `
-                <div style="margin-top: 3.5rem; margin-bottom: 1rem;">
-                    <h3 style="text-align: center; color: ${personalColorInfo.highlightHex}; font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px;">
-                        ${aiResult[`title${i}`].replace(/\[|\]/g, '')}
-                    </h3>
-                    ${formattedContent}
-                </div>
+            <div style="margin-top: 3.5rem; margin-bottom: 1rem;">
+                <h3 style="text-align: center; color: ${personalColorInfo.highlightHex}; font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px;">
+                    ${aiResult[`title${i}`].replace(/\[|\]/g, '')}
+                </h3>
+                ${formattedContent}
+            </div>
             `;
         }
     }
@@ -798,7 +780,6 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     }
     window.scrollTo(0, 0);
 }
-
 window.openSajuPayment = function (typeName, amount) {
     const paymentModal = document.getElementById('paymentModal');
     document.getElementById('paymentFortuneType').textContent = typeName;
@@ -855,25 +836,25 @@ function getPersonalColor(yearStr) {
     return { element: '수(水)', colorName: '검정/푸른색', textHex: '#B3E5FC', bgHex: '#0D47A1', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
 }
 
-function generateSajuChartsHTML(colorInfo, hash) {
+// 🚨 해시(Hash) 가짜 로직을 삭제하고 Lunar-JS 기반 실제 오행 렌더링으로 교체
+function generateSajuChartsHTML(colorInfo, year, month, day) {
     const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
     const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
 
-    let base = Math.abs(hash);
-    let v1 = (base % 25) + 10;
-    let v2 = ((base * 7) % 25) + 10;
-    let v3 = ((base * 13) % 25) + 10;
-    let v4 = ((base * 17) % 25) + 10;
-    let v5 = ((base * 23) % 25) + 10;
+    const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
+    let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
+    let wuXing = lunarObj.getEightChar().getWuXing();
 
-    const total = v1 + v2 + v3 + v4 + v5;
-    const percentages = [
-        Math.round((v1 / total) * 100),
-        Math.round((v2 / total) * 100),
-        Math.round((v3 / total) * 100),
-        Math.round((v4 / total) * 100)
+    let counts = [
+        (wuXing.match(/木/g) || []).length,
+        (wuXing.match(/火/g) || []).length,
+        (wuXing.match(/土/g) || []).length,
+        (wuXing.match(/金/g) || []).length,
+        (wuXing.match(/水/g) || []).length
     ];
-    percentages.push(100 - percentages.reduce((a, b) => a + b, 0));
+
+    let total = counts.reduce((a, b) => a + b, 0) || 8;
+    const percentages = counts.map(c => Math.round((c / total) * 100));
 
     const size = 320, center = 160, radius = 110;
     let webPaths = '', dataSegmentHTML = '', dataPoints = '';
@@ -900,18 +881,17 @@ function generateSajuChartsHTML(colorInfo, hash) {
 
         dataSegmentHTML += `<circle cx="${px}" cy="${py}" r="4" fill="${eColors[idx]}" filter="drop-shadow(0 0 4px ${eColors[idx]})" />`;
 
-        // 🚨 간격을 넓히고(25 -> 38), 폰트 크기 조정 및 닫는 괄호 ')' 추가
         const tx = center + (radius + 38) * Math.cos(angle), ty = center - (radius + 38) * Math.sin(angle);
         const anchor = Math.abs(tx - center) > 15 ? (tx > center ? "start" : "end") : "middle";
         dataSegmentHTML += `
             <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="14" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
-            <text x="${tx}" y="${ty + 15}" fill="#ddd" font-size="11" text-anchor="${anchor}">(${elements[idx].split('(')[1]} ${p}%)</text>`;
+            <text x="${tx}" y="${ty + 15}" fill="#ddd" font-size="11" text-anchor="${anchor}">(${counts[idx]}개 / ${p}%)</text>`;
     });
 
     return `
         <div style="margin-top: 3rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
-            <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">오행(五行) 분포도</div>
-            <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">상생(相生)과 상극(相剋)의 조화</div>
+            <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">실제 오행(五行) 분포도</div>
+            <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">명식 기반 상생(相生)과 상극(相剋)의 조화</div>
             <div style="display: flex; justify-content: center; align-items: center; position: relative;">
                 <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="overflow: visible;">
                     <defs>
@@ -932,7 +912,6 @@ function generateSajuChartsHTML(colorInfo, hash) {
         </div>
     `;
 }
-
 // ==========================================
 // 5. 사이버 수호부 (스미싱 감별기) 로직
 // ==========================================
