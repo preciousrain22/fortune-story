@@ -600,8 +600,8 @@ async function getSajuFromGemini(name, typeName, year, month, day, fortuneType, 
         specificInstructions = "일주일간의 운세이므로, 월요일부터 일요일까지 요일별 기운의 흐름과 일진을 풀어쓰세요.";
         lengthInstruction = "각 섹션당 600자 내외로 핵심을 깊이 있게 작성하세요.";
     } else if (fortuneType === 'yearly') {
-        specificInstructions = "1년 전체의 흐름을 분석하는 것이므로, 1월부터 12월까지 각 월별 운세 흐름을 상세하게 풀어쓰세요.";
-        lengthInstruction = "돈을 지불한 고객이 감동하도록 각 섹션마다 800~1000자 내외로 아주 깊이 있고 방대하게 작성하세요.";
+        specificInstructions = "올해 1년 전체의 흐름을 분석하는 심층 운세입니다. 반드시 [올해의 총운], [직업 및 사업운], [금전 및 재물운], [연애 및 대인관계운], [건강 및 주의사항], 그리고 [월별 핵심 흐름(1~12월 요약)] 순서로 카테고리를 나누어 상세하게 풀어쓰세요.";
+        lengthInstruction = "돈을 지불한 VIP 고객이 감동하도록 각 섹션마다 800~1000자 내외로 아주 깊이 있고 방대하게 작성하세요.";
     } else if (fortuneType === 'love') {
         const mStatus = maritalStatus === 'married' ? '기혼' : '미혼';
         specificInstructions = `현재 고객은 ${mStatus} 상태입니다. 이에 맞추어 현재의 애정 전선, 인연의 작용을 심리학적, 명리학적으로 분석하세요.`;
