@@ -631,12 +631,42 @@ ${specificInstructions}
 
     // 🚨 AI의 환각을 막기 위해 Lunar-JS로 정확한 명식과 오행을 직접 추출
     const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
-    let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
-    let bazi = lunarObj.getEightChar();
-    let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일`;
-    // 🚨 오행 추출 에러 수정 (년/월/일/시 각각 가져와서 합치기)
-    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing() + bazi.getTimeWuXing();
 
+    // 🚨 1. 화면에서 입력한 '시간' 데이터 가져오기
+    const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
+    let hour = 0; let minute = 0;
+
+    if (!isUnknownTime && document.getElementById('birthHour') && document.getElementById('birthMinute')) {
+        let rawHour = parseInt(document.getElementById('birthHour').value) || 0;
+        let rawMin = parseInt(document.getElementById('birthMinute').value) || 0;
+        const amPm = document.getElementById('birthAmPm') ? document.getElementById('birthAmPm').value : 'AM';
+
+        if (amPm === 'PM' && rawHour < 12) rawHour += 12;
+        if (amPm === 'AM' && rawHour === 12) rawHour = 0;
+
+        // 🚨 2. 한국 사주명리학 표준시 보정 (중국 라이브러리 오차 30분 빼기)
+        minute = rawMin - 30;
+        hour = rawHour;
+        if (minute < 0) {
+            minute += 60;
+            hour -= 1;
+            if (hour < 0) hour = 23;
+        }
+    } else {
+        hour = 12; // 시간 모름일 경우 임의로 낮 12시 세팅
+    }
+
+    // 🚨 3. fromYmd 대신 fromYmdHms를 사용하여 시간까지 완벽하게 밀어넣기
+    let lunarObj = calendarType === 'solar'
+        ? Solar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0).getLunar()
+        : Lunar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0);
+
+    let bazi = lunarObj.getEightChar();
+    let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일 ${isUnknownTime ? '(시간모름)' : bazi.getTime() + '시'}`;
+
+    // 🚨 4. 시간 모름 여부에 따라 6글자(삼주) 또는 8글자(사주) 오행 추출
+    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
+    if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
     const userPrompt = `- 이름: ${name}\n- 생년월일: ${year}년 ${month}월 ${day}일 (${calendarType})\n- 실제 명식(사주팔자): ${sajuStr}\n- 오행 구성: ${wuXing}\n- 요청한 운세: ${typeName}\n위 사람의 정확한 사주 명식과 오행 데이터를 바탕으로 정밀 분석해 주세요. 절대 다른 오행을 지어내지 마세요.`;
     const response = await fetch(url, {
         method: 'POST',
@@ -843,11 +873,37 @@ function generateSajuChartsHTML(colorInfo, year, month, day) {
     const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
 
     const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
-    let lunarObj = calendarType === 'solar' ? Solar.fromYmd(parseInt(year), parseInt(month), parseInt(day)).getLunar() : Lunar.fromYmd(parseInt(year), parseInt(month), parseInt(day));
-    let bazi = lunarObj.getEightChar();
-    // 🚨 오행 추출 에러 수정 (년/월/일/시 각각 가져와서 합치기)
-    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing() + bazi.getTimeWuXing();
 
+    const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
+    let hour = 0; let minute = 0;
+
+    if (!isUnknownTime && document.getElementById('birthHour') && document.getElementById('birthMinute')) {
+        let rawHour = parseInt(document.getElementById('birthHour').value) || 0;
+        let rawMin = parseInt(document.getElementById('birthMinute').value) || 0;
+        const amPm = document.getElementById('birthAmPm') ? document.getElementById('birthAmPm').value : 'AM';
+
+        if (amPm === 'PM' && rawHour < 12) rawHour += 12;
+        if (amPm === 'AM' && rawHour === 12) rawHour = 0;
+
+        minute = rawMin - 30;
+        hour = rawHour;
+        if (minute < 0) {
+            minute += 60;
+            hour -= 1;
+            if (hour < 0) hour = 23;
+        }
+    } else {
+        hour = 12;
+    }
+
+    let lunarObj = calendarType === 'solar'
+        ? Solar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0).getLunar()
+        : Lunar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0);
+
+    let bazi = lunarObj.getEightChar();
+
+    let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
+    if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
     let counts = [
         (wuXing.match(/木/g) || []).length,
         (wuXing.match(/火/g) || []).length,
