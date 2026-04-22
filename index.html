@@ -85,28 +85,34 @@
             </div>
         </div>
     </header>
-
-    <div style="padding-top: 90px;"></div>
-    <div class="star-bg-fixed"></div>
-
-    <section id="login-section" class="fade-in" style="padding: 2rem 1.5rem; position: relative; z-index: 2;">
+    <section id="login-section"
+        style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 0 20px; position: relative; z-index: 10;">
         <div
-            style="text-align: center; max-width: 450px; margin: 0 auto; padding: 2.5rem 1.5rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
-            <p
-                style="color: #FFDF73; margin-bottom: 0.8rem; font-size: 1.2rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5);">
-                당신의 운명이 당신을 기다립니다</p>
-            <p style="color: #ccc; margin-bottom: 2rem; font-size: 0.95rem;">프리미엄 정밀 운세를 위해 첫걸음을 내딛으세요.</p>
+            style="text-align: center; width: 100%; max-width: 500px; padding: 4rem 2rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.1); backdrop-filter: blur(10px);">
+
+            <div style="margin-bottom: 2.5rem;">
+                <h2
+                    style="color: #FFDF73; font-size: 2rem; font-weight: 900; margin-bottom: 15px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(212,175,55,0.5);">
+                    FORTUNE STORY</h2>
+                <p style="color: #EEDCFF; font-size: 1.1rem; line-height: 1.6; font-weight: 300;">상위 0.1% VIP를
+                    위한<br>프리미엄 운명 분석 리포트</p>
+            </div>
+
+            <p style="color: #aaa; margin-bottom: 1.5rem; font-size: 0.95rem;">당신의 진짜 운명을 확인하려면 먼저 시작하세요</p>
+
             <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
-                style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 15px 0; font-weight: 800; font-size: 1.1rem; width: 100%; display: block;">
-                <span style="font-size: 1.2rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
+                style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 18px 0; font-weight: 800; font-size: 1.15rem; width: 100%; display: block; box-shadow: 0 5px 15px rgba(254, 229, 0, 0.3);">
+                <span style="font-size: 1.3rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
             </button>
         </div>
     </section>
+    <div style="padding-top: 100px;"></div>
+    <div class="star-bg-fixed"></div>
 
-    <section id="gateway" class="gateway-section fade-in"
-        style="display: none; margin-top: 2rem; position: relative; z-index: 2;">
+    <section id="gateway" class="gateway-section fade-in" style="display: none; margin-top: 2rem;">
         <div class="container text-center">
             <h2 style="color: #FFDF73; font-size: 1.5rem; margin-bottom: 2rem;">어떤 운명의 문을 여시겠습니까?</h2>
+
             <div style="max-width: 400px; margin: 0 auto; padding: 0 20px;">
                 <button class="neon-button neon-saju" onclick="selectPath('saju')">
                     <span style="font-size: 1.2rem; margin-right: 8px;">☯</span> 프리미엄 명리 사주
@@ -126,7 +132,7 @@
         </div>
     </section>
 
-    <section id="faceSection" class="section-padding" style="display: none; position: relative; z-index: 2;">
+    <section id="faceSection" class="section-padding" style="display: none;">
         <div class="container input-container fade-in">
             <div class="section-header text-center">
                 <h2 style="color: #81D4FA; letter-spacing: 2px; text-shadow: 0 0 15px rgba(129, 212, 250, 0.3);">얼굴에 담긴
@@ -150,7 +156,7 @@
         </div>
     </section>
 
-    <section id="daily" class="section-padding" style="display: none; position: relative; z-index: 2;">
+    <section id="daily" class="section-padding" style="display: none;">
         <div class="container input-container">
             <div class="section-header text-center">
                 <h2 class="obangsaek-text">정밀 사주 확인하기</h2>
@@ -192,36 +198,35 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group" style="margin-bottom: 1.5rem;">
+                <div class="form-group">
                     <label>생년월일</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="number" id="birthYear" placeholder="YYYY" required
-                            style="flex: 1.5; padding: 15px 10px; font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff;">
-                        <input type="number" id="birthMonth" placeholder="MM" required
-                            style="flex: 1; padding: 15px 10px; font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff;">
-                        <input type="number" id="birthDay" placeholder="DD" required
-                            style="flex: 1; padding: 15px 10px; font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff;">
+                    <div class="date-select-group" style="display: flex; gap: 0.5rem; width: 100%;">
+                        <input type="tel" id="birthYear" placeholder="태어난 연도 (4자리)" maxlength="4" required
+                            style="flex: 2; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
+                        <input type="tel" id="birthMonth" placeholder="월 (1~12)" maxlength="2" required
+                            style="flex: 1.5; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
+                        <input type="tel" id="birthDay" placeholder="일 (1~31)" maxlength="2" required
+                            style="flex: 1.5; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
                     </div>
                 </div>
-
-                <div class="form-group" id="timeInputSection">
-                    <label>태어난 시간 (24시간 형식)</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="number" id="birthHour" placeholder="시 (0~23)"
-                            style="flex: 1; padding: 15px 10px; font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff;">
-                        <span style="color: #FFDF73; font-weight: bold;">:</span>
-                        <input type="number" id="birthMinute" placeholder="분 (0~59)"
-                            style="flex: 1; padding: 15px 10px; font-size: 1.1rem; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff;">
+                <div class="form-group">
+                    <label>태어난 시간</label>
+                    <div class="date-select-group" id="birthTimeGroup">
+                        <select id="birthAmPm">
+                            <option value="AM" selected>오전</option>
+                            <option value="PM">오후</option>
+                        </select>
+                        <select id="birthHour">
+                            <option value="" disabled selected>시</option>
+                        </select>
+                        <select id="birthMinute">
+                            <option value="" disabled selected>분</option>
+                        </select>
                     </div>
-                    <div class="checkbox-group"
-                        style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <input type="checkbox" id="unknownTime" style="width: 20px; height: 20px; cursor: pointer;">
-                        <label for="unknownTime" style="color: #aaa; font-size: 0.95rem; cursor: pointer;">태어난 시간을
-                            모릅니다</label>
+                    <div class="checkbox-group" style="margin-top: 10px;">
+                        <label><input type="checkbox" id="unknownTime"> 시간 모름</label>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>양력/음력</label>
                     <div class="radio-group"
@@ -242,7 +247,7 @@
         </div>
     </section>
 
-    <section id="tarot" class="section-padding" style="display: none; position: relative; z-index: 2;">
+    <section id="tarot" class="section-padding" style="display: none;">
         <div class="container input-container">
             <div class="section-header text-center tarot-header">
                 <h2 style="color: #D3B8F8;">영혼의 거울, 타로 파빌리온</h2>
@@ -280,13 +285,13 @@
         </div>
     </section>
 
-    <div id="tarotLoading" class="analysis-overlay" style="display: none; z-index: 100;">
+    <div id="tarotLoading" class="analysis-overlay" style="display: none;">
         <div class="loading-text-container text-center">
             <h3 class="analysis-text" style="color: #EEDCFF;">운명의 교차로를 탐색하는 중...</h3>
             <p id="tarotLoadingMessage" style="color: #B388EB;">당신의 파동을 타로 카드에 동기화하고 있습니다.</p>
         </div>
     </div>
-    <div id="analysisLoading" class="analysis-overlay" style="display: none; z-index: 100;">
+    <div id="analysisLoading" class="analysis-overlay" style="display: none;">
         <div class="compass-container">
             <div class="compass-ring"></div>
             <div class="compass-inner"></div>
@@ -298,7 +303,7 @@
         </div>
     </div>
 
-    <section id="tarotDraw" class="section-padding tarot-draw-overlay" style="display: none; z-index: 50;">
+    <section id="tarotDraw" class="section-padding tarot-draw-overlay" style="display: none;">
         <div class="tarot-draw-content text-center">
             <h2 style="color: #D3B8F8; margin-bottom: 1rem;">질문에 집중하며 카드를 선택하세요</h2>
             <p style="color: #a980d9; margin-bottom: 2rem;">마음이 이끄는 대로 <span id="tarotDrawCount"
@@ -309,7 +314,7 @@
         </div>
     </section>
 
-    <section id="tarotResult" class="result-overlay tarot-result-overlay" style="display: none; z-index: 60;">
+    <section id="tarotResult" class="result-overlay tarot-result-overlay" style="display: none;">
         <div class="tarot-result-container fade-in">
             <div class="result-header text-center">
                 <h2 style="color: #D3B8F8;">영혼의 거울이 비춘 당신의 미래</h2>
@@ -321,7 +326,7 @@
         </div>
     </section>
 
-    <section id="result" class="result-overlay" style="display: none; z-index: 60;">
+    <section id="result" class="result-overlay" style="display: none;">
         <div class="paper-container fade-in">
             <div class="result-header text-center">
                 <h2 id="resultTitle">정밀 분석 리포트</h2>
@@ -343,7 +348,7 @@
         </div>
     </section>
 
-    <section id="amuletSection" class="section-padding" style="display: none; position: relative; z-index: 2;">
+    <section id="amuletSection" class="section-padding" style="display: none;">
         <div class="container text-center">
             <div class="section-header">
                 <h2 style="color: #FFD54F;">사이버 수호부 (스미싱 감별)</h2>
@@ -378,7 +383,7 @@
         </div>
     </section>
 
-    <div id="paymentModal" class="modal-overlay" style="display: none; z-index: 200;">
+    <div id="paymentModal" class="modal-overlay" style="display: none;">
         <div class="modal-content fade-in">
             <div class="modal-header">
                 <h3>결제 안내</h3><button class="close-modal">&times;</button>
@@ -392,8 +397,7 @@
         </div>
     </div>
 
-    <footer class="footer"
-        style="text-align: center; padding: 2.5rem 0; background: rgba(0,0,0,0.5); position: relative; z-index: 2;">
+    <footer class="footer" style="text-align: center; padding: 2.5rem 0; background: rgba(0,0,0,0.5);">
         <div class="container">
             <p style="font-size: 0.85rem; color: #888;">상호 : 포춘스토리(Fortune Story) | 대표 : 이진우 | 사업자번호 : 641-67-00783</p>
             <div style="margin: 15px 0;">
@@ -404,7 +408,7 @@
         </div>
     </footer>
 
-    <div class="floating-quick-menu" style="z-index: 100;">
+    <div class="floating-quick-menu">
         <div class="fab-options" id="fabOptions">
             <div class="fab-option" onclick="quickNav('saju')"><span class="option-label">명리 사주</span>
                 <div class="option-icon">☯</div>
@@ -422,7 +426,7 @@
         <button class="fab-main" id="fabMainBtn" onclick="toggleQuickMenu()"><span class="fab-icon">✦</span></button>
     </div>
 
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=3"></script>
 </body>
 
 </html>

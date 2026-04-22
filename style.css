@@ -242,3 +242,86 @@ h1.logo-neon {
         padding: 16px 0;
     }
 }
+
+/* =========================================
+   포춘스토리 네온 애니메이션 및 모바일 입력 최적화
+========================================= */
+
+/* 사주, 타로, 관상 네온 애니메이션 */
+.neon-saju {
+    border: 2px solid #81D4FA;
+    box-shadow: 0 0 10px #81D4FA, inset 0 0 10px #81D4FA;
+    animation: pulse-saju 2.5s infinite alternate;
+}
+
+.neon-tarot {
+    border: 2px solid #D3B8F8;
+    box-shadow: 0 0 10px #D3B8F8, inset 0 0 10px #D3B8F8;
+    animation: pulse-tarot 2.5s infinite alternate;
+}
+
+.neon-face {
+    border: 2px solid #F48FB1;
+    box-shadow: 0 0 10px #F48FB1, inset 0 0 10px #F48FB1;
+    animation: pulse-face 2.5s infinite alternate;
+}
+
+@keyframes pulse-saju {
+    0% {
+        box-shadow: 0 0 5px #81D4FA;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #81D4FA, inset 0 0 15px #81D4FA;
+    }
+}
+
+@keyframes pulse-tarot {
+    0% {
+        box-shadow: 0 0 5px #D3B8F8;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #D3B8F8, inset 0 0 15px #D3B8F8;
+    }
+}
+
+@keyframes pulse-face {
+    0% {
+        box-shadow: 0 0 5px #F48FB1;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #F48FB1, inset 0 0 15px #F48FB1;
+    }
+}
+
+/* 입력 칸 모바일 최적화 (터치 미스 방지 및 높이 확장) */
+input[type="number"],
+input[type="text"],
+input[type="tel"] {
+    height: 60px !important;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus {
+    border-color: #FFDF73 !important;
+    background: rgba(212, 175, 55, 0.1) !important;
+}
+
+/* 별빛 배경이 터치를 방해하지 않도록 차단 */
+.star-bg-fixed,
+.star-bg {
+    pointer-events: none !important;
+}
+
+/* 💡 iOS 자동 확대 방지 (괄호 오류 완벽 수정 완료) */
+@media screen and (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
