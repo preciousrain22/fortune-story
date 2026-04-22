@@ -14,6 +14,7 @@
     // 전역 변수로 마스터 여부 저장
     window.isMasterKey = sessionStorage.getItem('isFortuneMaster') === 'true';
 })();
+
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -27,6 +28,7 @@ function showToast(message) {
     setTimeout(() => { toast.style.opacity = '0'; }, 3000);
 }
 
+// 💡 기능 업데이트: 고화질 캡처를 위한 scale 옵션 뻥튀기 및 PNG 전환
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
@@ -36,43 +38,36 @@ window.handlePdfPrint = function (type) {
 
     showToast("결과 이미지를 생성 중입니다... 📸\n(3~5초 소요)");
 
-    // 🚨 수정 포인트: 관상('face')일 때도 사주와 같은 결과창을 캡처하도록 연결
     const targetId = (type === 'saju' || type === 'face') ? 'result' : 'tarotResult';
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId} .tarot-result-container`);
     const actionArea = elementToCapture.querySelector('.result-actions');
 
     if (actionArea) actionArea.style.display = 'none';
-    const isMobile = window.innerWidth <= 768;
-
-    const dpr = window.devicePixelRatio || 1;
-    // 🚨 PC 환경에서는 무조건 4배수(초고해상도)로 렌더링하여 칼주름 화질 보장
-    const captureScale = isMobile ? Math.max(dpr * 2, 3) : 4;
 
     setTimeout(() => {
         html2canvas(elementToCapture, {
-            scale: captureScale,
+            scale: window.devicePixelRatio ? window.devicePixelRatio * 2 : 4, // 💡 핵심: 기기 해상도 대비 2배~4배 뻥튀기
             useCORS: true,
-            backgroundColor: '#1a1a1a',
-            scrollY: 0,
+            backgroundColor: '#000000',
+            scrollY: -window.scrollY,
             windowWidth: document.documentElement.scrollWidth,
             allowTaint: true
         }).then(canvas => {
             if (actionArea) actionArea.style.display = 'block';
             const link = document.createElement('a');
 
-            // 🚨 수정 포인트: 저장되는 파일 이름에 '관상'도 정상적으로 반영
             const fileNameType = type === 'saju' ? '사주' : (type === 'face' ? '관상' : '타로');
-            link.download = `포춘스토리_정밀분석_${fileNameType}.jpg`;
+            link.download = `포춘스토리_정밀분석_${fileNameType}.png`;
 
-            link.href = canvas.toDataURL('image/jpeg', 1.0);
+            link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
-            showToast("✅ 사진첩에 저장이 완료되었습니다!");
+            showToast("✅ 고화질로 사진첩에 저장이 완료되었습니다!");
         }).catch(err => {
             if (actionArea) actionArea.style.display = 'block';
             alert("이미지 저장 중 오류가 발생했습니다.");
         });
     }, 500);
-};
+}; // 함수 닫기 괄호 수정
 
 window.shareKakaoCombo = async function (type) {
     let freeText = "", premiumText = "";
@@ -186,17 +181,17 @@ if (urlParams.has('paymentKey') && urlParams.has('orderId') && urlParams.has('am
                     sajuActionsArea.style.display = 'block';
                     sajuActionsArea.style.borderTop = 'none';
                     sajuActionsArea.innerHTML = `
-                            <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
-                                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
-                                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                                    <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
-                                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📸 이미지로 저장</button>
-                                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
-                                    </div>
+                        <div id="sajuCustomBtnArea" style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+                            <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">이 놀라운 심층 운세 결과를 보관하시겠습니까?</p>
+                            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                                <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📸 이미지로 저장</button>
+                                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
                                 </div>
                             </div>
-                        `;
+                        </div>
+                    `;
                     sessionStorage.removeItem('savedSajuResultHTML');
                 }
             } else {
@@ -210,6 +205,7 @@ if (urlParams.has('paymentKey') && urlParams.has('orderId') && urlParams.has('am
     alert("결제 안내: " + decodeURIComponent(urlParams.get('message')));
     window.history.replaceState({}, document.title, window.location.pathname);
 }
+
 window.selectPath = function (path, isPopState = false) {
     const gateway = document.getElementById('gateway');
     const sajuSection = document.getElementById('daily');
@@ -228,13 +224,11 @@ window.selectPath = function (path, isPopState = false) {
     document.querySelector('.header').style.display = 'flex';
     document.querySelector('.star-bg-fixed').style.display = 'block';
 
-    // 1. 모든 섹션 숨기기
     if (gateway) gateway.style.display = 'none';
     if (sajuSection) sajuSection.style.display = 'none';
     if (tarotSection) tarotSection.style.display = 'none';
     if (faceSection) faceSection.style.display = 'none';
 
-    // 2. 선택된 메뉴만 켜주기 (복구 완료!)
     if (path === 'gateway') {
         if (gateway) gateway.style.display = 'block';
     } else if (path === 'saju') {
@@ -245,15 +239,10 @@ window.selectPath = function (path, isPopState = false) {
         if (faceSection) faceSection.style.display = 'block';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-}; // 🚨 화면 전환 함수를 확실히 닫아줍니다!
-
-// ==========================================
-// 아래부터는 폼 전송 등 1번만 세팅되어야 하는 로직
-// ==========================================
+};
 
 const birthHourSelect = document.getElementById('birthHour');
 const birthMinuteSelect = document.getElementById('birthMinute');
-// 무한 증식 방지 방어막 추가
 if (birthHourSelect && birthMinuteSelect && birthHourSelect.options.length <= 1) {
     for (let i = 1; i <= 12; i++) birthHourSelect.appendChild(new Option(`${i}시`, i));
     for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
@@ -310,20 +299,78 @@ if (sajuForm) {
     });
 }
 
+// ==========================================
+// 💡 카카오 로그인 및 Firebase DB 자동 수집 로직
+// ==========================================
+
+// 1. 파이어베이스 접속 키 (진우님이 복사하신 진짜 코드로 덮어쓰세요!)
+const firebaseConfig = {
+    apiKey: "AIzaSyCnzm66UrkO1rbMnenI0UN0DSNJFs0PebA",
+    authDomain: "fortune-story.firebaseapp.com",
+    projectId: "fortune-story",
+    storageBucket: "fortune-story.firebasestorage.app",
+    messagingSenderId: "576293866226",
+    appId: "1:576293866226:web:90e4e63c30db23101bde6b"
+};
+
+// 2. 파이어베이스 시작
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+// 3. 카카오 로그인 버튼 클릭 시 실행
 window.loginWithKakao = function () {
     if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
     Kakao.Auth.login({
-        success: function () {
+        success: function (authObj) {
+            // 로그인 성공 시 카카오톡에서 사용자 정보(고유번호, 닉네임 등) 가져오기
             Kakao.API.request({
                 url: '/v2/user/me',
-                success: function (res) { alert(res.kakao_account.profile.nickname + "님 환영합니다! 🎉\n아래에서 운세를 확인하세요."); }
+                success: function (res) {
+                    const kakaoId = res.id; // 카카오 고유 ID
+                    const nickname = res.properties.nickname || "포춘고객";
+
+                    // 💡 Firebase DB에 고객 정보 자동 저장
+                    db.collection("users").doc(kakaoId.toString()).set({
+                        name: nickname,
+                        lastLogin: new Date()
+                    }, { merge: true })
+                        .then(() => {
+                            showToast("✅ 성공적으로 로그인되었습니다!");
+
+                            // 화면 전환: 로그인 버튼 없애고, 대시보드 보여주기
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        })
+                        .catch((error) => {
+                            console.error("DB 저장 에러:", error);
+                            // 혹시 DB 에러가 나더라도 고객 화면은 정상적으로 넘어가게 예외 처리
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+                        });
+                },
+                fail: function (error) {
+                    console.error('사용자 정보 가져오기 실패', error);
+                }
             });
+        },
+        fail: function (err) {
+            alert("로그인에 실패했습니다.");
         }
     });
 };
 
 // ==========================================
-// 3. 타로(Tarot) 로직
+// 3. 타로(Tarot) 로직 (기존 유지)
 // ==========================================
 const tarotCards = [];
 const majorNames = ["바보", "마법사", "여사제", "여황제", "황제", "교황", "연인", "전차", "힘", "은둔자", "운명의 수레바퀴", "정의", "매달린 사람", "죽음", "절제", "악마", "탑", "별", "달", "태양", "심판", "세계"];
@@ -501,47 +548,47 @@ function showTarotResult(name, category, aiResult) {
         const dirText = isRev ? " (역방향)" : " (정방향)";
 
         revealContainer.innerHTML += `
-                <div class="revealed-card-col fade-in-up delay-${i + 1}">
-                    <div class="revealed-card-pos" style="margin-bottom:10px;">${positions[i]}</div>
-                    <div class="revealed-card" style="background-image: url('${c.card.img}'); background-size: cover; background-position: center; ${transform} border: 2px solid #D3B8F8; border-radius: 8px;">
-                    </div>
-                    <div class="revealed-card-title" style="color:#EEDCFF; margin-top:15px; font-weight:bold; font-size:1.1rem; text-align:center;">
-                        ${c.card.name}<br><span style="font-size:0.9rem; color:#B388EB;">${dirText}</span>
-                    </div>
+            <div class="revealed-card-col fade-in-up delay-${i + 1}">
+                <div class="revealed-card-pos" style="margin-bottom:10px;">${positions[i]}</div>
+                <div class="revealed-card" style="background-image: url('${c.card.img}'); background-size: cover; background-position: center; ${transform} border: 2px solid #D3B8F8; border-radius: 8px;">
                 </div>
-            `;
+                <div class="revealed-card-title" style="color:#EEDCFF; margin-top:15px; font-weight:bold; font-size:1.1rem; text-align:center;">
+                    ${c.card.name}<br><span style="font-size:0.9rem; color:#B388EB;">${dirText}</span>
+                </div>
+            </div>
+        `;
     });
 
     const contentDiv = document.getElementById('tarotResultContent');
     contentDiv.innerHTML = `
-            <h3 style="color:#D3B8F8; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(211, 184, 248, 0.3); padding-bottom:10px;">1. 과거의 잔영 (원인)</h3>
-            <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content1.replace(/\\n/g, '<br>')}</p>
-            
-            <h3 style="color:#D3B8F8; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(211, 184, 248, 0.3); padding-bottom:10px;">2. 현재의 거울 (상황)</h3>
-            <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content2.replace(/\\n/g, '<br>')}</p>
-            
-            <h3 style="color:#FFE082; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(255, 224, 130, 0.3); padding-bottom:10px;">3. 미래의 이정표 (조언)</h3>
-            <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content3.replace(/\\n/g, '<br>')}</p>
-        `;
+        <h3 style="color:#D3B8F8; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(211, 184, 248, 0.3); padding-bottom:10px;">1. 과거의 잔영 (원인)</h3>
+        <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content1.replace(/\\n/g, '<br>')}</p>
+        
+        <h3 style="color:#D3B8F8; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(211, 184, 248, 0.3); padding-bottom:10px;">2. 현재의 거울 (상황)</h3>
+        <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content2.replace(/\\n/g, '<br>')}</p>
+        
+        <h3 style="color:#FFE082; margin-top:1rem; font-size:1.4rem; border-bottom:1px solid rgba(255, 224, 130, 0.3); padding-bottom:10px;">3. 미래의 이정표 (조언)</h3>
+        <p style="margin-bottom:2.5rem; font-size:1.1rem;">${aiResult.content3.replace(/\\n/g, '<br>')}</p>
+    `;
 
     const actionArea = document.querySelector('#tarotResult .result-actions');
     actionArea.innerHTML = `
-            <div style="margin-top: 3rem; text-align: center; border-top: 1px dashed rgba(179, 136, 235, 0.4); padding-top: 2rem;">
-                <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">영혼의 거울이 비춘 결과를 보관하시겠습니까?</p>
-                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                    <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('tarot')">💬 카카오톡으로 전체 결과 보내기</button>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #EEDCFF; border-color: #B388EB; flex: 1; height: 55px;" onclick="handlePdfPrint('tarot')">📸 이미지로 저장</button>
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #EEDCFF; border-color: #B388EB; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 고민 묻기</button>
-                    </div>
+        <div style="margin-top: 3rem; text-align: center; border-top: 1px dashed rgba(179, 136, 235, 0.4); padding-top: 2rem;">
+            <p style="color: #D3B8F8; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">영혼의 거울이 비춘 결과를 보관하시겠습니까?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('tarot')">💬 카카오톡으로 전체 결과 보내기</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #EEDCFF; border-color: #B388EB; flex: 1; height: 55px;" onclick="handlePdfPrint('tarot')">📸 이미지로 저장</button>
+                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); color: #EEDCFF; border-color: #B388EB; flex: 1; height: 55px;" onclick="location.reload()">🔄 다른 고민 묻기</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
     window.scrollTo(0, 0);
 }
 
 // ==========================================
-// 4. 사주 분석 및 결과 렌더링
+// 4. 사주 분석 및 결과 렌더링 (기존 유지)
 // ==========================================
 
 function startProfessionalAnalysis(name, typeName, year, month, day, fortuneType, maritalStatus) {
@@ -626,13 +673,10 @@ ${specificInstructions}
 "title2": "두 번째 소제목", "content2": "두 번째 내용...",
 "title3": "세 번째 소제목", "content3": "세 번째 내용...",
 "title4": "네 번째 소제목", "content4": "네 번째 내용..."
-// 🚨 분석 항목 수(최대 20개)에 맞춰 title과 content의 숫자를 자유롭게 늘려서 응답하세요. (예: title1~title17)
 }`;
 
-    // 🚨 AI의 환각을 막기 위해 Lunar-JS로 정확한 명식과 오행을 직접 추출
     const calendarType = document.querySelector('input[name="calendarType"]:checked') ? document.querySelector('input[name="calendarType"]:checked').value : 'solar';
 
-    // 🚨 1. 화면에서 입력한 '시간' 데이터 가져오기
     const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
     let hour = 0; let minute = 0;
 
@@ -644,7 +688,6 @@ ${specificInstructions}
         if (amPm === 'PM' && rawHour < 12) rawHour += 12;
         if (amPm === 'AM' && rawHour === 12) rawHour = 0;
 
-        // 🚨 2. 한국 사주명리학 표준시 보정 (중국 라이브러리 오차 30분 빼기)
         minute = rawMin - 30;
         hour = rawHour;
         if (minute < 0) {
@@ -653,10 +696,9 @@ ${specificInstructions}
             if (hour < 0) hour = 23;
         }
     } else {
-        hour = 12; // 시간 모름일 경우 임의로 낮 12시 세팅
+        hour = 12;
     }
 
-    // 🚨 3. fromYmd 대신 fromYmdHms를 사용하여 시간까지 완벽하게 밀어넣기
     let lunarObj = calendarType === 'solar'
         ? Solar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0).getLunar()
         : Lunar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0);
@@ -664,7 +706,6 @@ ${specificInstructions}
     let bazi = lunarObj.getEightChar();
     let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일 ${isUnknownTime ? '(시간모름)' : bazi.getTime() + '시'}`;
 
-    // 🚨 4. 시간 모름 여부에 따라 6글자(삼주) 또는 8글자(사주) 오행 추출
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
     const userPrompt = `- 이름: ${name}\n- 생년월일: ${year}년 ${month}월 ${day}일 (${calendarType})\n- 실제 명식(사주팔자): ${sajuStr}\n- 오행 구성: ${wuXing}\n- 요청한 운세: ${typeName}\n위 사람의 정확한 사주 명식과 오행 데이터를 바탕으로 정밀 분석해 주세요. 절대 다른 오행을 지어내지 마세요.`;
@@ -714,14 +755,15 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     const keywords = ['明哲(명철)', '和合(화합)', '發展(발전)', '安寧(안녕)', '通達(통달)', '繁榮(번영)', '平穩(평온)', '福祿(복록)', '成功(성공)', '幸運(행운)'];
     const randomKeyword = keywords[hash % keywords.length];
 
+    // 💡 기능 업데이트: 사주 차트 하단에 일간 기반 '한 줄 요약 멘트' 추가 (generateSajuChartsHTML 내부에서 처리됨)
     let freeHTML = `
-        <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
-            <div style="font-size: 0.9rem; color: ${personalColorInfo.textHex}; margin-bottom: 10px;">${name}님의 기운을 상징하는 고유 명리 키워드</div>
-            <div class="red-seal" style="font-size: 2.5rem; margin-bottom: 15px; color: ${personalColorInfo.highlightHex} !important; border-color: ${personalColorInfo.highlightHex}; display: inline-block; padding: 10px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.5);">${randomKeyword}</div>
-            <div style="font-size: 1.1rem; color: #fff;">수호 오행: <strong style="color: ${personalColorInfo.highlightHex};">${personalColorInfo.element} (${personalColorInfo.colorName})</strong></div>
-            <div style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">이 키워드와 색상을 가까이하시면 좋은 기운이 증폭됩니다.</div>
-        </div>
-        ${generateSajuChartsHTML(personalColorInfo, year, month, day)}
+    <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${personalColorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
+        <div style="font-size: 0.9rem; color: ${personalColorInfo.textHex}; margin-bottom: 10px;">${name}님의 기운을 상징하는 고유 명리 키워드</div>
+        <div class="red-seal" style="font-size: 2.5rem; margin-bottom: 15px; color: ${personalColorInfo.highlightHex} !important; border-color: ${personalColorInfo.highlightHex}; display: inline-block; padding: 10px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); background-color: rgba(0,0,0,0.5);">${randomKeyword}</div>
+        <div style="font-size: 1.1rem; color: #fff;">수호 오행: <strong style="color: ${personalColorInfo.highlightHex};">${personalColorInfo.element} (${personalColorInfo.colorName})</strong></div>
+        <div style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">이 키워드와 색상을 가까이하시면 좋은 기운이 증폭됩니다.</div>
+    </div>
+    ${generateSajuChartsHTML(personalColorInfo, year, month, day)}
     `;
     freeContentArea.innerHTML = freeHTML;
 
@@ -730,34 +772,34 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     if (aiResult.scores) {
         const s = aiResult.scores;
         premiumHTML += `
-        <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
-            <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
-            <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
-                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                    <div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div>
-                </div>
-            </div>
-            <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
-                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                    <div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div>
-                </div>
-            </div>
-            <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
-                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                    <div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div>
-                </div>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
-                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
-                    <div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div>
-                </div>
+    <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
+        <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                <div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div>
             </div>
         </div>
-        `;
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                <div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div>
+            </div>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                <div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div>
+            </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
+            <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;">
+                <div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div>
+            </div>
+        </div>
+    </div>
+    `;
     }
 
     for (let i = 1; i <= 20; i++) {
@@ -767,13 +809,13 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
             }).join('');
 
             premiumHTML += `
-            <div style="margin-top: 3.5rem; margin-bottom: 1rem;">
-                <h3 style="text-align: center; color: ${personalColorInfo.highlightHex}; font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px;">
-                    ${aiResult[`title${i}`].replace(/\[|\]/g, '')}
-                </h3>
-                ${formattedContent}
-            </div>
-            `;
+        <div style="margin-top: 3.5rem; margin-bottom: 1rem;">
+            <h3 style="text-align: center; color: ${personalColorInfo.highlightHex}; font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px;">
+                ${aiResult[`title${i}`].replace(/\[|\]/g, '')}
+            </h3>
+            ${formattedContent}
+        </div>
+        `;
         }
     }
     premiumContentArea.innerHTML = premiumHTML;
@@ -790,17 +832,17 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
         const sajuActionsArea = document.getElementById('sajuActionsArea');
         sajuActionsArea.style.display = 'block';
         sajuActionsArea.innerHTML = `
-            <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
-                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
-                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-                    <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📸 이미지로 저장</button>
-                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
-                    </div>
+        <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+            <p style="color: #FFDF73; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                <button class="btn-premium kakao pulse-btn" style="font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; border: none; height: 60px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="handlePdfPrint('saju')">📸 이미지로 저장</button>
+                    <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); flex: 1; border: 1px solid #fff; height: 55px;" onclick="location.reload()">🔄 다른 운세 보기</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
         setTimeout(() => showToast("👑 마스터 권한으로 결제가 패스되었습니다."), 500);
     } else {
         document.getElementById('btnUnlockPremium').onclick = () => window.openSajuPayment(typeName, currentPrice);
@@ -811,6 +853,7 @@ function showFinalResult(name, typeName, year, month, day, aiResult, fortuneType
     }
     window.scrollTo(0, 0);
 }
+
 window.openSajuPayment = function (typeName, amount) {
     const paymentModal = document.getElementById('paymentModal');
     document.getElementById('paymentFortuneType').textContent = typeName;
@@ -867,7 +910,7 @@ function getPersonalColor(yearStr) {
     return { element: '수(水)', colorName: '검정/푸른색', textHex: '#B3E5FC', bgHex: '#0D47A1', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
 }
 
-// 🚨 해시(Hash) 가짜 로직을 삭제하고 Lunar-JS 기반 실제 오행 렌더링으로 교체
+// 💡 기능 업데이트: 일간(日干) 데이터 추출 및 한 줄 요약 멘트 추가
 function generateSajuChartsHTML(colorInfo, year, month, day) {
     const elements = ['木(목)', '火(화)', '土(토)', '金(금)', '水(수)'];
     const eColors = ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E', '#2196F3'];
@@ -902,6 +945,9 @@ function generateSajuChartsHTML(colorInfo, year, month, day) {
 
     let bazi = lunarObj.getEightChar();
 
+    // 💡 여기서 일간(日干) 오행을 뽑습니다 (사주에서 '나 자신'을 상징)
+    const ilganWuXing = bazi.getDayWuXing();
+
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
     let counts = [
@@ -911,6 +957,20 @@ function generateSajuChartsHTML(colorInfo, year, month, day) {
         (wuXing.match(/金/g) || []).length,
         (wuXing.match(/水/g) || []).length
     ];
+
+    // 💡 오행 과다/결핍에 따른 맞춤형 팩트 폭행 멘트 로직
+    let hookMessage = "";
+    if (counts[4] === 0) { // 水 결핍
+        hookMessage = "🌊 사주에 유연함을 뜻하는 수(水) 기운이 고갈되어 있습니다. 뼈 빠지게 노력해도 막판에 답답함을 느끼지 않으셨나요?";
+    } else if (counts[1] >= 3) { // 火 과다
+        hookMessage = "🔥 불(火)의 에너지가 아주 강합니다. 직관력과 추진력은 좋지만 급격한 감정 소모를 조심해야 합니다.";
+    } else if (counts[0] === 0) { // 木 결핍
+        hookMessage = "🌱 시작과 뻗어나가는 힘인 목(木)이 부족합니다. 생각은 완벽한데 첫발을 내딛는 것을 주저하고 계실 확률이 높습니다.";
+    } else if (counts[2] >= 3) { // 土 과다
+        hookMessage = "⛰️ 흙(土)의 기운이 태산처럼 쌓여 있습니다. 포용력이 넓지만, 때로는 그 고집 때문에 스스로 답답함을 겪습니다.";
+    } else { // 기본값
+        hookMessage = `✨ 본성을 나타내는 '${ilganWuXing}'의 기운을 타고난 당신, 오행의 밸런스가 비교적 고른 사주입니다.`;
+    }
 
     let total = counts.reduce((a, b) => a + b, 0) || 8;
     const percentages = counts.map(c => Math.round((c / total) * 100));
@@ -943,36 +1003,40 @@ function generateSajuChartsHTML(colorInfo, year, month, day) {
         const tx = center + (radius + 38) * Math.cos(angle), ty = center - (radius + 38) * Math.sin(angle);
         const anchor = Math.abs(tx - center) > 15 ? (tx > center ? "start" : "end") : "middle";
         dataSegmentHTML += `
-            <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="14" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
-            <text x="${tx}" y="${ty + 15}" fill="#ddd" font-size="11" text-anchor="${anchor}">(${counts[idx]}개 / ${p}%)</text>`;
+        <text x="${tx}" y="${ty - 5}" fill="${eColors[idx]}" font-size="14" font-weight="bold" text-anchor="${anchor}">${elements[idx].split('(')[0]}</text>
+        <text x="${tx}" y="${ty + 15}" fill="#ddd" font-size="11" text-anchor="${anchor}">(${counts[idx]}개 / ${p}%)</text>`;
     });
 
     return `
-        <div style="margin-top: 3rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
-            <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">실제 오행(五行) 분포도</div>
-            <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">명식 기반 상생(相生)과 상극(相剋)의 조화</div>
-            <div style="display: flex; justify-content: center; align-items: center; position: relative;">
-                <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="overflow: visible;">
-                    <defs>
-                        <linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="${colorInfo.textHex}" stop-opacity="0.4" />
-                            <stop offset="100%" stop-color="${colorInfo.highlightHex}" stop-opacity="0.1" />
-                        </linearGradient>
-                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                    </defs>
-                    ${webPaths}
-                    <polygon points="${dataPoints.trim()}" fill="url(#polyGrad)" stroke="${colorInfo.textHex}" stroke-width="2" filter="url(#glow)"/>
-                    ${dataSegmentHTML}
-                </svg>
-            </div>
+    <div style="margin-top: 3rem; margin-bottom: 3rem; padding: 2.5rem 1.5rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2); box-shadow: inset 0 0 15px rgba(0,0,0,0.3);">
+        <div style="font-size: 1.2rem; color: ${colorInfo.textHex}; margin-bottom: 0.5rem; font-weight: bold; text-align: center; letter-spacing: 1px;">실제 오행(五行) 분포도</div>
+        <div style="text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">명식 기반 상생(相生)과 상극(相剋)의 조화</div>
+        <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+            <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="overflow: visible;">
+                <defs>
+                    <linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="${colorInfo.textHex}" stop-opacity="0.4" />
+                        <stop offset="100%" stop-color="${colorInfo.highlightHex}" stop-opacity="0.1" />
+                    </linearGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                ${webPaths}
+                <polygon points="${dataPoints.trim()}" fill="url(#polyGrad)" stroke="${colorInfo.textHex}" stroke-width="2" filter="url(#glow)"/>
+                ${dataSegmentHTML}
+            </svg>
         </div>
-    `;
+        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 4px solid ${colorInfo.highlightHex};">
+            <p style="color: #fff; font-size: 1.05rem; line-height: 1.5; font-weight: bold; margin: 0;">${hookMessage}</p>
+        </div>
+    </div>
+`;
 }
+
 // ==========================================
-// 5. 사이버 수호부 (스미싱 감별기) 로직
+// 5. 사이버 수호부 (스미싱 감별기) 로직 (기존 유지)
 // ==========================================
 
 let userAmuletCount = 0;
@@ -1085,7 +1149,7 @@ window.buyAmulet = function (type, amount) {
     });
 };
 
-// ✦ 플로팅 메뉴 제어 함수
+// ✦ 플로팅 메뉴 제어 함수 (기존 유지)
 window.toggleQuickMenu = function () {
     const options = document.getElementById('fabOptions');
     const mainBtn = document.getElementById('fabMainBtn');
@@ -1100,7 +1164,6 @@ window.toggleQuickMenu = function () {
 };
 
 window.quickNav = function (path) {
-    // 현재 결과창이 열려있는지 체크 (관상 결과도 'result' 창을 쓰므로 자동으로 체크됩니다)
     const isSajuResultOpen = document.getElementById('result').style.display === 'block';
     const isTarotResultOpen = document.getElementById('tarotResult').style.display === 'block';
 
@@ -1124,12 +1187,11 @@ window.quickNav = function (path) {
         document.querySelector('.star-bg-fixed').style.display = 'block';
     }
 
-    // 경로에 따라 화면 전환
     if (path === 'saju') {
         window.selectPath('saju');
     } else if (path === 'tarot') {
         window.selectPath('tarot');
-    } else if (path === 'face') { // 👈 관상 경로 추가!
+    } else if (path === 'face') {
         window.selectPath('face');
     }
 
@@ -1142,17 +1204,14 @@ window.previewFaceImage = function (event) {
 
     const reader = new FileReader();
     reader.onload = function (e) {
-        // 화면에 미리보기 이미지 띄우기
         document.getElementById('facePreview').src = e.target.result;
         document.getElementById('facePreview').style.display = 'block';
 
-        // 🚨 고화질 사진을 서버 전송용으로 가볍게 압축하는 로직 추가
         const img = new Image();
         img.onload = function () {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            // 가로/세로 최대 800px로 제한하여 용량 최적화
             const MAX_SIZE = 800;
             let width = img.width;
             let height = img.height;
@@ -1173,7 +1232,6 @@ window.previewFaceImage = function (event) {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            // 가벼운 JPEG 형식으로 변환하여 AI 전송 준비
             const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
             base64FaceImage = compressedDataUrl.split(',')[1];
         };
@@ -1188,17 +1246,14 @@ window.startFaceReading = async function () {
         return;
     }
 
-    // 1. 로딩창 띄우기 (사주 로딩창 재활용)
     const loadingScreen = document.getElementById('analysisLoading');
     const loadingTitle = document.getElementById('loadingTitle');
     const loadingMessage = document.getElementById('loadingMessage');
 
     if (loadingScreen) loadingScreen.style.display = 'flex';
     if (loadingTitle) loadingTitle.innerHTML = `<span style="color:#81D4FA;">프리미엄 정밀 관상</span> 분석 진행 중...`;
-    // 🚨 'AI'라는 단어를 빼고, 전문 관상가가 직접 짚어주는 듯한 문구로 변경
     if (loadingMessage) loadingMessage.innerText = "수석 관상가가 귀하의 이목구비 비율과 찰색(얼굴빛)을 세밀하게 감정하고 있습니다...";
 
-    // 2. VIP 전용 고품질 AI 프롬프트 (다양성 및 입체적 분석 강화)
     const payload = {
         contents: [{
             parts: [
@@ -1225,7 +1280,6 @@ window.startFaceReading = async function () {
         const faceResultText = data.candidates[0].content.parts[0].text;
         if (loadingScreen) loadingScreen.style.display = 'none';
 
-        // 3. 결과 화면 전환 (사주 결과창 완벽 재활용)
         document.querySelector('.header').style.display = 'none';
         document.querySelector('.star-bg-fixed').style.display = 'none';
         document.getElementById('faceSection').style.display = 'none';
@@ -1237,63 +1291,54 @@ window.startFaceReading = async function () {
         resultSection.style.display = 'block';
         document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: #81D4FA; letter-spacing: 1px;">얼굴에 새겨진 운명의 기록</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">프리미엄 정밀 관상</span>`;
 
-        // 4. 무료 영역: 얼굴 스캔 완료 시각화 연출
         freeContentArea.innerHTML = `
-            <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 3rem 1.5rem; border: 1px solid rgba(129, 212, 250, 0.4); border-radius: 12px; background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(129, 212, 250, 0.1);">
-                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;">
-                    <div style="position: relative; width: 160px; height: 160px;">
-                        <img src="${document.getElementById('facePreview').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #81D4FA; box-shadow: 0 0 20px rgba(129, 212, 250, 0.5);">
-                        <div style="position: absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border: 2px dashed #4FC3F7; animation: spin-slow 10s linear infinite;"></div>
-                    </div>
+        <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 3rem 1.5rem; border: 1px solid rgba(129, 212, 250, 0.4); border-radius: 12px; background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(129, 212, 250, 0.1);">
+            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;">
+                <div style="position: relative; width: 160px; height: 160px;">
+                    <img src="${document.getElementById('facePreview').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #81D4FA; box-shadow: 0 0 20px rgba(129, 212, 250, 0.5);">
+                    <div style="position: absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border: 2px dashed #4FC3F7; animation: spin-slow 10s linear infinite;"></div>
                 </div>
-                <h3 style="color: #81D4FA; font-size: 1.4rem; font-weight: bold; margin-bottom: 10px;">기운 스캔 완료</h3>
-                <p style="color: #ccc; font-size: 1rem; line-height: 1.6;">당신의 초년, 중년, 말년에 걸친 운명의 흐름과<br>재물운, 성공운의 단서를 모두 해독했습니다.</p>
             </div>
-        `;
+            <h3 style="color: #81D4FA; font-size: 1.4rem; font-weight: bold; margin-bottom: 10px;">기운 스캔 완료</h3>
+            <p style="color: #ccc; font-size: 1rem; line-height: 1.6;">당신의 초년, 중년, 말년에 걸친 운명의 흐름과<br>재물운, 성공운의 단서를 모두 해독했습니다.</p>
+        </div>
+    `;
 
-        // 5. 프리미엄 영역: 고급화 텍스트 포맷팅 (색상 통일, 괄호 제거, 단어 끊김 방지)
         const formattedContent = faceResultText.split(/\n|\\n/).filter(p => p.trim() !== '').map(p => {
             let text = p.replace(/\*\*/g, '').trim();
 
-            // 소제목 감지 (대괄호로 시작하거나 끝나는 경우)
             if (text.startsWith('[') || p.includes('**')) {
-                text = text.replace(/\[|\]/g, '').trim(); // 촌스러운 대괄호 날리기
-                // 사주처럼 밑줄을 넣고, 단어 중간에 끊기지 않도록(keep-all) 설정. 색상은 은은한 아이스 블루 통일.
+                text = text.replace(/\[|\]/g, '').trim();
                 return `<h4 style="color: #81D4FA; font-size: 1.25rem; margin-top: 3rem; margin-bottom: 1.5rem; text-align: center; font-weight: 800; word-break: keep-all; line-height: 1.5; border-bottom: 1px solid rgba(129, 212, 250, 0.3); padding-bottom: 10px;">${text}</h4>`;
             }
 
-            // 본문 내용 (소제목과 톤앤매너를 맞춘 화이트 블루 색상 통일)
             return `<p style="color: #E1F5FE; font-size: 1.05rem; line-height: 2.0; margin-bottom: 1.8rem; text-align: justify; word-break: keep-all; opacity: 0.95;">${text.replace(/\*/g, '').trim()}</p>`;
         }).join('');
 
         premiumContentArea.innerHTML = `<div style="margin-top: 3.5rem;">${formattedContent}</div>`;
 
-        // 6. 결제 블러창 및 버튼 세팅 (9,900원 설정)
         const price = 9900;
         document.getElementById('lockTypeName').textContent = `[정밀 관상]`;
         document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
 
-        // 🚨 마스터 백도어 적용 🚨
         if (window.isMasterKey) {
             premiumContentArea.classList.remove('blur-content');
             premiumContentArea.classList.add('unlocked');
             document.getElementById('unlockOverlay').style.display = 'none';
-            // 버튼 영역은 사주와 동일하게 표시 (공유/저장용)
             const actionsArea = document.getElementById('sajuActionsArea');
             if (actionsArea) {
                 actionsArea.style.display = 'block';
                 actionsArea.innerHTML = `
-                    <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
-                        <p style="color: #81D4FA; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="handlePdfPrint('face')">📸 이미지 저장</button>
-                            <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="location.reload()">🔄 다시 하기</button>
-                        </div>
+                <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
+                    <p style="color: #81D4FA; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="handlePdfPrint('face')">📸 이미지 저장</button>
+                        <button class="btn-premium outline" style="font-size: 0.95rem; background: rgba(0,0,0,0.3); border: 1px solid #81D4FA; color: #81D4FA;" onclick="location.reload()">🔄 다시 하기</button>
                     </div>
-                `;
+                </div>
+            `;
             }
         } else {
-            // 일반 고객은 결제창
             premiumContentArea.classList.remove('unlocked');
             premiumContentArea.classList.add('blur-content');
             document.getElementById('unlockOverlay').style.display = 'flex';
@@ -1307,4 +1352,4 @@ window.startFaceReading = async function () {
         if (loadingScreen) loadingScreen.style.display = 'none';
         alert("분석 중 에러가 발생했습니다.");
     }
-};
+}

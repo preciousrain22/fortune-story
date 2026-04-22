@@ -36,6 +36,8 @@
         gtag('js', new Date());
         gtag('config', 'G-X3JL0JDN2W');
     </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <style>
         .locked-container {
@@ -83,89 +85,40 @@
             </div>
         </div>
     </header>
-
+    <div id="login-section"
+        style="text-align: center; margin: 2rem 1.5rem; padding: 2rem 1rem; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <p
+            style="color: #FFDF73; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5);">
+            당신의 운명이 당신을 기다립니다</p>
+        <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 0.9rem;">프리미엄 정밀 운세를 위해 첫걸음을 내딛으세요.</p>
+        <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
+            style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 15px 0; font-weight: 800; font-size: 1.1rem; width: 100%; max-width: 400px; margin: 0 auto; display: block;">
+            <span style="font-size: 1.2rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
+        </button>
+    </div>
     <div style="padding-top: 100px;"></div>
     <div class="star-bg-fixed"></div>
 
-    <section id="gateway" class="gateway-section fade-in">
-        <div class="container">
-            <div class="section-header text-center">
-                <h2 class="obangsaek-text">운명의 문을 선택하세요</h2>
-            </div>
+    <section id="gateway" class="gateway-section fade-in" style="display: none; margin-top: 2rem;">
+        <div class="container text-center">
+            <h2 style="color: #FFDF73; font-size: 1.5rem; margin-bottom: 2rem;">어떤 운명의 문을 여시겠습니까?</h2>
 
-            <div class="gateway-grid" id="gatewayGrid">
-                <div class="gateway-card saju-card" id="sajuCard" onclick="selectPath('saju')">
-                    <div class="gateway-icon">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#gold-grad)"
-                            stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <defs>
-                                <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#F9F6CA" />
-                                    <stop offset="50%" stop-color="#D4AF37" />
-                                    <stop offset="100%" stop-color="#AA7C11" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M12 2a5 5 0 0 0 0 10 5 5 0 0 1 0 10"></path>
-                            <circle cx="12" cy="7" r="1.5" fill="#D4AF37" stroke="none"></circle>
-                            <circle cx="12" cy="17" r="1.5" fill="#D4AF37" stroke="none"></circle>
-                        </svg>
-                    </div>
-                    <div class="gateway-title" style="color: #E8D080;">천명의 지혜, 사주</div>
-                    <div class="gateway-desc">수천 년을 이어온 동양의 깊은 철학.<br>타고난 기운을 섬세하게 조명합니다.</div>
-                </div>
-
-                <div class="gateway-card tarot-card" id="tarotCard" onclick="selectPath('tarot')">
-                    <div class="gateway-icon">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#purple-grad)"
-                            stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <defs>
-                                <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#EEDCFF" />
-                                    <stop offset="50%" stop-color="#B388EB" />
-                                    <stop offset="100%" stop-color="#6F58C9" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
-                    </div>
-                    <div class="gateway-title" style="color: #D3B8F8;">영혼의 거울, 타로</div>
-                    <div class="gateway-desc">무의식을 비추는 서양의 신비주의.<br>마음속 얽힌 고민의 해답을 찾습니다.</div>
-                </div>
-
-                <div class="gateway-card face-card" id="faceCard" onclick="selectPath('face')">
-                    <div class="gateway-icon">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#blue-grad)"
-                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <defs>
-                                <linearGradient id="blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#E1F5FE" />
-                                    <stop offset="50%" stop-color="#4FC3F7" />
-                                    <stop offset="100%" stop-color="#0288D1" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M6 2v6l6 4 6-4V2z"></path>
-                            <path d="M6 22v-6l6-4 6 4v6z"></path>
-                            <path d="M6 2h12"></path>
-                            <path d="M6 22h12"></path>
-                        </svg>
-                    </div>
-                    <div class="gateway-title" style="color: #81D4FA;">시간의 기록, 관상</div>
-                    <div class="gateway-desc">이목구비에 깃든 기운의 흐름.<br>당신의 얼굴이 말해주는 미래를 읽습니다.</div>
-                </div>
-            </div>
-            <div
-                style="text-align: center; margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                <p
-                    style="color: #EEDCFF; font-size: 1.15rem; margin-bottom: 1.5rem; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(238, 220, 255, 0.2);">
-                    당신만의 운명 기록소가 준비되어 있습니다. 복잡한 절차 없이 바로 문을 열어보세요 ✨
-                </p>
-                <button onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
-                    style="width: auto; padding: 0 2.5rem; box-shadow: 0 0 20px rgba(254, 229, 0, 0.2); font-weight: 800;">
-                    <span style="font-size: 1.2rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오로 간편하게 시작하기
+            <div style="max-width: 400px; margin: 0 auto; padding: 0 20px;">
+                <button class="neon-button neon-saju" onclick="selectPath('saju')">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">☯</span> 프리미엄 명리 사주
                 </button>
-            </div>
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">당신의 타고난 오행과 올해의 흐름 분석</p>
 
+                <button class="neon-button neon-tarot" onclick="selectPath('tarot')">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">🃏</span> 심층 신비 타로
+                </button>
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">현재의 고민과 무의식에 대한 우주의 조언</p>
+
+                <button class="neon-button neon-face" onclick="selectPath('face')">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">⏳</span> AI 정밀 관상 스캔
+                </button>
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">얼굴에 기록된 재물운과 성공운 해독</p>
+            </div>
         </div>
     </section>
 
@@ -276,9 +229,9 @@
                                 name="calendarType" value="lunar_leap"> 음력(윤달)</label>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary full-width kakao pulse-btn"
-                    style="background-color: #FEE500; color: #000; font-weight: 800; border: none; font-size: 1.05rem; word-break: keep-all; display: flex; justify-content: center; align-items: center; padding: 1rem; margin-top: 1.5rem;">
-                    <span style="margin-right: 8px; font-size: 1.2rem;">💬</span> 카카오로 1초 만에 무료 운세 보기
+                <button type="submit" class="btn btn-primary full-width pulse-btn"
+                    style="background: linear-gradient(135deg, #0288D1, #4FC3F7); color: #fff; font-weight: 800; border: none; font-size: 1.1rem; padding: 1rem; margin-top: 1.5rem; border-radius: 50px;">
+                    ✨ 정밀 분석 시작하기
                 </button>
             </form>
         </div>

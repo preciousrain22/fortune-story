@@ -2325,3 +2325,73 @@ p {
         display: none !important;
     }
 }
+
+/* =========================================
+   포춘스토리 VIP 네온 버튼 애니메이션 CSS
+========================================= */
+.neon-button {
+    background: transparent;
+    color: #fff;
+    font-weight: 800;
+    border-radius: 12px;
+    padding: 15px 0;
+    width: 100%;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* 사주 - 파스텔 블루 */
+.neon-saju {
+    border: 2px solid #81D4FA;
+    box-shadow: 0 0 10px #81D4FA, inset 0 0 10px #81D4FA;
+    text-shadow: 0 0 5px #81D4FA;
+    animation: pulse-saju 2.5s infinite alternate;
+}
+
+/* 타로 - 파스텔 퍼플 */
+.neon-tarot {
+    border: 2px solid #D3B8F8;
+    box-shadow: 0 0 10px #D3B8F8, inset 0 0 10px #D3B8F8;
+    text-shadow: 0 0 5px #D3B8F8;
+    animation: pulse-tarot 2.5s infinite alternate;
+}
+
+/* 관상 - 파스텔 핑크 */
+.neon-face {
+    border: 2px solid #F48FB1;
+    box-shadow: 0 0 10px #F48FB1, inset 0 0 10px #F48FB1;
+    text-shadow: 0 0 5px #F48FB1;
+    animation: pulse-face 2.5s infinite alternate;
+}
+
+/* 은은하게 숨쉬는(Pulse) 애니메이션 */
+@keyframes pulse-saju {
+    0% {
+        box-shadow: 0 0 5px #81D4FA;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #81D4FA, inset 0 0 15px #81D4FA;
+    }
+}
+
+@keyframes pulse-tarot {
+    0% {
+        box-shadow: 0 0 5px #D3B8F8;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #D3B8F8, inset 0 0 15px #D3B8F8;
+    }
+}
+
+@keyframes pulse-face {
+    0% {
+        box-shadow: 0 0 5px #F48FB1;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #F48FB1, inset 0 0 15px #F48FB1;
+    }
+}
