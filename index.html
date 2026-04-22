@@ -85,25 +85,40 @@
             </div>
         </div>
     </header>
-    <section id="login-section"
-        style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 0 20px; position: relative; z-index: 10;">
-        <div
-            style="text-align: center; width: 100%; max-width: 500px; padding: 4rem 2rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.1); backdrop-filter: blur(10px);">
+    <section id="login-section" class="login-section-premium">
 
-            <div style="margin-bottom: 2.5rem;">
-                <h2
-                    style="color: #FFDF73; font-size: 2rem; font-weight: 900; margin-bottom: 15px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(212,175,55,0.5);">
-                    FORTUNE STORY</h2>
-                <p style="color: #EEDCFF; font-size: 1.1rem; line-height: 1.6; font-weight: 300;">상위 0.1% VIP를
-                    위한<br>프리미엄 운명 분석 리포트</p>
+        <div class="satisfaction-tag">
+            <span>⭐ 평균 만족도 4.9/5.0</span> <span style="opacity: 0.5;">|</span> <span>상위 0.1% VIP 전담</span>
+        </div>
+
+        <div class="hero-copy">
+            <h1>당신의 <span>진짜 운명</span>을<br>마주할 준비가 되셨습니까?</h1>
+            <p>단순한 위로가 아닌, 뼈아픈 팩트와 정확한 해법.<br>오직 당신만을 위한 프리미엄 운명 분석 리포트를 시작합니다.</p>
+        </div>
+
+        <div class="value-grid">
+            <div class="value-item">
+                <div class="value-item-icon">🔮</div>
+                <div class="value-item-text">소름돋는 적중률</div>
             </div>
+            <div class="value-item">
+                <div class="value-item-icon">📜</div>
+                <div class="value-item-text">심층 정밀 분석</div>
+            </div>
+            <div class="value-item">
+                <div class="value-item-icon">🔒</div>
+                <div class="value-item-text">완벽한 비밀보장</div>
+            </div>
+        </div>
 
-            <p style="color: #aaa; margin-bottom: 1.5rem; font-size: 0.95rem;">당신의 진짜 운명을 확인하려면 먼저 시작하세요</p>
+        <div class="login-box-premium">
+            <p class="login-box-premium-title">당신의 운명 기록소가 준비되었습니다.</p>
 
-            <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
-                style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 18px 0; font-weight: 800; font-size: 1.15rem; width: 100%; display: block; box-shadow: 0 5px 15px rgba(254, 229, 0, 0.3);">
+            <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn">
                 <span style="font-size: 1.3rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
             </button>
+
+            <p class="login-box-premium-sub">* 카카오 계정으로 안전하게 로그인되며, 정보는 철저히 보호됩니다.</p>
         </div>
     </section>
     <div style="padding-top: 100px;"></div>
