@@ -74,12 +74,30 @@
                     <input type="text" id="name" placeholder="성함을 입력하세요" required>
                 </div>
                 <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">성별</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="gender" value="남성" checked style="margin-right: 8px;"> 남성
+                        </label>
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="gender" value="여성" style="margin-right: 8px;"> 여성
+                        </label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px; text-align: left;">
                     <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">결혼 여부</label>
-                    <div style="display: flex; gap: 20px;">
-                        <label style="color:#fff; cursor: pointer;"><input type="radio" name="maritalStatus"
-                                value="single" checked> 미혼</label>
-                        <label style="color:#fff; cursor: pointer;"><input type="radio" name="maritalStatus"
-                                value="married"> 기혼</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="maritalStatus" value="single" checked style="margin-right: 8px;">
+                            미혼
+                        </label>
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="maritalStatus" value="married" style="margin-right: 8px;"> 기혼
+                        </label>
                     </div>
                 </div>
                 <div style="margin-bottom: 20px; text-align: left;">
@@ -99,20 +117,24 @@
                     </div>
                     <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="unknownTime" style="width: 20px; height: 20px;">
-                        <label for="unknownTime" style="color: #aaa; font-size: 0.95rem;">시간 모름</label>
+                        <label for="unknownTime" style="color: #aaa; font-size: 0.95rem; cursor: pointer;">시간 모름</label>
                     </div>
                 </div>
                 <div style="margin-bottom: 20px; text-align: left;">
                     <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">양력/음력</label>
-                    <div style="display: flex; gap: 20px;">
-                        <label style="color:#fff; cursor: pointer;"><input type="radio" name="calendarType"
-                                value="solar" checked> 양력</label>
-                        <label style="color:#fff; cursor: pointer;"><input type="radio" name="calendarType"
-                                value="lunar"> 음력</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="calendarType" value="solar" checked style="margin-right: 8px;"> 양력
+                        </label>
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="calendarType" value="lunar" style="margin-right: 8px;"> 음력
+                        </label>
                     </div>
                 </div>
                 <button type="submit"
-                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; border: none; border-radius: 50px; font-weight: 900; font-size: 1.1rem; margin-top: 20px; cursor: pointer;">✨
+                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);">✨
                     정밀 분석 시작하기</button>
             </form>
         </div>
