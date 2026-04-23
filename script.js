@@ -1334,3 +1334,46 @@ window.startFaceReading = async function () {
         alert("분석 중 에러가 발생했습니다.");
     }
 }
+// ==========================================
+// 🚨 [긴급 복구] 화면 이동(네비게이션) 로직
+// ==========================================
+
+// 1. 메인 메뉴 버튼 클릭 시 화면 이동
+window.selectPath = function (path) {
+    // 이동하기 전에 모든 화면을 싹 다 숨깁니다. (겹침 방지)
+    const sections = ['gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'result', 'tarotResult', 'tarotDraw'];
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // 선택한 메뉴의 화면만 짠! 하고 보여줍니다.
+    if (path === 'saju') {
+        const el = document.getElementById('daily');
+        if (el) el.style.display = 'block';
+    } else if (path === 'tarot') {
+        const el = document.getElementById('tarot');
+        if (el) el.style.display = 'block';
+    } else if (path === 'face') {
+        const el = document.getElementById('faceSection');
+        if (el) el.style.display = 'block';
+    } else if (path === 'amulet') {
+        const el = document.getElementById('amuletSection');
+        if (el) el.style.display = 'block';
+    }
+
+    // 화면을 맨 위로 부드럽게 끌어올려 줍니다.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 2. 우측 하단 퀵메뉴 클릭 시 화면 이동
+window.quickNav = function (path) {
+    // 위에서 만든 이동 기능을 똑같이 실행합니다.
+    window.selectPath(path);
+
+    // 화면 이동 후, 열려있던 퀵메뉴 창을 깔끔하게 닫아줍니다.
+    const opts = document.getElementById('fabOptions');
+    const btn = document.getElementById('fabMainBtn');
+    if (opts) opts.style.display = 'none';
+    if (btn) btn.innerText = '✦';
+};
