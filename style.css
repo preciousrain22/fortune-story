@@ -146,16 +146,43 @@ body {
 
 .neon-btn {
     width: 100%;
-    padding: 18px;
-    background: transparent;
+    padding: 20px;
+    /* 💡 터치하기 쉽게 높이 확장 */
+    background: rgba(15, 15, 20, 0.85);
+    /* 💡 완전 투명이 아니라 색을 채워서 터치가 씹히는 것 방지 */
     color: #fff;
     border-radius: 12px;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: bold;
     cursor: pointer;
     margin-bottom: 10px;
     pointer-events: auto;
-    /* 💡 클릭 활성화 */
+    position: relative;
+    z-index: 100;
+    /* 💡 다른 투명 레이어가 클릭을 가로막지 못하게 최상단 배치 */
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+}
+
+/* 💡 버튼을 누를 때 쏙 들어가는 효과 (클릭했다는 확신을 줌) */
+.neon-btn:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-saju {
+    border: 2px solid #81D4FA;
+    box-shadow: 0 0 10px #81D4FA;
+}
+
+.btn-tarot {
+    border: 2px solid #D3B8F8;
+    box-shadow: 0 0 10px #D3B8F8;
+}
+
+.btn-face {
+    border: 2px solid #F48FB1;
+    box-shadow: 0 0 10px #F48FB1;
 }
 
 .btn-saju {
