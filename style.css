@@ -1,4 +1,4 @@
-/* 1. 기본 설정 및 클릭 방해 차단 */
+/* 1. 기본 초기화 및 배경 (클릭 방해 차단) */
 * {
     margin: 0;
     padding: 0;
@@ -10,9 +10,10 @@ body {
     background: #010101;
     color: #fff;
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
-/* 🌌 우주 배경: 터치를 통과시키도록 설정 (클릭 먹통 해결책) */
+/* 🌌 우주 배경: z-index를 최하단으로 내리고 터치를 통과시킴 */
 .star-bg-fixed {
     position: fixed;
     top: 0;
@@ -21,11 +22,12 @@ body {
     height: 100%;
     background: radial-gradient(circle at center, #1a1a2e 0%, #010101 100%);
     z-index: -1;
+    /* 최하단 */
     pointer-events: none;
-    /* 💡 배경이 클릭을 가로막지 않음 */
+    /* 💡 핵심: 터치가 그냥 통과됨 */
 }
 
-/* 🌟 실시간 색상 변화 네온 헤더 */
+/* 🌟 화려한 무지개 네온 간판 (로고와 일체형) */
 .header-neon {
     position: fixed;
     top: 0;
@@ -34,25 +36,28 @@ body {
     height: 70px;
     background: rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid #FFDF73;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    /* 최상단 */
 }
 
-/* 🌈 로고: 무지개 그라데이션 애니메이션 */
+/* 🌈 로고: 실시간으로 색상이 변하는 그라데이션 애니메이션 */
 .logo-neon {
     font-size: 1.6rem;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
     background: linear-gradient(90deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     animation: neon-shimmer 3s linear infinite;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    cursor: pointer;
 }
 
 @keyframes neon-shimmer {
@@ -65,36 +70,33 @@ body {
     }
 }
 
-/* 👑 메인 랜딩 레이아웃 */
+/* 👑 메인 섹션 레이아웃 (가운데 정렬 및 클릭 활성화) */
 .main-landing {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding-top: 70px;
-    text-align: center;
     position: relative;
     z-index: 10;
+    /* 배경보다 위 */
 }
 
-.hero-title {
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1.3;
-    margin-bottom: 25px;
+.hero-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    text-align: center;
 }
 
-.hero-title span {
-    color: #FFDF73;
-}
-
-/* 🌟 카카오 로그인 박스 */
+/* 🌟 프리미엄 로그인 카드 */
 .login-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(212, 175, 55, 0.3);
-    padding: 30px 20px;
+    padding: 35px 25px;
     border-radius: 25px;
     backdrop-filter: blur(10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 .kakao-btn {
@@ -106,9 +108,12 @@ body {
     border-radius: 12px;
     font-weight: 900;
     font-size: 1.1rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 20;
 }
 
-/* ☯ 메뉴 대시보드 (터치 최적화) */
+/* ☯ 메뉴 대시보드 및 입력창 (터치 영역 확보) */
 .dashboard-section {
     padding: 120px 20px 60px;
     text-align: center;
@@ -119,14 +124,20 @@ body {
 .neon-btn {
     width: 100%;
     padding: 20px;
-    font-size: 1.15rem;
-    font-weight: bold;
+    margin-bottom: 15px;
     background: rgba(15, 15, 20, 0.9);
     color: #fff;
     border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.15rem;
     cursor: pointer;
     position: relative;
-    z-index: 100;
+    z-index: 50;
+    transition: transform 0.2s;
+}
+
+.neon-btn:active {
+    transform: scale(0.97);
 }
 
 .btn-saju {
@@ -144,39 +155,31 @@ body {
     box-shadow: 0 0 10px #F48FB1;
 }
 
-/* 📅 입력창 그리드 및 스타일 */
-.input-grid-3 {
+/* 📅 모바일 숫자 입력창 최적화 */
+.input-grid-3,
+.input-grid-2 {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
     gap: 10px;
+    margin-top: 10px;
+}
+
+.input-grid-3 {
+    grid-template-columns: 1.5fr 1fr 1fr;
 }
 
 .input-grid-2 {
-    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
 }
 
 input[type="tel"],
-.premium-input {
-    width: 100%;
+input[type="text"],
+select {
     height: 60px !important;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.4);
     border-radius: 12px;
     color: #fff;
     text-align: center;
     font-size: 16px !important;
-}
-
-.btn-submit-gold {
-    width: 100%;
-    padding: 20px;
-    margin-top: 2rem;
-    border-radius: 50px;
-    background: linear-gradient(135deg, #FFDF73, #D4AF37);
-    color: #000;
-    font-weight: 900;
-    border: none;
-    font-size: 1.1rem;
 }

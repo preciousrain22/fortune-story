@@ -241,12 +241,6 @@ window.selectPath = function (path, isPopState = false) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const birthHourSelect = document.getElementById('birthHour');
-const birthMinuteSelect = document.getElementById('birthMinute');
-if (birthHourSelect && birthMinuteSelect && birthHourSelect.options.length <= 1) {
-    for (let i = 1; i <= 12; i++) birthHourSelect.appendChild(new Option(`${i}시`, i));
-    for (let i = 0; i <= 59; i++) birthMinuteSelect.appendChild(new Option(`${i.toString().padStart(2, '0')}분`, i.toString().padStart(2, '0')));
-}
 
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -319,59 +313,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
-// 3. 카카오 로그인 버튼 클릭 시 실행
-window.loginWithKakao = function () {
-    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
 
-    Kakao.Auth.login({
-        success: function (authObj) {
-            // 로그인 성공 시 카카오톡에서 사용자 정보(고유번호, 닉네임 등) 가져오기
-            Kakao.API.request({
-                url: '/v2/user/me',
-                success: function (res) {
-                    const kakaoId = res.id; // 카카오 고유 ID
-                    const nickname = res.properties.nickname || "포춘고객";
-
-                    // 💡 Firebase DB에 고객 정보 자동 저장
-                    db.collection("users").doc(kakaoId.toString()).set({
-                        name: nickname,
-                        lastLogin: new Date()
-                    }, { merge: true })
-                        .then(() => {
-                            showToast("✅ 성공적으로 로그인되었습니다!");
-
-                            // 화면 전환: 로그인 버튼 없애고, 대시보드 보여주기
-                            const loginSection = document.getElementById('login-section');
-                            const gateway = document.getElementById('gateway');
-
-                            if (loginSection) loginSection.style.display = 'none';
-                            if (gateway) gateway.style.display = 'block';
-
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        })
-                        .catch((error) => {
-                            console.error("DB 저장 에러:", error);
-                            // 혹시 DB 에러가 나더라도 고객 화면은 정상적으로 넘어가게 예외 처리
-                            const loginSection = document.getElementById('login-section');
-                            const gateway = document.getElementById('gateway');
-                            if (loginSection) loginSection.style.display = 'none';
-                            if (gateway) gateway.style.display = 'block';
-                        });
-                },
-                fail: function (error) {
-                    console.error('사용자 정보 가져오기 실패', error);
-                }
-            });
-        },
-        fail: function (err) {
-            alert("로그인에 실패했습니다.");
-        }
-    });
-};
-
-// ==========================================
-// 3. 타로(Tarot) 로직 (기존 유지)
-// ==========================================
 const tarotCards = [];
 const majorNames = ["바보", "마법사", "여사제", "여황제", "황제", "교황", "연인", "전차", "힘", "은둔자", "운명의 수레바퀴", "정의", "매달린 사람", "죽음", "절제", "악마", "탑", "별", "달", "태양", "심판", "세계"];
 
