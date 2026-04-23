@@ -1,327 +1,229 @@
 /* =========================================
-   포춘스토리 런칭 버전 최적화 CSS (모바일 우선)
+   Fortune Story 프리미엄 런칭 스타일
 ========================================= */
-
-/* 1. 공통 초기화 및 프리미엄 폰트 (VIP 타겟) */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Noto Sans KR', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.02em;
 }
 
-/* 압도적인 우주 배경 (프리미엄 이미지 형성) */
 body {
     background-color: #010101;
-    color: #eee;
-    min-height: 100vh;
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
     overflow-x: hidden;
 }
 
-/* 🌟 고정 헤더: 어두운 느낌을 싹 지우고 화려한 네온 골드 테두리로 강화 */
+/* 🌟 무한 루프 우주 배경 */
+.star-bg-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #010101 100%);
+    z-index: -1;
+}
+
+/* 🌟 고정 네온 간판 헤더 */
 .header-neon {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 70px;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid #FFDF73;
-    /* 💡 강화 포인트: 시선을 끄는 골드 네온 테두리 */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 15px rgba(212, 175, 55, 0.3);
-    /* 💡 강화 포인트: 은은한 골드 빛광 */
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 20px;
     z-index: 1000;
 }
 
-/* 🌟 로고: 색상이 멈춰있지 않고 은은하게 변하는 '레인보우 네온' 애니메이션 적용 */
-h1.logo-neon {
+/* 🌟 색상이 실시간으로 변하는 네온 로고 */
+.logo-neon {
     font-size: 1.6rem;
     font-weight: 900;
     letter-spacing: 2px;
-    background: linear-gradient(135deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
-    /* 💡 강화 포인트: 레인보우 네온 그라데이션 */
-    background-size: 400% 400%;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #FFDF73, #fff, #FFD54F, #FFDF73);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    /* 💡 강화 포인트: 글자 자체는 투명하게 */
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-    animation: logoRainbowShimmer 8s ease infinite alternate;
-    /* 💡 강화 포인트: 무지개 네온 애니메이션 */
+    animation: neon-shimmer 3s linear infinite;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
     cursor: pointer;
-    line-height: 70px;
-    display: block;
 }
 
-@keyframes logoRainbowShimmer {
+@keyframes neon-shimmer {
     0% {
-        background-position: 0% 50%;
-        text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+        background-position: 0% center;
     }
 
     100% {
-        background-position: 100% 50%;
-        text-shadow: 0 0 10px rgba(179, 136, 235, 0.6), 0 0 20px rgba(129, 212, 250, 0.5);
+        background-position: 200% center;
     }
 }
 
-/* 2. 랜딩 페이지 (첫 화면) - 결제 전환율을 높이는 핵심 UI */
-.login-section-premium {
+/* 👑 메인 랜딩 (가운데 정렬) */
+.main-landing {
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 4rem 20px;
-    position: relative;
-    z-index: 10;
-    padding-top: 110px;
-    /* 헤더 공간 확보 */
-}
-
-/* ⭐ 만족도 지표 */
-.satisfaction-tag {
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid rgba(212, 175, 55, 0.5);
-    color: #FFDF73;
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin-bottom: 2rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-}
-
-/* ⭐ 후킹 카피 (결제 기대감 증폭) */
-.hero-copy {
+    padding-top: 70px;
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 0 10px;
 }
 
-.hero-copy h1 {
-    color: #fff;
-    font-size: 2.6rem;
+.hero-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.satisfaction-badge {
+    display: inline-block;
+    padding: 6px 15px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid #FFDF73;
+    color: #FFDF73;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 25px;
+}
+
+.hero-title {
+    font-size: 2.2rem;
     font-weight: 900;
     line-height: 1.3;
-    margin-bottom: 1rem;
-    word-break: keep-all;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    margin-bottom: 15px;
 }
 
-.hero-copy h1 span {
+.hero-title span {
     color: #FFDF73;
 }
 
-.hero-copy p {
-    color: #aaa;
-    font-size: 1.1rem;
+.hero-subtitle {
+    color: #ccc;
+    font-size: 1.05rem;
     line-height: 1.6;
-    font-weight: 300;
-    margin-top: 15px;
+    margin-bottom: 40px;
 }
 
-/* ⭐ 핵심 가치 시각화 (모바일 칸 맞춤 최적화) */
-.value-grid {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 3.5rem;
-    flex-wrap: nowrap;
-    /* 💡 수정 포인트: 모바일에서도 가로로 줄바꿈 안 되게 고정 */
-    max-width: 600px;
-    width: 100%;
-}
-
-.value-item {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px 5px;
-    border-radius: 12px;
-    text-align: center;
-    flex: 1;
-    /* 💡 수정 포인트: 모바일에서도 정확히 3등분 하도록 */
-    min-width: 90px;
-}
-
-.value-item-icon {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-}
-
-.value-item-text {
-    color: #fff;
-    font-size: 0.8rem;
-    /* 💡 수정 포인트: 모바일에서 텍스트가 안 잘리도록 작게 조정 */
-    font-weight: bold;
-    word-break: keep-all;
-}
-
-/* 🌟 카카오 로그인 박스: 모바일에서 칸이 안 잘리고 정확히 한가운데 들어오게 수정 */
-.login-box-premium {
-    text-align: center;
-    width: 100%;
-    max-width: 450px;
-    /* PC에서는 최대 크기 제한 */
-    padding: 2.5rem 1.5rem;
-    /* 💡 수정 포인트: 모바일에서 텍스트가 칸 밖으로 안 나가게 내부 여백 조정 */
-    background: rgba(0, 0, 0, 0.6);
+/* 🌟 카카오 로그인 카드 */
+.login-card {
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(212, 175, 55, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(212, 175, 55, 0.1);
+    padding: 35px 25px;
+    border-radius: 25px;
     backdrop-filter: blur(10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
-.login-box-premium-title {
-    color: #EEDCFF;
-    margin-bottom: 1.5rem;
-    font-size: 1.1rem;
+.login-msg {
     font-weight: bold;
+    margin-bottom: 20px;
+    color: #EEDCFF;
 }
 
-#kakao-login-btn {
+.kakao-btn {
+    width: 100%;
     background: #FEE500;
     color: #000;
     border: none;
-    border-radius: 12px;
-    padding: 18px 0;
-    font-weight: 900;
+    padding: 18px;
+    border-radius: 15px;
     font-size: 1.1rem;
-    /* 💡 수정 포인트: 모바일에서 텍스트가 안 잘리도록 font-size 조정 */
-    width: 100%;
-    display: block;
-    box-shadow: 0 5px 15px rgba(254, 229, 0, 0.3);
+    font-weight: 900;
     cursor: pointer;
+    box-shadow: 0 5px 15px rgba(254, 229, 0, 0.2);
 }
 
-.login-box-premium-sub {
+.login-sub {
+    font-size: 0.8rem;
     color: #666;
-    font-size: 0.75rem;
-    /* 💡 수정 포인트: 모바일에서 description text가 안 잘리도록 font-size 조정 */
     margin-top: 15px;
 }
 
-/* [모바일 테스트 완료] 모바일 기기별 최종 미세 조정 */
-@media (max-width: 480px) {
-    .header-neon {
-        height: 60px;
-        padding: 0 15px;
-    }
-
-    h1.logo-neon {
-        font-size: 1.4rem;
-        line-height: 60px;
-    }
-
-    .hero-copy h1 {
-        font-size: 2rem;
-    }
-
-    .hero-copy p {
-        font-size: 0.95rem;
-    }
-
-    .login-box-premium {
-        padding: 2rem 1rem;
-    }
-
-    #kakao-login-btn {
-        font-size: 1.05rem;
-        padding: 16px 0;
-    }
+/* ☯ 대시보드 메뉴 스타일 */
+.dashboard-section {
+    padding: 120px 20px 60px;
+    text-align: center;
 }
 
-/* =========================================
-   포춘스토리 네온 애니메이션 및 모바일 입력 최적화
-========================================= */
+.dashboard-title {
+    color: #FFDF73;
+    margin-bottom: 40px;
+}
 
-/* 사주, 타로, 관상 네온 애니메이션 */
-.neon-saju {
+.neon-menu-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.menu-item {
+    margin-bottom: 30px;
+}
+
+.menu-item p {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-top: 8px;
+}
+
+.neon-btn {
+    width: 100%;
+    padding: 18px;
+    background: transparent;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-saju {
     border: 2px solid #81D4FA;
-    box-shadow: 0 0 10px #81D4FA, inset 0 0 10px #81D4FA;
-    animation: pulse-saju 2.5s infinite alternate;
+    box-shadow: 0 0 10px #81D4FA;
 }
 
-.neon-tarot {
+.btn-tarot {
     border: 2px solid #D3B8F8;
-    box-shadow: 0 0 10px #D3B8F8, inset 0 0 10px #D3B8F8;
-    animation: pulse-tarot 2.5s infinite alternate;
+    box-shadow: 0 0 10px #D3B8F8;
 }
 
-.neon-face {
+.btn-face {
     border: 2px solid #F48FB1;
-    box-shadow: 0 0 10px #F48FB1, inset 0 0 10px #F48FB1;
-    animation: pulse-face 2.5s infinite alternate;
+    box-shadow: 0 0 10px #F48FB1;
 }
 
-@keyframes pulse-saju {
+/* 애니메이션 */
+.pulse-btn {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
     0% {
-        box-shadow: 0 0 5px #81D4FA;
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
     }
 
     100% {
-        box-shadow: 0 0 20px #81D4FA, inset 0 0 15px #81D4FA;
+        transform: scale(1);
     }
 }
 
-@keyframes pulse-tarot {
-    0% {
-        box-shadow: 0 0 5px #D3B8F8;
-    }
-
-    100% {
-        box-shadow: 0 0 20px #D3B8F8, inset 0 0 15px #D3B8F8;
-    }
-}
-
-@keyframes pulse-face {
-    0% {
-        box-shadow: 0 0 5px #F48FB1;
-    }
-
-    100% {
-        box-shadow: 0 0 20px #F48FB1, inset 0 0 15px #F48FB1;
-    }
-}
-
-/* 입력 칸 모바일 최적화 (터치 미스 방지 및 높이 확장) */
-input[type="number"],
-input[type="text"],
-input[type="tel"] {
-    height: 60px !important;
-    outline: none;
-    transition: border-color 0.3s;
-    -webkit-appearance: none;
-}
-
-input[type="number"]:focus,
-input[type="text"]:focus,
-input[type="tel"]:focus {
-    border-color: #FFDF73 !important;
-    background: rgba(212, 175, 55, 0.1) !important;
-}
-
-/* 별빛 배경이 터치를 방해하지 않도록 차단 */
-.star-bg-fixed,
-.star-bg {
-    pointer-events: none !important;
-}
-
-/* 💡 iOS 자동 확대 방지 (괄호 오류 완벽 수정 완료) */
-@media screen and (max-width: 768px) {
-    input, select, textarea {
-        font-size: 16px !important;
-    }
+.main-footer {
+    padding: 40px 20px;
+    font-size: 0.8rem;
+    color: #555;
+    text-align: center;
+    border-top: 1px solid #222;
 }
