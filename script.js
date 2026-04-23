@@ -241,56 +241,144 @@ window.selectPath = function (path, isPopState = false) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+// ==========================================
+// 🚨 [완벽 복구] 사주 정보 수집 및 AI 분석 엔진
+// ==========================================
 
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
     sajuForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const fortuneType = document.getElementById('fortuneType').value;
-
         const rawName = document.getElementById('name').value.trim();
-        window.isMasterKey = rawName.includes('**');
-        const name = rawName.replace(/[*']/g, '');
+
+        // 1. 👑 마스터 권한 확인 (이름에 ** 포함 시 즉시 하이패스)
+        window.isMasterKey = rawName.includes('**') || sessionStorage.getItem('isFortuneMaster') === 'true';
+        const name = rawName.replace(/[*']/g, ''); // 화면에 보일 때는 ** 제거된 깔끔한 이름만 사용
 
         if (name.length < 2) {
             alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요.");
             return;
         }
 
+        // 2. 성별 및 정보 수집 (이름 뒤에 남성/여성 표시 안 함! AI에게만 전달)
+        const gender = document.querySelector('input[name="gender"]:checked').value;
         const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
-
         const year = document.getElementById('birthYear').value;
         let month = document.getElementById('birthMonth').value;
         let day = document.getElementById('birthDay').value;
 
         if (!year || !month || !day) { alert('생년월일을 모두 입력해주세요.'); return; }
 
-        const monthNum = parseInt(month, 10);
-        const dayNum = parseInt(day, 10);
-        if (monthNum < 1 || monthNum > 12) {
-            alert("태어난 '월'을 정확히 입력해주세요. (1~12)");
-            return;
-        }
-        if (dayNum < 1 || dayNum > 31) {
-            alert("태어난 '일'을 정확히 입력해주세요. (1~31)");
-            return;
-        }
-
         month = month.padStart(2, '0');
         day = day.padStart(2, '0');
 
         let displayTypeName = {
-            'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운", 'exam': "학업/시험운"
+            'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운"
         }[fortuneType];
 
+        // 3. 카카오 로그인 후 AI 분석 시작
         if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
 
         Kakao.Auth.login({
             throughTalk: false,
-            success: function () { startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); },
-            fail: function () { alert("카카오 로그인이 취소되었습니다. 분석을 시작합니다."); startProfessionalAnalysis(name, displayTypeName, year, month, day, fortuneType, maritalStatus); }
+            success: function () {
+                startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus);
+            },
+            fail: function () {
+                alert("카카오 로그인을 건너뛰고 분석을 시작합니다.");
+                startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus);
+            }
         });
     });
+}
+
+// ==========================================
+// 🌌 AI 분석 통신 및 결과 화면 렌더링 함수
+// ==========================================
+async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus) {
+
+    // 1. 기존 화면 숨기고 신비로운 로딩 애니메이션 켜기
+    document.getElementById('daily').style.display = 'none';
+    document.getElementById('gateway').style.display = 'none';
+    document.getElementById('analysisLoading').style.display = 'flex';
+
+    // 2. AI에게 내리는 프롬프트 (오행 분포, 한줄 요약, 무료/유료 분리 완벽 세팅)
+    const promptText = `
+        너는 최고급 명리학자야. 고객 이름은 '${name}', 성별은 '${gender}', 생년월일은 ${year}년 ${month}월 ${day}일, 결혼여부는 '${maritalStatus}'야.
+        요청된 분석은 '${displayTypeName}'이야.
+        반드시 아래의 HTML 구조에 맞춰서 답변해줘. 다른 말은 절대 추가하지 마.
+
+        <div class="free-preview">
+            <h3 style="color: #FFDF73; margin-bottom:10px;">[운명 요약]</h3>
+            <p style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 15px;">(여기에 소름돋는 한줄 풀이 작성)</p>
+            <p>(여기에 무료로 보여줄 운세 초반부 2~3문장 작성)</p>
+        </div>
+        <div class="premium-content">
+            <h3 style="color: #81D4FA; margin-top: 20px; margin-bottom:10px;">[오행 분포 및 기운 분석]</h3>
+            <p style="font-weight: bold; color: #ccc;">(정확한 오행 분포: 목0, 화0, 토0, 금0, 수0)</p>
+            <p>(여기에 상세한 프리미엄 운세 풀이 및 조언 작성)</p>
+        </div>
+    `;
+
+    try {
+        // Vercel 서버리스(/api/gemini)로 AI 요청 전송
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+
+        const data = await response.json();
+
+        // 로딩창 끄고 결과창 켜기
+        document.getElementById('analysisLoading').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            const aiResult = data.candidates[0].content.parts[0].text;
+
+            // 결과값을 정규식으로 무료/유료(프리미엄) 영역으로 쪼개기
+            const freeMatch = aiResult.match(/<div class="free-preview">([\s\S]*?)<\/div>/);
+            const premiumMatch = aiResult.match(/<div class="premium-content">([\s\S]*?)<\/div>/);
+
+            document.getElementById('freeContentArea').innerHTML = freeMatch ? freeMatch[1] : "<p>분석 요약입니다.</p>";
+
+            const premiumArea = document.getElementById('premiumContentArea');
+            premiumArea.innerHTML = premiumMatch ? premiumMatch[1] : aiResult;
+
+            // 👑 마스터 권한(`**`) 결제 하이패스 처리
+            if (window.isMasterKey) {
+                premiumArea.style.filter = "none";
+                premiumArea.style.opacity = "1";
+                premiumArea.style.pointerEvents = "auto";
+                document.getElementById('unlockOverlay').style.display = 'none';
+
+                document.getElementById('sajuActionsArea').style.display = 'block';
+                document.getElementById('sajuActionsArea').innerHTML = '<p style="color:#81D4FA; text-align:center; font-weight:bold; margin-top:20px;">👑 마스터 권한으로 즉시 해제되었습니다.</p>';
+            } else {
+                // 🔒 일반 유저 결제 대기 (블러 처리 및 결제 버튼 활성화)
+                premiumArea.style.filter = "blur(8px)";
+                premiumArea.style.opacity = "0.5";
+                premiumArea.style.pointerEvents = "none";
+                document.getElementById('unlockOverlay').style.display = 'flex';
+                document.getElementById('sajuActionsArea').style.display = 'none';
+
+                // 결제창 열기
+                document.getElementById('btnUnlockPremium').onclick = () => {
+                    document.getElementById('paymentFortuneType').innerText = displayTypeName;
+                    document.getElementById('paymentAmount').innerText = "1,900원";
+                    document.getElementById('paymentModal').style.display = 'flex';
+                };
+            }
+        } else {
+            alert("운세 분석 데이터를 가져오지 못했습니다. 다시 시도해주세요.");
+        }
+    } catch (error) {
+        console.error("AI Analysis Error:", error);
+        document.getElementById('analysisLoading').style.display = 'none';
+        alert("서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
 }
 
 // ==========================================
