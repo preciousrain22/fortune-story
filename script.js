@@ -314,6 +314,49 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 
 
+window.loginWithKakao = function () {
+    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
+    Kakao.Auth.login({
+        success: function (authObj) {
+            // 카카오톡 정보 가져오기
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function (res) {
+                    const kakaoId = res.id;
+                    const nickname = res.properties.nickname || "포춘VIP";
+
+                    // Firebase DB에 고객 정보 저장
+                    db.collection("users").doc(kakaoId.toString()).set({
+                        name: nickname,
+                        lastLogin: new Date()
+                    }, { merge: true })
+                        .then(() => {
+                            showToast("✅ 안전하게 인증되었습니다.");
+
+                            // 로그인 창 숨기고 메뉴 화면 띄우기!
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        })
+                        .catch((error) => {
+                            console.error("DB 에러:", error);
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+                        });
+                },
+                fail: function (error) { console.error('사용자 정보 실패', error); }
+            });
+        },
+        fail: function (err) { alert("로그인에 실패했습니다."); }
+    });
+};
+
 const tarotCards = [];
 const majorNames = ["바보", "마법사", "여사제", "여황제", "황제", "교황", "연인", "전차", "힘", "은둔자", "운명의 수레바퀴", "정의", "매달린 사람", "죽음", "절제", "악마", "탑", "별", "달", "태양", "심판", "세계"];
 
