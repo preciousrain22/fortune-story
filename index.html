@@ -3,420 +3,73 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fortune Story - 프리미엄 정밀 사주·타로·관상</title>
 
-    <meta property="og:title" content="포춘 스토리 (Fortune Story)">
-    <meta property="og:description" content="당신만을 위한 프리미엄 정밀 사주, 타로, 관상 분석">
-    <meta property="og:image" content="https://fortune-story.com/images/og-image.jpg">
-    <meta property="og:url" content="https://fortune-story.com">
-    <meta property="og:type" content="website">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="포춘스토리">
-    <link rel="apple-touch-icon" href="https://fortune-story.com/images/og-image.jpg">
-
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap"
-        rel="stylesheet">
-
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
     <script src="https://js.tosspayments.com/v1/payment"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-X3JL0JDN2W"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-X3JL0JDN2W');
-    </script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-    <style>
-        .locked-container {
-            position: relative;
-            margin-top: 2rem;
-            min-height: 500px;
-        }
-
-        .blur-content {
-            filter: blur(8px);
-            pointer-events: none;
-            user-select: none;
-            opacity: 0.5;
-            transition: all 0.5s ease;
-        }
-
-        .blur-content.unlocked {
-            filter: blur(0);
-            pointer-events: auto;
-            user-select: auto;
-            opacity: 1;
-        }
-
-        .unlock-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.8) 15%, #121212 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 15%;
-            z-index: 10;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
-    <header class="header">
-        <div class="container header-container">
-            <div class="logo">
-                <a href="index.html" class="obangsaek-text">Fortune Story</a>
-            </div>
-        </div>
+
+    <header class="header-neon">
+        <h1 class="logo-neon" onclick="location.reload()">Fortune Story</h1>
     </header>
-    <div id="login-section"
-        style="text-align: center; margin: 2rem 1.5rem; padding: 2rem 1rem; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <p
-            style="color: #FFDF73; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5);">
-            당신의 운명이 당신을 기다립니다</p>
-        <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 0.9rem;">프리미엄 정밀 운세를 위해 첫걸음을 내딛으세요.</p>
-        <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
-            style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 15px 0; font-weight: 800; font-size: 1.1rem; width: 100%; max-width: 400px; margin: 0 auto; display: block;">
-            <span style="font-size: 1.2rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
-        </button>
-    </div>
-    <div style="padding-top: 100px;"></div>
+
     <div class="star-bg-fixed"></div>
 
-    <section id="gateway" class="gateway-section fade-in" style="display: none; margin-top: 2rem;">
-        <div class="container text-center">
-            <h2 style="color: #FFDF73; font-size: 1.5rem; margin-bottom: 2rem;">어떤 운명의 문을 여시겠습니까?</h2>
+    <section id="login-section" class="main-landing">
+        <div class="hero-container">
+            <div class="satisfaction-badge">⭐ 만족도 4.9/5.0 | VIP 전담 리포트</div>
+            <h2 class="hero-title">당신의 <span>진짜 운명</span>을<br>마주할 준비가 되셨습니까?</h2>
+            <p class="hero-subtitle">단순한 위로가 아닌 명확한 해법.<br>상위 0.1%를 위한 정밀 분석을 시작합니다.</p>
 
-            <div style="max-width: 400px; margin: 0 auto; padding: 0 20px;">
-                <button class="neon-button neon-saju" onclick="selectPath('saju')">
-                    <span style="font-size: 1.2rem; margin-right: 8px;">☯</span> 프리미엄 명리 사주
+            <div class="login-card">
+                <p class="login-msg">운명 기록소가 준비되었습니다.</p>
+                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn pulse-btn">
+                    <span class="kakao-icon">💬</span> 카카오톡으로 3초 만에 시작하기
                 </button>
-                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">당신의 타고난 오행과 올해의 흐름 분석</p>
-
-                <button class="neon-button neon-tarot" onclick="selectPath('tarot')">
-                    <span style="font-size: 1.2rem; margin-right: 8px;">🃏</span> 심층 신비 타로
-                </button>
-                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">현재의 고민과 무의식에 대한 우주의 조언</p>
-
-                <button class="neon-button neon-face" onclick="selectPath('face')">
-                    <span style="font-size: 1.2rem; margin-right: 8px;">⏳</span> AI 정밀 관상 스캔
-                </button>
-                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 25px;">얼굴에 기록된 재물운과 성공운 해독</p>
+                <p class="login-sub">* 정보는 안전하게 보호되며 즉시 분석이 시작됩니다.</p>
             </div>
         </div>
     </section>
 
-    <section id="faceSection" class="section-padding" style="display: none;">
-        <div class="container input-container fade-in">
-            <div class="section-header text-center">
-                <h2 style="color: #81D4FA; letter-spacing: 2px; text-shadow: 0 0 15px rgba(129, 212, 250, 0.3);">얼굴에 담긴
-                    운명, 관상</h2>
-                <p style="color: #4FC3F7;">정면을 응시한 밝은 사진을 업로드해주세요.</p>
+    <section id="gateway" class="dashboard-section" style="display: none;">
+        <h2 class="dashboard-title">어떤 운명의 문을 여시겠습니까?</h2>
+        <div class="neon-menu-container">
+            <div class="menu-item">
+                <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 프리미엄 명리 사주</button>
+                <p>타고난 오행과 올해의 흐름 분석</p>
             </div>
-            <div
-                style="max-width: 400px; margin: 2rem auto; border: 2px dashed #4FC3F7; padding: 2rem; border-radius: 15px; text-align: center; background: rgba(0,0,0,0.3);">
-                <input type="file" id="faceImageInput" accept="image/jpeg, image/png" style="display: none;"
-                    onchange="previewFaceImage(event)">
-                <button onclick="document.getElementById('faceImageInput').click()" class="btn-premium outline"
-                    style="border-color: #81D4FA; color: #81D4FA !important; width: 100%;">📸 내 사진 선택하기</button>
-                <img id="facePreview"
-                    style="max-width: 100%; margin-top: 1.5rem; border-radius: 10px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+            <div class="menu-item">
+                <button class="neon-btn btn-tarot" onclick="selectPath('tarot')">🃏 심층 신비 타로</button>
+                <p>현재의 고민에 대한 우주의 조언</p>
             </div>
-            <div class="text-center">
-                <button onclick="startFaceReading()" class="btn-premium pulse-btn"
-                    style="background: linear-gradient(135deg, #0288D1, #4FC3F7); color: #fff; width: 100%; max-width: 400px; border: none;">✨
-                    관상 분석 시작</button>
+            <div class="menu-item">
+                <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ AI 정밀 관상 스캔</button>
+                <p>얼굴에 기록된 재물과 성공운 해독</p>
             </div>
         </div>
     </section>
 
-    <section id="daily" class="section-padding" style="display: none;">
-        <div class="container input-container">
-            <div class="section-header text-center">
-                <h2 class="obangsaek-text">정밀 사주 확인하기</h2>
-                <p>정확한 분석을 위해 사주 정보를 입력해주세요.</p>
-            </div>
-            <form id="sajuForm" class="saju-form fade-in">
-                <div class="form-group">
-                    <label for="fortuneType">운세 종류</label>
-                    <select id="fortuneType" class="full-width-select" required>
-                        <option value="daily">오늘의 운세</option>
-                        <option value="weekly">주간 운세</option>
-                        <option value="yearly">1년 심층 운세</option>
-                        <option value="love">애정/연애운</option>
-                        <option value="exam">학업/시험운</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="width: 100%;">
-                        <label for="name">이름 (한글)</label>
-                        <input type="text" id="name" placeholder="예: 홍길동" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>성별</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="gender" value="male" checked>
-                                남성</label>
-                            <label class="radio-label"><input type="radio" name="gender" value="female"> 여성</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>결혼 여부</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="maritalStatus" value="single" checked>
-                                미혼</label>
-                            <label class="radio-label"><input type="radio" name="maritalStatus" value="married">
-                                기혼</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>생년월일</label>
-                    <div class="date-select-group" style="display: flex; gap: 0.5rem; width: 100%;">
-                        <input type="tel" id="birthYear" placeholder="태어난 연도 (4자리)" maxlength="4" required
-                            style="flex: 2; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
-                        <input type="tel" id="birthMonth" placeholder="월 (1~12)" maxlength="2" required
-                            style="flex: 1.5; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
-                        <input type="tel" id="birthDay" placeholder="일 (1~31)" maxlength="2" required
-                            style="flex: 1.5; min-width: 0; padding: 0.8rem 0.5rem; background-color: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-primary); font-size: 1rem; text-align: center;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>태어난 시간</label>
-                    <div class="date-select-group" id="birthTimeGroup">
-                        <select id="birthAmPm">
-                            <option value="AM" selected>오전</option>
-                            <option value="PM">오후</option>
-                        </select>
-                        <select id="birthHour">
-                            <option value="" disabled selected>시</option>
-                        </select>
-                        <select id="birthMinute">
-                            <option value="" disabled selected>분</option>
-                        </select>
-                    </div>
-                    <div class="checkbox-group" style="margin-top: 10px;">
-                        <label><input type="checkbox" id="unknownTime"> 시간 모름</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>양력/음력</label>
-                    <div class="radio-group"
-                        style="display: flex; justify-content: space-between; flex-wrap: nowrap; gap: 0.5rem; padding-top: 0.5rem;">
-                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
-                                name="calendarType" value="solar" checked> 양력</label>
-                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
-                                name="calendarType" value="lunar"> 음력</label>
-                        <label class="radio-label" style="font-size: 0.95rem; white-space: nowrap;"><input type="radio"
-                                name="calendarType" value="lunar_leap"> 음력(윤달)</label>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary full-width kakao pulse-btn"
-                    style="background-color: #FEE500; color: #000; font-weight: 800; border: none; font-size: 1.05rem; word-break: keep-all; display: flex; justify-content: center; align-items: center; padding: 1rem; margin-top: 1.5rem;">
-                    <span style="margin-right: 8px; font-size: 1.2rem;">💬</span> 카카오로 1초 만에 무료 운세 보기
-                </button>
-            </form>
-        </div>
+    <section id="daily" class="input-section" style="display: none;">
     </section>
 
-    <section id="tarot" class="section-padding" style="display: none;">
-        <div class="container input-container">
-            <div class="section-header text-center tarot-header">
-                <h2 style="color: #D3B8F8;">영혼의 거울, 타로 파빌리온</h2>
-                <p style="color: #a980d9;">우주의 기운이 당신의 진심에 응답할 수 있도록,<br>마음속 깊은 고민을 구체적으로 적어주세요.</p>
-            </div>
-            <form id="tarotForm" class="tarot-form fade-in">
-                <div class="form-group">
-                    <label for="tarotCategory" style="color: #D3B8F8;">고민의 주제</label>
-                    <select id="tarotCategory" class="full-width-select tarot-input" required>
-                        <option value="love">연애 / 애정운</option>
-                        <option value="career">직장 / 일 / 학업</option>
-                        <option value="wealth">금전 / 재물운</option>
-                        <option value="general">전반적인 흐름 / 인간관계 / 기타</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="tarotName" style="color: #D3B8F8;">당신의 이름 (또는 별명)</label>
-                    <input type="text" id="tarotName" class="tarot-input" placeholder="빛으로 불릴 이름을 알려주세요" required>
-                </div>
-                <div class="form-group">
-                    <label for="tarotConcern" style="color: #D3B8F8;">자세한 고민 내용 (최소 30자 이상)</label>
-                    <textarea id="tarotConcern" class="tarot-textarea" rows="6"
-                        placeholder="예: 최근 시작한 일터에서 동료들과의 관계가 어렵습니다. 조만간 상황이 나아질까요?" required></textarea>
-                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span id="tarotTextCount" style="font-size: 0.85rem; color: #FF5252; font-weight: bold;">0 / 최소
-                            30자</span>
-                    </div>
-                </div>
-                <div class="buttons-row tarot-buttons" style="margin-top: 2rem; display: flex; gap: 1rem;">
-                    <button type="button" class="btn btn-outline-tarot" onclick="location.reload()"
-                        style="flex: 1;">돌아가기</button>
-                    <button type="submit" class="btn btn-primary-tarot" style="flex: 2;">신비의 타로 뽑기</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <div id="tarotLoading" class="analysis-overlay" style="display: none;">
-        <div class="loading-text-container text-center">
-            <h3 class="analysis-text" style="color: #EEDCFF;">운명의 교차로를 탐색하는 중...</h3>
-            <p id="tarotLoadingMessage" style="color: #B388EB;">당신의 파동을 타로 카드에 동기화하고 있습니다.</p>
-        </div>
-    </div>
-    <div id="analysisLoading" class="analysis-overlay" style="display: none;">
-        <div class="compass-container">
-            <div class="compass-ring"></div>
-            <div class="compass-inner"></div>
-            <div class="compass-center"></div>
-        </div>
-        <div class="loading-text-container text-center">
-            <h3 class="analysis-text" id="loadingTitle">정밀 분석 중입니다...</h3>
-            <p id="loadingMessage">우주의 기운을 읽어내고 있습니다.</p>
-        </div>
-    </div>
-
-    <section id="tarotDraw" class="section-padding tarot-draw-overlay" style="display: none;">
-        <div class="tarot-draw-content text-center">
-            <h2 style="color: #D3B8F8; margin-bottom: 1rem;">질문에 집중하며 카드를 선택하세요</h2>
-            <p style="color: #a980d9; margin-bottom: 2rem;">마음이 이끄는 대로 <span id="tarotDrawCount"
-                    style="color: #FFE082; font-weight: bold;">3</span>장의 카드를 뽑아주세요.</p>
-            <div id="tarotDeck" class="tarot-deck-container"></div>
-            <button id="btnReadTarot" class="btn btn-primary-tarot disable-btn" style="margin-top: 2rem;" disabled>선택
-                완료</button>
-        </div>
-    </section>
-
-    <section id="tarotResult" class="result-overlay tarot-result-overlay" style="display: none;">
-        <div class="tarot-result-container fade-in">
-            <div class="result-header text-center">
-                <h2 style="color: #D3B8F8;">영혼의 거울이 비춘 당신의 미래</h2>
-                <p id="tarotResultSub" style="color: #a980d9;"></p>
-            </div>
-            <div class="tarot-cards-reveal"></div>
-            <div class="result-content" id="tarotResultContent"></div>
-            <div class="result-actions no-print"></div>
-        </div>
-    </section>
-
-    <section id="result" class="result-overlay" style="display: none;">
-        <div class="paper-container fade-in">
-            <div class="result-header text-center">
-                <h2 id="resultTitle">정밀 분석 리포트</h2>
-                <div class="divider"></div>
-            </div>
-            <div id="freeContentArea"></div>
-            <div class="locked-container" id="lockedContainer">
-                <div id="premiumContentArea" class="blur-content"></div>
-                <div class="unlock-overlay" id="unlockOverlay">
-                    <h3 style="color: #FFE082; margin-bottom: 1.5rem; font-size: 1.3rem;">당신만을 위한 <span
-                            id="lockTypeName" style="color:#fff;">심층 분석</span> 정밀 리포트</h3>
-                    <p style="color: #ccc; margin-bottom: 2rem; text-align: center;">나머지 상세 분석 결과를 확인하시겠습니까?</p>
-                    <button class="btn-premium pulse-btn" id="btnUnlockPremium"
-                        style="width: 100%; max-width: 400px; height: 60px;">결제하고 전체 확인하기 (<span
-                            id="lockPriceAmount"></span>)</button>
-                </div>
-            </div>
-            <div class="result-actions no-print" id="sajuActionsArea" style="display: none;"></div>
-        </div>
-    </section>
-
-    <section id="amuletSection" class="section-padding" style="display: none;">
-        <div class="container text-center">
-            <div class="section-header">
-                <h2 style="color: #FFD54F;">사이버 수호부 (스미싱 감별)</h2>
-            </div>
-            <div class="obsidian-card relative-box" id="amuletCard"
-                style="background: rgba(0,0,0,0.5); padding: 2rem; border-radius: 20px; border: 1px solid #D4AF37;">
-                <div class="cyber-amulet-visual">
-                    <div class="amulet-circle outer"></div>
-                    <div class="amulet-circle inner"></div>
-                    <div class="amulet-center">
-                        <div class="amulet-text">破邪<br>顯正</div>
-                    </div>
-                    <div class="amulet-label">스미싱 철벽 방어</div>
-                </div>
-                <p id="amuletAiMessage" style="color: #ccc; margin: 2rem 0;">"의심되는 링크(URL)를 올려 사악한 기운을 감별하십시오."</p>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 10px;"><span
-                        style="color: #aaa;">남은 감별 횟수</span><span style="color: #FFD54F; font-weight: bold;"><span
-                            id="checkCountDisplay">0</span>회</span></div>
-                <input type="text" id="suspectUrl" placeholder="링크(URL)를 붙여넣으세요"
-                    style="width: 100%; padding: 1.2rem; background: #111; border: 1px solid #444; border-radius: 12px; color: #fff; margin-bottom: 15px;">
-                <button onclick="checkSmishing()" class="btn-premium pulse-btn"
-                    style="width: 100%; height: 60px;">감별하기</button>
-                <div id="urlCheckResult" style="margin-top: 20px; font-weight: bold; display: none;"></div>
-                <div id="amuletPaywall" class="unlock-overlay" style="display: none; border-radius: 15px;">
-                    <h3 style="color: #FFE082; margin-bottom: 1rem;">🛡️ 수호부 충전이 필요합니다</h3>
-                    <button onclick="buyAmulet('basic', 5900)" class="btn-premium outline"
-                        style="margin-bottom: 10px;">기본 수호권 (5,900원)</button>
-                    <button onclick="buyAmulet('package', 14900)" class="btn-premium pulse-btn">👑 VIP 패키지
-                        (14,900원)</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div id="paymentModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content fade-in">
-            <div class="modal-header">
-                <h3>결제 안내</h3><button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>선택 항목: <span id="paymentFortuneType" class="highlight"> 항목</span></p>
-                <p>결제 금액: <span id="paymentAmount" class="highlight-large">원</span></p>
-                <button id="confirmPaymentBtn" class="btn btn-primary full-width pulse-btn" style="margin-top: 2rem;">토스
-                    결제로 진행하기</button>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer" style="text-align: center; padding: 2.5rem 0; background: rgba(0,0,0,0.5);">
-        <div class="container">
-            <p style="font-size: 0.85rem; color: #888;">상호 : 포춘스토리(Fortune Story) | 대표 : 이진우 | 사업자번호 : 641-67-00783</p>
-            <div style="margin: 15px 0;">
-                <a href="terms.html" style="color: #FFE082;">[이용약관]</a> | <a href="privacy.html"
-                    style="color: #FFE082;">[개인정보처리방침]</a>
-            </div>
-            <p style="font-size: 0.8rem; color: #555;">&copy; 2026 Fortune Story. All rights reserved.</p>
-        </div>
+    <footer class="main-footer">
+        <p>상호 : 포춘스토리 | 대표 : 이진우 | 사업자번호 : 641-67-00783</p>
+        <p>&copy; 2026 Fortune Story. All rights reserved.</p>
     </footer>
 
-    <div class="floating-quick-menu">
-        <div class="fab-options" id="fabOptions">
-            <div class="fab-option" onclick="quickNav('saju')"><span class="option-label">명리 사주</span>
-                <div class="option-icon">☯</div>
-            </div>
-            <div class="fab-option" onclick="quickNav('tarot')"><span class="option-label">신비 타로</span>
-                <div class="option-icon">🃏</div>
-            </div>
-            <div class="fab-option" onclick="quickNav('face')"><span class="option-label">관상 분석</span>
-                <div class="option-icon">⏳</div>
-            </div>
-            <div class="fab-option" onclick="quickNav('amulet')"><span class="option-label">사이버 수호부</span>
-                <div class="option-icon">🛡️</div>
-            </div>
-        </div>
-        <button class="fab-main" id="fabMainBtn" onclick="toggleQuickMenu()"><span class="fab-icon">✦</span></button>
-    </div>
-
-    <script src="script.js?v=3"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
