@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fortune Story</title>
+    <title>Fortune Story - 프리미엄 운명 분석</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
     <script src="https://js.tosspayments.com/v1/payment"></script>
@@ -22,36 +22,85 @@
 
     <div class="star-bg-fixed"></div>
 
-    <section id="login-section" class="main-landing">
+    <section id="login-section" class="main-landing fade-in">
         <div class="hero-container">
             <div class="satisfaction-badge">⭐ 만족도 4.9/5.0 | VIP 전담 리포트</div>
             <h2 class="hero-title">당신의 <span>진짜 운명</span>을<br>마주할 준비가 되셨습니까?</h2>
             <div class="login-card">
                 <p style="color:#EEDCFF; margin-bottom:20px; font-weight:bold;">운명 기록소가 준비되었습니다.</p>
-                <button onclick="loginWithKakao()" class="kakao-btn">💬 카카오톡으로 3초 만례 시작하기</button>
+                <button onclick="loginWithKakao()" class="kakao-btn">💬 카카오톡으로 3초 만에 시작하기</button>
             </div>
         </div>
     </section>
 
     <section id="gateway" class="dashboard-section" style="display: none;">
-        <h2 style="color: #FFDF73; margin-bottom: 40px;">어떤 운명의 문을 여시겠습니까?</h2>
-        <div style="max-width: 400px; margin: 0 auto; position: relative; z-index: 50;">
-            <div style="margin-bottom: 30px;">
+        <h2 style="color: #FFDF73; margin-bottom: 40px; font-weight: 800;">어떤 운명의 문을 여시겠습니까?</h2>
+        <div class="menu-container">
+            <div class="menu-item-box">
                 <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 천명의 지혜, 사주</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">타고난 오행과 올해의 흐름 분석</p>
+                <p>타고난 오행과 올해의 흐름 분석</p>
             </div>
-            <div style="margin-bottom: 30px;">
+            <div class="menu-item-box">
                 <button class="neon-btn btn-tarot" onclick="selectPath('tarot')">🃏 영혼의 거울, 타로</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">현재의 고민에 대한 우주의 조언</p>
+                <p>현재의 고민에 대한 우주의 조언</p>
             </div>
-            <div style="margin-bottom: 30px;">
+            <div class="menu-item-box">
                 <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ 운명의 기록, 관상</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">얼굴에 기록된 재물과 성공운 해독</p>
+                <p>얼굴에 기록된 재물과 성공운 해독</p>
             </div>
         </div>
     </section>
 
-    <section id="daily" class="dashboard-section" style="display: none; padding-top: 100px;">
+    <section id="daily" class="dashboard-section" style="display: none;">
+        <div class="input-form-container">
+            <h3 class="obangsaek-text" style="margin-bottom: 2rem; font-size: 1.5rem;">명식 정보 입력</h3>
+            <form id="sajuForm">
+                <div class="form-group">
+                    <label>분석 종류</label>
+                    <select id="fortuneType" class="premium-input">
+                        <option value="daily">오늘의 운세</option>
+                        <option value="weekly">주간 운세</option>
+                        <option value="yearly">1년 심층 운세</option>
+                        <option value="love">애정/연애운</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>성명</label>
+                    <input type="text" id="name" class="premium-input" placeholder="성함을 입력하세요" required>
+                </div>
+
+                <div class="form-group">
+                    <label>생년월일</label>
+                    <div class="input-grid-3">
+                        <input type="tel" id="birthYear" placeholder="연도(YYYY)" maxlength="4" required>
+                        <input type="tel" id="birthMonth" placeholder="월(MM)" maxlength="2" required>
+                        <input type="tel" id="birthDay" placeholder="일(DD)" maxlength="2" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>태어난 시각 (24시 형식)</label>
+                    <div class="input-grid-2">
+                        <input type="tel" id="birthHour" placeholder="시(0~23)" maxlength="2">
+                        <input type="tel" id="birthMinute" placeholder="분(0~59)" maxlength="2">
+                    </div>
+                    <div class="checkbox-area">
+                        <input type="checkbox" id="unknownTime">
+                        <label for="unknownTime">시간 모름</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>양력/음력</label>
+                    <div class="radio-grid">
+                        <label><input type="radio" name="calendarType" value="solar" checked> 양력</label>
+                        <label><input type="radio" name="calendarType" value="lunar"> 음력</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-gold">✨ 정밀 분석 시작하기</button>
+            </form>
+        </div>
     </section>
 
     <script src="script.js"></script>
