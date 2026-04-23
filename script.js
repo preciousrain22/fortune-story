@@ -313,6 +313,45 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
+// ==========================================
+// 🚨 복구된 카카오 로그인 실행 함수
+// ==========================================
+window.loginWithKakao = function () {
+    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+
+    Kakao.Auth.login({
+        success: function (authObj) {
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function (res) {
+                    const kakaoId = res.id;
+                    const nickname = res.properties.nickname || "포춘VIP";
+
+                    db.collection("users").doc(kakaoId.toString()).set({
+                        name: nickname,
+                        lastLogin: new Date()
+                    }, { merge: true })
+                        .then(() => {
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        })
+                        .catch((error) => {
+                            console.error("DB 에러:", error);
+                            const loginSection = document.getElementById('login-section');
+                            const gateway = document.getElementById('gateway');
+                            if (loginSection) loginSection.style.display = 'none';
+                            if (gateway) gateway.style.display = 'block';
+                        });
+                },
+                fail: function (error) { console.error('사용자 정보 실패', error); }
+            });
+        },
+        fail: function (err) { alert("로그인에 실패했습니다."); }
+    });
+};
 
 window.loginWithKakao = function () {
     if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');

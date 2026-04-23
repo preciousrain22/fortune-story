@@ -1,4 +1,5 @@
-/* 1. 기본 초기화 및 배경 (클릭 방해 차단) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -13,7 +14,7 @@ body {
     min-height: 100vh;
 }
 
-/* 🌌 우주 배경: z-index를 최하단으로 내리고 터치를 통과시킴 */
+/* 🌌 우주 배경 (클릭 방해 완벽 차단) */
 .star-bg-fixed {
     position: fixed;
     top: 0;
@@ -22,12 +23,10 @@ body {
     height: 100%;
     background: radial-gradient(circle at center, #1a1a2e 0%, #010101 100%);
     z-index: -1;
-    /* 최하단 */
     pointer-events: none;
-    /* 💡 핵심: 터치가 그냥 통과됨 */
 }
 
-/* 🌟 화려한 무지개 네온 간판 (로고와 일체형) */
+/* 🌟 프리미엄 네온 간판 */
 .header-neon {
     position: fixed;
     top: 0;
@@ -36,28 +35,25 @@ body {
     height: 70px;
     background: rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid #FFDF73;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    /* 최상단 */
+    z-index: 9999;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
-/* 🌈 로고: 실시간으로 색상이 변하는 그라데이션 애니메이션 */
 .logo-neon {
     font-size: 1.6rem;
     font-weight: 900;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     background: linear-gradient(90deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
     background-size: 200% auto;
     -webkit-background-clip: text;
-    background-clip: text;
     color: transparent;
-    animation: neon-shimmer 3s linear infinite;
     text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
     cursor: pointer;
+    animation: neon-shimmer 3s linear infinite;
 }
 
 @keyframes neon-shimmer {
@@ -70,7 +66,7 @@ body {
     }
 }
 
-/* 👑 메인 섹션 레이아웃 (가운데 정렬 및 클릭 활성화) */
+/* 👑 첫 화면 로그인 섹션 */
 .main-landing {
     min-height: 100vh;
     display: flex;
@@ -78,8 +74,7 @@ body {
     align-items: center;
     padding-top: 70px;
     position: relative;
-    z-index: 10;
-    /* 배경보다 위 */
+    z-index: 100;
 }
 
 .hero-container {
@@ -89,7 +84,6 @@ body {
     text-align: center;
 }
 
-/* 🌟 프리미엄 로그인 카드 */
 .login-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(212, 175, 55, 0.3);
@@ -104,35 +98,43 @@ body {
     background: #FEE500;
     color: #000;
     border: none;
-    padding: 18px;
+    padding: 18px 0;
     border-radius: 12px;
     font-weight: 900;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     cursor: pointer;
+    display: block;
     position: relative;
-    z-index: 20;
+    z-index: 1001;
+    box-shadow: 0 10px 25px rgba(254, 229, 0, 0.4);
+    transition: transform 0.2s;
 }
 
-/* ☯ 메뉴 대시보드 및 입력창 (터치 영역 확보) */
+.kakao-btn:active {
+    transform: scale(0.97);
+}
+
+/* ☯ 대시보드 메뉴 & 버튼 (터치 영역 확보) */
 .dashboard-section {
-    padding: 120px 20px 60px;
-    text-align: center;
+    padding-top: 120px;
+    padding-bottom: 60px;
+    min-height: 100vh;
     position: relative;
-    z-index: 10;
+    z-index: 50;
 }
 
 .neon-btn {
     width: 100%;
     padding: 20px;
-    margin-bottom: 15px;
     background: rgba(15, 15, 20, 0.9);
     color: #fff;
     border-radius: 12px;
-    font-weight: bold;
     font-size: 1.15rem;
+    font-weight: bold;
     cursor: pointer;
+    margin-bottom: 10px;
     position: relative;
-    z-index: 50;
+    z-index: 100;
     transition: transform 0.2s;
 }
 
@@ -142,44 +144,146 @@ body {
 
 .btn-saju {
     border: 2px solid #81D4FA;
-    box-shadow: 0 0 10px #81D4FA;
+    box-shadow: 0 0 10px #81D4FA, inset 0 0 5px #81D4FA;
+    animation: pulse-saju 2s infinite alternate;
 }
 
 .btn-tarot {
     border: 2px solid #D3B8F8;
-    box-shadow: 0 0 10px #D3B8F8;
+    box-shadow: 0 0 10px #D3B8F8, inset 0 0 5px #D3B8F8;
+    animation: pulse-tarot 2s infinite alternate;
 }
 
 .btn-face {
     border: 2px solid #F48FB1;
-    box-shadow: 0 0 10px #F48FB1;
+    box-shadow: 0 0 10px #F48FB1, inset 0 0 5px #F48FB1;
+    animation: pulse-face 2s infinite alternate;
 }
 
-/* 📅 모바일 숫자 입력창 최적화 */
-.input-grid-3,
+@keyframes pulse-saju {
+    0% {
+        box-shadow: 0 0 5px #81D4FA;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #81D4FA, inset 0 0 10px #81D4FA;
+    }
+}
+
+@keyframes pulse-tarot {
+    0% {
+        box-shadow: 0 0 5px #D3B8F8;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #D3B8F8, inset 0 0 10px #D3B8F8;
+    }
+}
+
+@keyframes pulse-face {
+    0% {
+        box-shadow: 0 0 5px #F48FB1;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #F48FB1, inset 0 0 10px #F48FB1;
+    }
+}
+
+/* 📅 입력창 최적화 */
+.input-grid-3 {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 10px;
+}
+
 .input-grid-2 {
     display: grid;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.input-grid-3 {
-    grid-template-columns: 1.5fr 1fr 1fr;
-}
-
-.input-grid-2 {
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
-input[type="tel"],
 input[type="text"],
-select {
-    height: 60px !important;
+input[type="tel"],
+select,
+textarea {
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.4);
+    height: 60px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.5);
     border-radius: 12px;
     color: #fff;
-    text-align: center;
     font-size: 16px !important;
+    outline: none;
+    transition: 0.3s;
+    text-align: center;
+}
+
+textarea {
+    height: auto;
+    padding: 15px;
+    text-align: left;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #FFDF73;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* 🚀 퀵메뉴 스타일 (복구 완료) */
+.floating-quick-menu {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.fab-options {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: flex-end;
+}
+
+.fab-options.active {
+    display: flex !important;
+}
+
+.fab-option {
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: 1px solid #FFDF73;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: 0.2s;
+}
+
+.fab-option:active {
+    transform: scale(0.95);
+}
+
+#fabMainBtn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #FFDF73;
+    color: #000;
+    font-size: 1.8rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
 }
