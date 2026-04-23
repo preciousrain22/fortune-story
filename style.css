@@ -1,6 +1,8 @@
 /* =========================================
-   Fortune Story 프리미엄 런칭 스타일
+   포춘스토리 프리미엄 런칭 버전 (최종 안정화)
 ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap');
 
 * {
     margin: 0;
@@ -12,10 +14,11 @@ body {
     background-color: #010101;
     color: #fff;
     font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
     overflow-x: hidden;
 }
 
-/* 🌟 무한 루프 우주 배경 */
+/* 🌌 우주 배경 (클릭 방해 방지 설정) */
 .star-bg-fixed {
     position: fixed;
     top: 0;
@@ -24,9 +27,11 @@ body {
     height: 100%;
     background: radial-gradient(circle at center, #1a1a2e 0%, #010101 100%);
     z-index: -1;
+    pointer-events: none;
+    /* 💡 중요: 배경이 클릭을 방해하지 않게 함 */
 }
 
-/* 🌟 고정 네온 간판 헤더 */
+/* 🌟 화려한 실시간 색상 변화 네온 헤더 */
 .header-neon {
     position: fixed;
     top: 0;
@@ -35,26 +40,26 @@ body {
     height: 70px;
     background: rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid #FFDF73;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
 
-/* 🌟 색상이 실시간으로 변하는 네온 로고 */
+/* 🌈 로고: 무지개 그라데이션이 흐르는 효과 */
 .logo-neon {
     font-size: 1.6rem;
     font-weight: 900;
     letter-spacing: 2px;
     text-transform: uppercase;
-    background: linear-gradient(90deg, #FFDF73, #fff, #FFD54F, #FFDF73);
+    background: linear-gradient(90deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: neon-shimmer 3s linear infinite;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    animation: neon-shimmer 4s linear infinite;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
     cursor: pointer;
 }
 
@@ -76,6 +81,8 @@ body {
     align-items: center;
     padding-top: 70px;
     text-align: center;
+    position: relative;
+    z-index: 10;
 }
 
 .hero-container {
@@ -106,14 +113,7 @@ body {
     color: #FFDF73;
 }
 
-.hero-subtitle {
-    color: #ccc;
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin-bottom: 40px;
-}
-
-/* 🌟 카카오 로그인 카드 */
+/* 🌟 카카오 로그인 박스 */
 .login-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(212, 175, 55, 0.3);
@@ -121,12 +121,6 @@ body {
     border-radius: 25px;
     backdrop-filter: blur(10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-}
-
-.login-msg {
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #EEDCFF;
 }
 
 .kakao-btn {
@@ -139,39 +133,15 @@ body {
     font-size: 1.1rem;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(254, 229, 0, 0.2);
-}
-
-.login-sub {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 15px;
 }
 
 /* ☯ 대시보드 메뉴 스타일 */
 .dashboard-section {
     padding: 120px 20px 60px;
     text-align: center;
-}
-
-.dashboard-title {
-    color: #FFDF73;
-    margin-bottom: 40px;
-}
-
-.neon-menu-container {
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.menu-item {
-    margin-bottom: 30px;
-}
-
-.menu-item p {
-    font-size: 0.85rem;
-    color: #aaa;
-    margin-top: 8px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 10;
 }
 
 .neon-btn {
@@ -183,7 +153,9 @@ body {
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
+    margin-bottom: 10px;
+    pointer-events: auto;
+    /* 💡 클릭 활성화 */
 }
 
 .btn-saju {
@@ -201,29 +173,14 @@ body {
     box-shadow: 0 0 10px #F48FB1;
 }
 
-/* 애니메이션 */
-.pulse-btn {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.02);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.main-footer {
-    padding: 40px 20px;
-    font-size: 0.8rem;
-    color: #555;
+/* 모바일 입력창 터치 최적화 */
+input[type="number"],
+input[type="text"] {
+    height: 60px !important;
+    font-size: 16px !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    color: #fff;
     text-align: center;
-    border-top: 1px solid #222;
 }

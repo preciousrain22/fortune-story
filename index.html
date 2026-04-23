@@ -4,19 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fortune Story - 프리미엄 정밀 사주·타로·관상</title>
-
+    <title>Fortune Story</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
     <script src="https://js.tosspayments.com/v1/payment"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
@@ -31,43 +26,33 @@
         <div class="hero-container">
             <div class="satisfaction-badge">⭐ 만족도 4.9/5.0 | VIP 전담 리포트</div>
             <h2 class="hero-title">당신의 <span>진짜 운명</span>을<br>마주할 준비가 되셨습니까?</h2>
-            <p class="hero-subtitle">단순한 위로가 아닌 명확한 해법.<br>상위 0.1%를 위한 정밀 분석을 시작합니다.</p>
-
             <div class="login-card">
-                <p class="login-msg">운명 기록소가 준비되었습니다.</p>
-                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn pulse-btn">
-                    <span class="kakao-icon">💬</span> 카카오톡으로 3초 만에 시작하기
-                </button>
-                <p class="login-sub">* 정보는 안전하게 보호되며 즉시 분석이 시작됩니다.</p>
+                <p style="color:#EEDCFF; margin-bottom:20px; font-weight:bold;">운명 기록소가 준비되었습니다.</p>
+                <button onclick="loginWithKakao()" class="kakao-btn">💬 카카오톡으로 3초 만례 시작하기</button>
             </div>
         </div>
     </section>
 
     <section id="gateway" class="dashboard-section" style="display: none;">
-        <h2 class="dashboard-title">어떤 운명의 문을 여시겠습니까?</h2>
-        <div class="neon-menu-container">
-            <div class="menu-item">
+        <h2 style="color: #FFDF73; margin-bottom: 40px;">어떤 운명의 문을 여시겠습니까?</h2>
+        <div style="max-width: 400px; margin: 0 auto;">
+            <div style="margin-bottom: 30px;">
                 <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 프리미엄 명리 사주</button>
-                <p>타고난 오행과 올해의 흐름 분석</p>
+                <p style="color:#aaa; font-size:0.85rem;">타고난 오행과 올해의 흐름 분석</p>
             </div>
-            <div class="menu-item">
+            <div style="margin-bottom: 30px;">
                 <button class="neon-btn btn-tarot" onclick="selectPath('tarot')">🃏 심층 신비 타로</button>
-                <p>현재의 고민에 대한 우주의 조언</p>
+                <p style="color:#aaa; font-size:0.85rem;">현재의 고민에 대한 우주의 조언</p>
             </div>
-            <div class="menu-item">
+            <div style="margin-bottom: 30px;">
                 <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ AI 정밀 관상 스캔</button>
-                <p>얼굴에 기록된 재물과 성공운 해독</p>
+                <p style="color:#aaa; font-size:0.85rem;">얼굴에 기록된 재물과 성공운 해독</p>
             </div>
         </div>
     </section>
 
-    <section id="daily" class="input-section" style="display: none;">
+    <section id="daily" class="dashboard-section" style="display: none; padding-top: 100px;">
     </section>
-
-    <footer class="main-footer">
-        <p>상호 : 포춘스토리 | 대표 : 이진우 | 사업자번호 : 641-67-00783</p>
-        <p>&copy; 2026 Fortune Story. All rights reserved.</p>
-    </footer>
 
     <script src="script.js"></script>
 </body>
