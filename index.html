@@ -85,27 +85,17 @@
             </div>
         </div>
     </header>
-    <section id="login-section"
-        style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 0 20px; position: relative; z-index: 10;">
-        <div
-            style="text-align: center; width: 100%; max-width: 500px; padding: 4rem 2rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.1); backdrop-filter: blur(10px);">
-
-            <div style="margin-bottom: 2.5rem;">
-                <h2
-                    style="color: #FFDF73; font-size: 2rem; font-weight: 900; margin-bottom: 15px; letter-spacing: 2px; text-shadow: 0 0 15px rgba(212,175,55,0.5);">
-                    FORTUNE STORY</h2>
-                <p style="color: #EEDCFF; font-size: 1.1rem; line-height: 1.6; font-weight: 300;">상위 0.1% VIP를
-                    위한<br>프리미엄 운명 분석 리포트</p>
-            </div>
-
-            <p style="color: #aaa; margin-bottom: 1.5rem; font-size: 0.95rem;">당신의 진짜 운명을 확인하려면 먼저 시작하세요</p>
-
-            <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
-                style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 18px 0; font-weight: 800; font-size: 1.15rem; width: 100%; display: block; box-shadow: 0 5px 15px rgba(254, 229, 0, 0.3);">
-                <span style="font-size: 1.3rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
-            </button>
-        </div>
-    </section>
+    <div id="login-section"
+        style="text-align: center; margin: 2rem 1.5rem; padding: 2rem 1rem; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <p
+            style="color: #FFDF73; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5);">
+            당신의 운명이 당신을 기다립니다</p>
+        <p style="color: #ccc; margin-bottom: 1.5rem; font-size: 0.9rem;">프리미엄 정밀 운세를 위해 첫걸음을 내딛으세요.</p>
+        <button id="kakao-login-btn" onclick="loginWithKakao()" class="btn-premium kakao pulse-btn"
+            style="background: #FEE500; color: #000; border: none; border-radius: 12px; padding: 15px 0; font-weight: 800; font-size: 1.1rem; width: 100%; max-width: 400px; margin: 0 auto; display: block;">
+            <span style="font-size: 1.2rem; margin-right: 8px; vertical-align: middle;">💬</span> 카카오톡으로 3초 만에 시작하기
+        </button>
+    </div>
     <div style="padding-top: 100px;"></div>
     <div class="star-bg-fixed"></div>
 
@@ -239,9 +229,9 @@
                                 name="calendarType" value="lunar_leap"> 음력(윤달)</label>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary full-width pulse-btn"
-                    style="background: linear-gradient(135deg, #0288D1, #4FC3F7); color: #fff; font-weight: 800; border: none; font-size: 1.1rem; padding: 1rem; margin-top: 1.5rem; border-radius: 50px;">
-                    정밀 분석 시작하기
+                <button type="submit" class="btn btn-primary full-width kakao pulse-btn"
+                    style="background-color: #FEE500; color: #000; font-weight: 800; border: none; font-size: 1.05rem; word-break: keep-all; display: flex; justify-content: center; align-items: center; padding: 1rem; margin-top: 1.5rem;">
+                    <span style="margin-right: 8px; font-size: 1.2rem;">💬</span> 카카오로 1초 만에 무료 운세 보기
                 </button>
             </form>
         </div>
