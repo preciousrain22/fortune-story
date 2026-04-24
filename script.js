@@ -28,7 +28,6 @@ function preventExit(e) {
     e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
 }
 
-
 window.shareKakaoCombo = async function (type) {
     let freeText = document.getElementById('freeContentArea') ? document.getElementById('freeContentArea').innerText : "";
     const snippet = "[포춘스토리 정밀 분석 리포트]\n\n" + freeText + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
@@ -42,53 +41,52 @@ window.shareKakaoCombo = async function (type) {
 };
 
 // ==========================================
-// 2. 파이어베이스 및 카카오 로그인
+// 2. 파이어베이스 및 카카오 로그인 (화면 멈춤 완벽 방지)
 // ==========================================
-const firebaseConfig = {
-    apiKey: "AIzaSyCnzm66UrkO1rbMnenI0UN0DSNJFs0PebA",
-    authDomain: "fortune-story.firebaseapp.com",
-    projectId: "fortune-story",
-    storageBucket: "fortune-story.firebasestorage.app",
-    messagingSenderId: "576293866226",
-    appId: "1:576293866226:web:90e4e63c30db23101bde6b"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db = null;
+try {
+    const firebaseConfig = {
+        apiKey: "AIzaSyCnzm66UrkO1rbMnenI0UN0DSNJFs0PebA",
+        authDomain: "fortune-story.firebaseapp.com",
+        projectId: "fortune-story",
+        storageBucket: "fortune-story.firebasestorage.app",
+        messagingSenderId: "576293866226",
+        appId: "1:576293866226:web:90e4e63c30db23101bde6b"
+    };
+    if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    }
+} catch (e) {
+    console.log("DB 초기화 무시됨");
+}
 
 window.loginWithKakao = function () {
+    // 💡 핵심: 어떤 에러가 나더라도 무조건 화면부터 메뉴로 넘깁니다! (하이패스)
+    window.selectPath('gateway');
+
+    // 카카오 로직은 백그라운드에서 조용히 실행
     try {
-        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-        Kakao.Auth.login({
-            success: function (authObj) {
-                Kakao.API.request({
-                    url: '/v2/user/me',
-                    success: function (res) {
-                        const kakaoId = res.id;
-                        const nickname = res.properties.nickname || "포춘VIP";
-                        // 💡 파이어베이스 에러가 나도 무조건 gateway(메뉴 화면)로 넘어가게 강제 처리
-                        db.collection("users").doc(kakaoId.toString()).set({ name: nickname, lastLogin: new Date() }, { merge: true })
-                            .then(() => window.selectPath('gateway'))
-                            .catch((err) => {
-                                console.log("DB 저장 지연, 무시하고 진행합니다.");
-                                window.selectPath('gateway');
-                            });
-                    },
-                    fail: function () {
-                        // 💡 카카오 정보 요청 실패 시에도 화면 멈춤 방지
-                        window.selectPath('gateway');
-                    }
-                });
-            },
-            fail: function () {
-                // 💡 사용자가 로그인을 취소하거나 팝업이 막혀도 바로 입장 가능하게 수정
-                alert("카카오 로그인을 건너뛰고 바로 입장합니다.");
-                window.selectPath('gateway');
-            }
-        });
+        if (typeof Kakao !== 'undefined') {
+            if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+            Kakao.Auth.login({
+                success: function (authObj) {
+                    Kakao.API.request({
+                        url: '/v2/user/me',
+                        success: function (res) {
+                            if (db) {
+                                db.collection("users").doc(res.id.toString()).set({
+                                    name: res.properties.nickname || "포춘VIP",
+                                    lastLogin: new Date()
+                                }, { merge: true }).catch(() => { });
+                            }
+                        }
+                    });
+                }
+            });
+        }
     } catch (err) {
-        // 💡 SDK 초기화 에러 등 어떤 치명적 오류가 나도 무조건 메뉴로 진입
-        console.log("카카오 초기화 에러, 강제 입장합니다.");
-        window.selectPath('gateway');
+        console.log("카카오 연결 무시됨");
     }
 };
 
@@ -98,8 +96,12 @@ window.loginWithKakao = function () {
 window.selectPath = function (path) {
     const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'result', 'tarotResult', 'tarotDraw'];
     sections.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
-    document.querySelector('.header-neon').style.display = 'flex';
-    document.querySelector('.star-bg-fixed').style.display = 'block';
+
+    const header = document.querySelector('.header-neon');
+    if (header) header.style.display = 'flex';
+
+    const bg = document.querySelector('.star-bg-fixed');
+    if (bg) bg.style.display = 'block';
 
     if (path === 'gateway') document.getElementById('gateway').style.display = 'block';
     else if (path === 'saju') document.getElementById('daily').style.display = 'block';
@@ -122,7 +124,7 @@ window.quickNav = function (path) {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진 (충돌 코드 제거 및 완벽 통합)
+// 4. 사주 AI 엔진 (화면 멈춤 방지 적용)
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -147,12 +149,21 @@ if (sajuForm) {
 
         let displayTypeName = { 'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운" }[fortuneType];
 
-        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-        Kakao.Auth.login({
-            throughTalk: false,
-            success: function () { startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); },
-            fail: function () { alert("카카오 로그인을 건너뛰고 분석을 시작합니다."); startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); }
-        });
+        // 💡 카카오가 막혀도 무조건 사주 분석이 시작되도록 보호
+        try {
+            if (typeof Kakao !== 'undefined') {
+                if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+                Kakao.Auth.login({
+                    throughTalk: false,
+                    success: function () { startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); },
+                    fail: function () { startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); }
+                });
+            } else {
+                startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
+            }
+        } catch (err) {
+            startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
+        }
     });
 }
 
@@ -178,7 +189,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-    // 💡 복구 & 업그레이드: 가독성을 높인 금색 소제목과 행운 포인트 프롬프트
     const promptText = `
         너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
         명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
@@ -202,12 +212,9 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         window.removeEventListener('beforeunload', preventExit);
 
         if (data.candidates && data.candidates[0].content.parts[0].text) {
-            // JSON 파싱으로 데이터 정확히 추출
             let aiResultText = data.candidates[0].content.parts[0].text;
-            // 마크다운 잔재(```json) 제거
             aiResultText = aiResultText.replace(/```json/g, '').replace(/```/g, '').trim();
             const resultData = JSON.parse(aiResultText);
-
             renderSajuResult(name, displayTypeName, year, month, day, resultData, fortuneType, bazi, wuXing);
         } else {
             alert("데이터를 가져오지 못했습니다.");
@@ -220,7 +227,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     }
 }
 
-
 function getPersonalColor(yearStr) {
     const lastDigit = parseInt(yearStr) % 10;
     if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', textHex: '#DCE775', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
@@ -230,7 +236,6 @@ function getPersonalColor(yearStr) {
     return { element: '수(水)', textHex: '#B3E5FC', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
 }
 
-// 📸 [복구] PDF 저장 시 배경이 까맣게 변하는 오류 수정본
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
@@ -247,7 +252,7 @@ window.handlePdfPrint = function (type) {
         html2canvas(elementToCapture, {
             scale: window.devicePixelRatio ? window.devicePixelRatio * 2 : 4,
             useCORS: true,
-            backgroundColor: '#1a1a1a', // 💡 PDF 까만 배경 오류 수정 (기존 #000000 -> #1a1a1a)
+            backgroundColor: '#1a1a1a',
             scrollY: -window.scrollY
         }).then(canvas => {
             if (actionArea) actionArea.style.display = 'block';
@@ -263,22 +268,20 @@ window.handlePdfPrint = function (type) {
     }, 500);
 };
 
-// 📊 [복구] 결과창 백지화 해결 및 마스터 권한 연결
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing) {
-    document.querySelector('.header-neon').style.display = 'none';
-    document.querySelector('.star-bg-fixed').style.display = 'none';
+    const header = document.querySelector('.header-neon');
+    if (header) header.style.display = 'none';
+    const bg = document.querySelector('.star-bg-fixed');
+    if (bg) bg.style.display = 'none';
+
     document.getElementById('result').style.display = 'block';
 
-    // 💡 치명적 오류 원인 해결: colorInfo 변수 부활
     const colorInfo = getPersonalColor(year);
-
     document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: ${colorInfo.highlightHex};">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
 
-    // 💡 오행 차트 렌더링 (5각형 제거된 버전)
     let chartHTML = generateSajuChartsHTML(colorInfo, bazi, wuXing);
     document.getElementById('freeContentArea').innerHTML = resultData.free + chartHTML;
 
-    // 💡 4대 기운 막대그래프 렌더링
     let premiumHTML = "";
     if (resultData.scores) {
         const s = resultData.scores;
@@ -308,7 +311,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
-    // 결제 및 마스터 권한 처리
     if (window.isMasterKey) {
         premiumArea.style.filter = "none";
         premiumArea.style.opacity = "1";
@@ -329,14 +331,11 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         document.getElementById('sajuActionsArea').style.display = 'none';
 
         const price = { daily: 3900, weekly: 5900, yearly: 9900, love: 8900 }[fortuneType] || 5900;
-
-        // 에러 주범 삭제 완료. 금액 삽입과 결제창 띄우기 정상 작동합니다.
         document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
         document.getElementById('btnUnlockPremium').onclick = () => window.openPaymentModal(typeName, price);
     }
 }
 
-// 🌿 [복구] 5각형을 빼고 깔끔하게 정리된 오행 분석
 function generateSajuChartsHTML(colorInfo, bazi, wuXing) {
     let counts = [
         (wuXing.match(/木/g) || []).length, (wuXing.match(/火/g) || []).length,
@@ -401,8 +400,11 @@ if (urlParamsForPayment.has('paymentKey')) {
             alert("✅ 결제가 완료되었습니다! 프리미엄 리포트가 해제됩니다.");
             const saved = sessionStorage.getItem('savedSajuResultHTML');
             if (saved) {
-                document.querySelector('.header-neon').style.display = 'none';
-                document.querySelector('.star-bg-fixed').style.display = 'none';
+                const header = document.querySelector('.header-neon');
+                if (header) header.style.display = 'none';
+                const bg = document.querySelector('.star-bg-fixed');
+                if (bg) bg.style.display = 'none';
+
                 document.getElementById('daily').style.display = 'none';
                 const resultSec = document.getElementById('result');
                 resultSec.innerHTML = saved;
@@ -420,9 +422,8 @@ if (urlParamsForPayment.has('paymentKey')) {
 }
 
 // ==========================================
-// 6. 타로 및 관상 엔진 (기존 기능 축약 복구)
+// 6. 타로 및 관상 엔진
 // ==========================================
-// 타로 엔진 
 const tarotCards = [];
 for (let i = 0; i <= 21; i++) tarotCards.push({ id: i, name: "메이저 아르카나", img: `images/${i}.jpeg` });
 let selectedTarotCards = [];
@@ -455,10 +456,9 @@ document.getElementById('tarotForm')?.addEventListener('submit', (e) => {
         };
         deck.appendChild(el);
     });
-    btnRead.onclick = () => { alert("우주의 파동을 읽어 결과로 넘어갑니다."); location.reload(); /* 타로 결과 로직 생략 보존 */ };
+    btnRead.onclick = () => { alert("우주의 파동을 읽어 결과로 넘어갑니다."); location.reload(); };
 });
 
-// 수호부 엔진
 window.checkSmishing = function () {
     const url = document.getElementById('suspectUrl').value.trim();
     if (url === '**') { showToast("👑 무제한 감별 해제"); return; }
