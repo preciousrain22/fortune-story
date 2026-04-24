@@ -159,16 +159,16 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-    // 💡 복구: AI에게 정확한 JSON 형식과 점수(scores)를 요구하는 프롬프트
+    // 💡 복구 & 업그레이드: 가독성을 높인 금색 소제목과 행운 포인트 프롬프트
     const promptText = `
         너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
         명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
         
-        반드시 아래 JSON 형식으로만 응답해. (다른 텍스트 절대 불가)
+        반드시 아래 JSON 형식으로만 응답해. (다른 텍스트 절대 불가, 따옴표나 줄바꿈에 주의할 것)
         {
             "scores": { "wealth": 85, "success": 90, "love": 75, "health": 80 },
             "free": "<div class='free-preview'><h3 style='color:#FFDF73; margin-bottom:10px;'>[운명 요약]</h3><p style='font-size:1.2rem; font-weight:bold; color:#fff; margin-bottom:15px;'>(소름돋는 한줄 풀이)</p><p>(무료공개용 2~3문장)</p></div>",
-            "premium": "<div class='premium-content'><h3 style='color:#81D4FA; margin-top:20px; margin-bottom:10px;'>[상세 기운 분석]</h3><p>(상세한 프리미엄 운세 풀이 800자 이상)</p></div>"
+            "premium": "<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>🍀 ${displayTypeName} 행운 포인트</h4><p style='color:#fff; margin:0; font-size:1rem;'>🎨 색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 🔢 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 🧭 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[재물 및 사업운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[직장 및 명예운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[가정 및 대인운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[건강 및 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p></div>"
         }
     `;
 
