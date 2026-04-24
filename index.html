@@ -205,13 +205,22 @@
     </section>
 
     <div id="analysisLoading"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-        <h3 id="loadingTitle" style="color: #FFDF73; margin-bottom: 15px; font-size: 1.5rem;">정밀 분석 중입니다...</h3>
-        <p id="loadingMessage" style="color: #ccc;">우주의 기운을 읽어내고 있습니다.</p>
-    </div>
-    <div id="tarotLoading"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-        <h3 style="color: #EEDCFF;">운명의 교차로를 탐색하는 중...</h3>
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(5px);">
+        <div style="position: relative; width: 120px; height: 120px; margin-bottom: 40px;">
+            <div
+                style="position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid transparent; border-top-color: #FFDF73; border-bottom-color: #81D4FA; animation: spin-slow 1.5s linear infinite;">
+            </div>
+            <div
+                style="position: absolute; top: 15px; left: 15px; width: 90px; height: 90px; border-radius: 50%; border: 3px solid transparent; border-left-color: #D3B8F8; border-right-color: #F48FB1; animation: spin-slow 2s linear infinite reverse;">
+            </div>
+            <div
+                style="position: absolute; top: 45px; left: 45px; width: 30px; height: 30px; background: #FFDF73; border-radius: 50%; box-shadow: 0 0 25px #FFDF73; animation: pulse-saju 2s infinite alternate;">
+            </div>
+        </div>
+        <h3 id="loadingTitle"
+            style="color: #FFDF73; margin-bottom: 15px; font-size: 1.6rem; letter-spacing: 2px; font-weight: 900; text-shadow: 0 0 10px rgba(255,223,115,0.5);">
+            정밀 분석 중입니다...</h3>
+        <p id="loadingMessage" style="color: #B3E5FC; font-size: 1.05rem;">명식과 우주의 기운을 동기화하고 있습니다.</p>
     </div>
 
     <section id="result" style="display: none; position: relative; z-index: 60; padding: 40px 20px;">

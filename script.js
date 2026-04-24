@@ -173,7 +173,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     document.getElementById('loadingTitle').innerHTML = `${name}님의 <span style="color:#81D4FA;">${displayTypeName}</span> 분석 중...`;
     window.addEventListener('beforeunload', preventExit);
 
-    // 사주/만세력 오행 데이터 추출
     const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
     let hour = 12, minute = 0;
     if (!isUnknownTime && document.getElementById('birthHour') && document.getElementById('birthMinute')) {
@@ -189,22 +188,17 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
+    // 💡 복구: AI에게 정확한 JSON 형식과 점수(scores)를 요구하는 프롬프트
     const promptText = `
-        너는 최고급 명리학자야. 
-        고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일(${calendarType}), 결혼여부: '${maritalStatus}'
-        명식: ${sajuStr}, 오행: ${wuXing}
-        분석 종류: '${displayTypeName}'
+        너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
+        명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
         
-        반드시 아래 HTML 구조로만 답해. 
-        <div class="free-preview">
-            <h3 style="color: #FFDF73; margin-bottom:10px;">[운명 요약]</h3>
-            <p style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 15px;">(소름돋는 한줄 풀이)</p>
-            <p>(무료로 보여줄 운세 초반부 2~3문장)</p>
-        </div>
-        <div class="premium-content">
-            <h3 style="color: #81D4FA; margin-top: 20px; margin-bottom:10px;">[상세 기운 분석]</h3>
-            <p>(상세한 프리미엄 운세 풀이 및 조언. 800자 이상)</p>
-        </div>
+        반드시 아래 JSON 형식으로만 응답해. (다른 텍스트 절대 불가)
+        {
+            "scores": { "wealth": 85, "success": 90, "love": 75, "health": 80 },
+            "free": "<div class='free-preview'><h3 style='color:#FFDF73; margin-bottom:10px;'>[운명 요약]</h3><p style='font-size:1.2rem; font-weight:bold; color:#fff; margin-bottom:15px;'>(소름돋는 한줄 풀이)</p><p>(무료공개용 2~3문장)</p></div>",
+            "premium": "<div class='premium-content'><h3 style='color:#81D4FA; margin-top:20px; margin-bottom:10px;'>[상세 기운 분석]</h3><p>(상세한 프리미엄 운세 풀이 800자 이상)</p></div>"
+        }
     `;
 
     try {
@@ -218,34 +212,64 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         window.removeEventListener('beforeunload', preventExit);
 
         if (data.candidates && data.candidates[0].content.parts[0].text) {
-            renderSajuResult(name, displayTypeName, year, month, day, data.candidates[0].content.parts[0].text, fortuneType, bazi, wuXing);
+            // JSON 파싱으로 데이터 정확히 추출
+            let aiResultText = data.candidates[0].content.parts[0].text;
+            // 마크다운 잔재(```json) 제거
+            aiResultText = aiResultText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const resultData = JSON.parse(aiResultText);
+
+            renderSajuResult(name, displayTypeName, year, month, day, resultData, fortuneType, bazi, wuXing);
         } else {
-            alert("운세 분석 데이터를 가져오지 못했습니다.");
+            alert("데이터를 가져오지 못했습니다.");
         }
     } catch (error) {
+        console.error(error);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
         alert("우주의 기운이 혼잡하여 지연되고 있습니다. 다시 시도해 주세요.");
     }
 }
 
-function renderSajuResult(name, typeName, year, month, day, aiResult, fortuneType, bazi, wuXing) {
+function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing) {
     document.querySelector('.header-neon').style.display = 'none';
     document.querySelector('.star-bg-fixed').style.display = 'none';
     document.getElementById('result').style.display = 'block';
 
-    const freeMatch = aiResult.match(/<div class="free-preview">([\s\S]*?)<\/div>/);
-    const premiumMatch = aiResult.match(/<div class="premium-content">([\s\S]*?)<\/div>/);
+    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: #FFDF73;">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
 
-    // 색상 및 차트 생성
-    const colorInfo = getPersonalColor(year);
-    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: ${colorInfo.highlightHex};">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
+    // 💡 복구: 오행 차트 렌더링
+    let chartHTML = generateSajuChartsHTML(bazi, wuXing);
+    document.getElementById('freeContentArea').innerHTML = resultData.free + chartHTML;
 
-    let chartHTML = generateSajuChartsHTML(colorInfo, bazi, wuXing);
-    document.getElementById('freeContentArea').innerHTML = (freeMatch ? freeMatch[1] : "<p>분석 요약입니다.</p>") + chartHTML;
+    // 💡 복구: 4대 기운(재물,성공,애정,건강) 막대그래프 렌더링
+    let premiumHTML = "";
+    if (resultData.scores) {
+        const s = resultData.scores;
+        premiumHTML += `
+        <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
+            <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div></div>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div></div>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div></div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div></div>
+            </div>
+        </div>`;
+    }
 
+    premiumHTML += resultData.premium;
     const premiumArea = document.getElementById('premiumContentArea');
-    premiumArea.innerHTML = premiumMatch ? premiumMatch[1] : aiResult;
+    premiumArea.innerHTML = premiumHTML;
 
     // 결제 및 마스터 권한 처리
     if (window.isMasterKey) {
