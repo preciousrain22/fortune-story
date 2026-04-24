@@ -15,38 +15,43 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 
-<body>
+<body style="margin: 0; padding: 0; background: #010101; color: #fff;">
 
-    <header class="header-neon">
-        <h1 class="logo-neon" onclick="location.reload()">Fortune Story</h1>
+    <header
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 90px; display: flex; justify-content: center; align-items: center; background: transparent; z-index: 9999;">
+        <h1 class="logo-neon" onclick="location.reload()" style="margin: 0; cursor: pointer;">Fortune Story</h1>
     </header>
 
     <div class="star-bg-fixed"></div>
 
-    <section id="login-section" class="main-landing">
-        <div class="hero-container"
-            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+    <section id="login-section"
+        style="min-height: 100vh; display: flex; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 100; padding: 20px;">
+        <div
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 400px; margin: 0 auto;">
             <h2
-                style="font-size: 2.1rem; font-weight: 900; margin-bottom: 1.2rem; line-height: 1.4; text-align: center;">
+                style="font-size: 2.1rem; font-weight: 900; margin-bottom: 1.5rem; line-height: 1.4; text-align: center;">
                 상위 0.1%를 위한<br><span style="color:#FFDF73;">가장 은밀한 운명 해독소</span></h2>
 
-            <div class="login-card" style="width: 100%; max-width: 380px; padding: 30px 20px;">
-                <p style="color:#EEDCFF; margin-bottom:20px; font-weight:bold; font-size: 1.05rem; text-align: center;">
-                    수천 년의 명리 비급으로<br>당신의 궤적을 분석합니다.</p>
-                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn" style="width: 100%;">
+            <div class="login-card"
+                style="width: 100%; padding: 30px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 25px; backdrop-filter: blur(10px); text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                <p style="color:#EEDCFF; margin-bottom:25px; font-weight:bold; font-size: 1.05rem;">수천 년의 명리 비급으로<br>당신의
+                    궤적을 분석합니다.</p>
+                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn"
+                    style="width: 100%; background: #FEE500; color: #000; border: none; padding: 18px 0; border-radius: 12px; font-weight: 900; font-size: 1.15rem; cursor: pointer; box-shadow: 0 10px 25px rgba(254, 229, 0, 0.4);">
                     <span style="font-size: 1.3rem; margin-right: 8px; vertical-align: middle;">⚜️</span> VIP 입장하기
                 </button>
             </div>
         </div>
     </section>
 
-    <section id="gateway" class="dashboard-section" style="display: none;">
+    <section id="gateway"
+        style="display: none; padding-top: 120px; padding-bottom: 60px; min-height: 100vh; position: relative; z-index: 50;">
         <div
             style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: calc(100vh - 180px); padding: 0 20px;">
             <h2 style="color: #FFDF73; margin-bottom: 40px; font-weight: 800; text-align: center; letter-spacing: 1px;">
                 어떤 운명의 문을 여시겠습니까?</h2>
 
-            <div style="width: 100%; max-width: 380px; text-align: center;">
+            <div style="width: 100%; max-width: 380px; margin: 0 auto; text-align: center;">
                 <div style="margin-bottom: 30px;">
                     <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 천명의 지혜, 사주</button>
                     <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">타고난 오행과 올해의 흐름 분석</p>
@@ -67,7 +72,7 @@
         </div>
     </section>
 
-    <section id="daily" class="dashboard-section" style="display: none; padding: 0 20px;">
+    <section id="daily" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
         <div
             style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.3);">
             <h2 style="color: #FFDF73; text-align: center; margin-bottom: 25px;">정밀 명리 분석</h2>
@@ -113,19 +118,6 @@
                     </div>
                 </div>
                 <div style="margin-bottom: 20px; text-align: left;">
-                    <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">양력/음력</label>
-                    <div style="display: flex; gap: 10px;">
-                        <label
-                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
-                            <input type="radio" name="calendarType" value="solar" checked style="margin-right: 8px;"> 양력
-                        </label>
-                        <label
-                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
-                            <input type="radio" name="calendarType" value="lunar" style="margin-right: 8px;"> 음력
-                        </label>
-                    </div>
-                </div>
-                <div style="margin-bottom: 20px; text-align: left;">
                     <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">생년월일</label>
                     <div class="input-grid-3">
                         <input type="tel" id="birthYear" placeholder="연도(YYYY)" maxlength="4" required>
@@ -143,6 +135,19 @@
                     <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="unknownTime" style="width: 20px; height: 20px;">
                         <label for="unknownTime" style="color: #aaa; font-size: 0.95rem; cursor: pointer;">시간 모름</label>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="color:#FFDF73; display: block; margin-bottom: 8px; font-weight: bold;">양력/음력</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="calendarType" value="solar" checked style="margin-right: 8px;"> 양력
+                        </label>
+                        <label
+                            style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer;">
+                            <input type="radio" name="calendarType" value="lunar" style="margin-right: 8px;"> 음력
+                        </label>
                     </div>
                 </div>
                 <button type="submit"
@@ -171,78 +176,82 @@
         <p id="loadingMessage" style="color: #B3E5FC; font-size: 1.05rem;">명식과 우주의 기운을 동기화하고 있습니다.</p>
     </div>
 
-    <section id="result" class="dashboard-section" style="display: none; padding: 20px;">
+    <section id="result" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 60;">
         <div class="paper-container"
-            style="max-width: 600px; margin: 0 auto; padding: 30px 20px; background: #111; border-radius: 15px; border: 1px solid rgba(212,175,55,0.4);">
-            <h2 id="resultTitle" style="text-align: center; margin-bottom: 30px; color: #FFDF73; font-weight: bold;">
-            </h2>
-            <div id="freeContentArea" style="line-height: 1.8; color: #fff;"></div>
-
-            <div style="position: relative; margin-top: 20px;">
-                <div id="premiumContentArea" style="line-height: 1.8; color: #fff;"></div>
+            style="max-width: 600px; margin: 0 auto; background: #1a1a1a; padding: 30px 20px; border-radius: 15px; border: 1px solid #D4AF37;">
+            <h2 id="resultTitle" style="text-align: center; color: #FFDF73; margin-bottom: 30px; font-weight: bold;">정밀
+                분석 리포트</h2>
+            <div id="freeContentArea"></div>
+            <div id="lockedContainer" style="position: relative; margin-top: 20px; min-height: 400px;">
+                <div id="premiumContentArea" style="filter: blur(8px); opacity: 0.5; pointer-events: none;"></div>
                 <div id="unlockOverlay"
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,1) 100%); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10;">
-                    <p style="color: #FFDF73; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px;">🔒 프리미엄 리포트 잠금
-                    </p>
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <button id="btnUnlockPremium"
-                        style="padding: 15px 30px; background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; border: none; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 5px 15px rgba(212,175,55,0.4);">결제하고
+                        style="padding: 18px 30px; background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; z-index: 100; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(212,175,55,0.4);">결제하고
                         확인하기 (<span id="lockPriceAmount"></span>)</button>
                 </div>
             </div>
-            <div id="sajuActionsArea" class="result-actions" style="display: none;"></div>
+            <div id="sajuActionsArea" style="display: none;"></div>
         </div>
     </section>
 
-    <section id="tarot" class="dashboard-section" style="display: none; padding: 0 20px;">
+    <section id="tarot" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
         <div
             style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(211,184,248,0.3);">
-            <h2 style="color: #D3B8F8; text-align: center; margin-bottom: 25px;">타로 카드 리딩</h2>
+            <h2 style="color: #D3B8F8; text-align: center; margin-bottom: 25px;">영혼의 거울, 타로</h2>
             <form id="tarotForm">
                 <input type="text" id="tarotName" placeholder="이름을 입력하세요" required style="margin-bottom:15px;">
                 <textarea id="tarotConcern" placeholder="고민을 30자 이상 자세히 적어주세요..." rows="4" required
                     style="margin-bottom:15px;"></textarea>
                 <button type="submit"
-                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #D3B8F8, #9575CD); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; cursor: pointer;">카드
-                    뽑기 시작</button>
+                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #D3B8F8, #9575CD); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; cursor: pointer;">🔮
+                    카드 뽑기 시작</button>
             </form>
         </div>
     </section>
 
-    <section id="tarotDraw" class="dashboard-section" style="display: none; padding: 0 20px; text-align: center;">
+    <section id="tarotDraw"
+        style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50; text-align: center;">
         <h2 style="color: #D3B8F8; margin-bottom: 20px;">카드를 <span id="tarotDrawCount">3</span>장 뽑아주세요</h2>
         <div id="tarotDeck"
-            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px;"></div>
+            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 800px; margin: 0 auto 30px;">
+        </div>
         <button id="btnReadTarot"
             style="padding: 15px 40px; background: #D3B8F8; color: #000; border: none; border-radius: 30px; font-weight: bold; cursor: pointer;"
             disabled>리딩 결과 보기</button>
     </section>
 
-    <section id="faceSection" class="dashboard-section" style="display: none; padding: 0 20px;">
+    <section id="faceSection" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
         <div
             style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(244,143,177,0.3); text-align: center;">
-            <h2 style="color: #F48FB1; margin-bottom: 25px;">정밀 관상 분석</h2>
-            <input type="file" id="faceImage" accept="image/*" onchange="previewFaceImage(event)" style="display:none;">
-            <button onclick="document.getElementById('faceImage').click()"
-                style="padding: 15px 30px; background: transparent; border: 2px solid #F48FB1; color: #F48FB1; border-radius: 30px; margin-bottom: 20px; cursor: pointer; font-weight: bold;">얼굴
-                사진 업로드</button>
+            <h2 style="color: #F48FB1; margin-bottom: 25px;">얼굴에 담긴 운명, 관상</h2>
+            <input type="file" id="faceImageInput" accept="image/*" onchange="previewFaceImage(event)"
+                style="display:none;">
+            <button onclick="document.getElementById('faceImageInput').click()"
+                style="width: 100%; padding: 15px; background: transparent; border: 2px dashed #F48FB1; color: #F48FB1; border-radius: 15px; margin-bottom: 20px; cursor: pointer; font-weight: bold;">📸
+                내 사진 선택하기</button>
             <img id="facePreview"
                 style="display:none; width: 100%; max-width: 250px; border-radius: 15px; margin: 0 auto 20px;">
             <button onclick="startFaceReading()"
-                style="width: 100%; padding: 20px; background: linear-gradient(135deg, #F48FB1, #C2185B); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; cursor: pointer;">관상
-                분석 시작</button>
+                style="width: 100%; padding: 20px; background: linear-gradient(135deg, #F48FB1, #C2185B); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; cursor: pointer;">✨
+                관상 분석 시작</button>
         </div>
     </section>
 
-    <section id="amuletSection" class="dashboard-section" style="display: none; padding: 0 20px;">
+    <section id="amuletSection" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
         <div
             style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(255,213,79,0.3); text-align: center;">
-            <h2 style="color: #FFDF73; margin-bottom: 25px;">사이버 수호부 (스미싱 감별)</h2>
-            <input type="text" id="suspectUrl" placeholder="의심되는 URL 주소를 입력하세요" style="margin-bottom:15px;">
+            <h2 style="color: #FFD54F; margin-bottom: 20px; font-weight: bold;">사이버 수호부 (스미싱 감별)</h2>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.95rem;">의심되는 링크(URL)를 올려 사악한 기운을 감별하십시오.</p>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #aaa;">
+                <span>남은 감별 횟수</span><span style="color: #FFD54F; font-weight: bold;"><span
+                        id="checkCountDisplay">0</span>회</span>
+            </div>
+            <input type="text" id="suspectUrl" placeholder="링크(URL)를 붙여넣으세요"
+                style="width: 100%; height: 60px; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid #FFD54F; border-radius: 12px; color: #fff; margin-bottom: 15px; text-align: center; font-size: 1rem;">
             <button onclick="checkSmishing()"
-                style="width: 100%; padding: 20px; background: #FFD54F; color: #000; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; cursor: pointer;">안전성
-                검사</button>
-            <div id="urlCheckResult"
-                style="display:none; margin-top: 20px; padding: 15px; background: rgba(0,255,0,0.1); border: 1px solid #4CAF50; color: #4CAF50; border-radius: 8px;">
+                style="width: 100%; padding: 18px; background: #FFD54F; color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(255, 213, 79, 0.3);">감별하기</button>
+            <div id="urlCheckResult" style="margin-top: 20px; font-weight: bold; display: none; line-height: 1.5;">
             </div>
         </div>
     </section>
@@ -293,9 +302,7 @@
             <p style="margin-bottom: 15px;"><strong>고객센터</strong> : 010-6848-7856 <span
                     style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span> <strong>이메일</strong> :
                 preciousrain2@nate.com</p>
-            <p style="font-size: 0.75rem; color: rgba(255,255,255,0.3);">© 2026 Fortune Story. All rights reserved.
-                <br>본 사이트에서 제공하는 운세 콘텐츠는 주관적인 해석이 포함될 수 있으며, 모든 결정의 책임은 사용자 본인에게 있습니다.
-            </p>
+            <p style="font-size: 0.75rem; color: rgba(255,255,255,0.3);">© 2026 Fortune Story. All rights reserved.</p>
         </div>
     </footer>
 
