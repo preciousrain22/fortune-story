@@ -17,19 +17,23 @@
 
 <body>
 
-    <header class="header-neon">
+    <header class="header-neon"
+        style="display: flex; justify-content: center; align-items: center; width: 100%; top: 0; left: 0; position: fixed;">
         <h1 class="logo-neon" onclick="location.reload()">Fortune Story</h1>
     </header>
 
     <div class="star-bg-fixed"></div>
 
     <section id="login-section" class="main-landing">
-        <div class="hero-container">
-            <h2 style="font-size: 2.2rem; font-weight: 900; margin-bottom: 2.5rem; line-height: 1.3;">당신의 <span
-                    style="color:#FFDF73;">진짜 운명</span>을<br>마주할 준비가 되셨습니까?</h2>
-            <div class="login-card">
-                <p style="color:#EEDCFF; margin-bottom:25px; font-weight:bold; font-size: 1.1rem;">운명 기록소가 준비되었습니다.</p>
-                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn">
+        <div class="hero-container"
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <h2
+                style="font-size: 2.2rem; font-weight: 900; margin-bottom: 2.5rem; line-height: 1.4; text-align: center;">
+                상위 0.1%를 위한<br><span style="color:#FFDF73;">가장 은밀한 운명 해독소</span></h2>
+            <div class="login-card" style="width: 100%; max-width: 400px;">
+                <p style="color:#EEDCFF; margin-bottom:25px; font-weight:bold; font-size: 1.1rem; text-align: center;">
+                    수천 년의 명리 비급으로 당신의 궤적을 분석합니다.</p>
+                <button id="kakao-login-btn" onclick="loginWithKakao()" class="kakao-btn" style="width: 100%;">
                     <span style="font-size: 1.3rem; margin-right: 10px; vertical-align: middle;">⚜️</span> 카카오 계정으로 VIP
                     입장하기
                 </button>
@@ -38,19 +42,24 @@
     </section>
 
     <section id="gateway" class="dashboard-section" style="display: none;">
-        <h2 style="color: #FFDF73; margin-bottom: 40px; font-weight: 800; text-align: center;">어떤 운명의 문을 여시겠습니까?</h2>
-        <div style="max-width: 400px; margin: 0 auto; text-align: center;">
-            <div style="margin-bottom: 30px;">
-                <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 천명의 지혜, 사주</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">타고난 오행과 올해의 흐름 분석</p>
-            </div>
-            <div style="margin-bottom: 30px;">
-                <button class="neon-btn btn-tarot" onclick="selectPath('tarot')">🃏 영혼의 거울, 타로</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">현재의 고민에 대한 우주의 조언</p>
-            </div>
-            <div style="margin-bottom: 30px;">
-                <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ 운명의 기록, 관상</button>
-                <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">얼굴에 기록된 재물과 성공운 해독</p>
+        <div
+            style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: calc(100vh - 180px); padding: 0 20px;">
+            <h2 style="color: #FFDF73; margin-bottom: 40px; font-weight: 800; text-align: center; letter-spacing: 1px;">
+                어떤 운명의 문을 여시겠습니까?</h2>
+
+            <div style="width: 100%; max-width: 380px; text-align: center;">
+                <div style="margin-bottom: 30px;">
+                    <button class="neon-btn btn-saju" onclick="selectPath('saju')">☯ 천명의 지혜, 사주</button>
+                    <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">타고난 오행과 올해의 흐름 분석</p>
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <button class="neon-btn btn-tarot" onclick="selectPath('tarot')">🃏 영혼의 거울, 타로</button>
+                    <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">현재의 고민에 대한 우주의 조언</p>
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ 운명의 기록, 관상</button>
+                    <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">얼굴에 기록된 재물과 성공운 해독</p>
+                </div>
             </div>
         </div>
     </section>
@@ -310,5 +319,38 @@
 
     <script src="script.js"></script>
 </body>
+<footer
+    style="background: rgba(0,0,0,0.8); border-top: 1px solid rgba(255,223,115,0.2); padding: 40px 20px; margin-top: 80px; position: relative; z-index: 100;">
+    <div
+        style="max-width: 600px; margin: 0 auto; text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.8;">
+        <div style="margin-bottom: 20px;">
+            <a href="terms.html" style="color: #FFDF73; text-decoration: none; margin: 0 10px; font-weight: bold;">이용약관
+                및 환불규정</a>
+            <span style="color: rgba(255,255,255,0.2);">|</span>
+            <a href="privacy.html"
+                style="color: #FFDF73; text-decoration: none; margin: 0 10px; font-weight: bold;">개인정보처리방침</a>
+        </div>
+
+        <p style="margin-bottom: 5px;">
+            <strong>대표</strong> : 이진우 <span style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+            <strong>사업자등록번호</strong> : 641-67-00783
+        </p>
+        <p style="margin-bottom: 5px;">
+            <strong>통신판매업신고</strong> : 제 2026-서울관악-0562호
+        </p>
+        <p style="margin-bottom: 5px;">
+            <strong>사업장 소재지</strong> : 서울특별시 관악구 은천로 93, 206동 303호
+        </p>
+        <p style="margin-bottom: 15px;">
+            <strong>고객센터</strong> : 010-6848-7856 <span style="margin: 0 5px; color: rgba(255,255,255,0.2);">|</span>
+            <strong>이메일</strong> : preciousrain2@nate.com
+        </p>
+
+        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+            © 2026 Fortune Story. All rights reserved. <br>
+            본 사이트에서 제공하는 운세 콘텐츠는 주관적인 해석이 포함될 수 있으며, 모든 결정의 책임은 사용자 본인에게 있습니다.
+        </p>
+    </div>
+</footer>
 
 </html>
