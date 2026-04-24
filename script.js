@@ -310,7 +310,8 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         document.getElementById('sajuActionsArea').style.display = 'none';
 
         const price = { daily: 3900, weekly: 5900, yearly: 9900, love: 8900 }[fortuneType] || 5900;
-        document.getElementById('lockTypeName').textContent = `[${typeName}]`;
+
+        // 에러 주범 삭제 완료. 금액 삽입과 결제창 띄우기 정상 작동합니다.
         document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
         document.getElementById('btnUnlockPremium').onclick = () => window.openPaymentModal(typeName, price);
     }

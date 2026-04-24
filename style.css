@@ -14,7 +14,7 @@ body {
     min-height: 100vh;
 }
 
-/* 🌌 우주 배경 (진짜 별빛이 반짝이는 효과 추가) */
+/* 🌌 우주 배경 */
 .star-bg-fixed {
     position: fixed;
     top: 0;
@@ -55,8 +55,8 @@ body {
     }
 }
 
-/* 🌟 실시간으로 색상이 흐르는 프리미엄 네온 간판 */
-.header-neon {
+/* 🌟 프리미엄 네온 간판 */
+header-neon {
     position: fixed;
     top: 0;
     left: 0;
@@ -79,6 +79,7 @@ body {
     background: linear-gradient(90deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
     background-size: 200% auto;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
     text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
@@ -93,6 +94,17 @@ body {
 
     100% {
         background-position: 200% center;
+    }
+}
+
+/* 🔮 로딩 마법진 애니메이션 복구 */
+@keyframes spin-slow {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 
@@ -144,7 +156,7 @@ body {
     transform: scale(0.97);
 }
 
-/* ☯ 대시보드 메뉴 & 버튼 (터치 영역 확보) */
+/* ☯ 대시보드 메뉴 & 버튼 */
 .dashboard-section {
     padding-top: 120px;
     padding-bottom: 60px;
@@ -262,7 +274,7 @@ textarea:focus {
     background: rgba(212, 175, 55, 0.1);
 }
 
-/* 🚀 퀵메뉴 스타일 (복구 완료) */
+/* 🚀 퀵메뉴 스타일 */
 .floating-quick-menu {
     position: fixed;
     bottom: 30px;
@@ -316,10 +328,4 @@ textarea:focus {
     justify-content: center;
     align-items: center;
     transition: 0.3s;
-}
-
-@keyframes spin-slow {
-    100% {
-        transform: rotate(360deg);
-    }
 }
