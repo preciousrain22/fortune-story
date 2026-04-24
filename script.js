@@ -56,21 +56,40 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 window.loginWithKakao = function () {
-    if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-    Kakao.Auth.login({
-        success: function (authObj) {
-            Kakao.API.request({
-                url: '/v2/user/me',
-                success: function (res) {
-                    const kakaoId = res.id;
-                    const nickname = res.properties.nickname || "포춘VIP";
-                    db.collection("users").doc(kakaoId.toString()).set({ name: nickname, lastLogin: new Date() }, { merge: true })
-                        .then(() => window.selectPath('gateway'));
-                }
-            });
-        },
-        fail: function () { alert("로그인에 실패했습니다."); }
-    });
+    try {
+        if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
+        Kakao.Auth.login({
+            success: function (authObj) {
+                Kakao.API.request({
+                    url: '/v2/user/me',
+                    success: function (res) {
+                        const kakaoId = res.id;
+                        const nickname = res.properties.nickname || "포춘VIP";
+                        // 💡 파이어베이스 에러가 나도 무조건 gateway(메뉴 화면)로 넘어가게 강제 처리
+                        db.collection("users").doc(kakaoId.toString()).set({ name: nickname, lastLogin: new Date() }, { merge: true })
+                            .then(() => window.selectPath('gateway'))
+                            .catch((err) => {
+                                console.log("DB 저장 지연, 무시하고 진행합니다.");
+                                window.selectPath('gateway');
+                            });
+                    },
+                    fail: function () {
+                        // 💡 카카오 정보 요청 실패 시에도 화면 멈춤 방지
+                        window.selectPath('gateway');
+                    }
+                });
+            },
+            fail: function () {
+                // 💡 사용자가 로그인을 취소하거나 팝업이 막혀도 바로 입장 가능하게 수정
+                alert("카카오 로그인을 건너뛰고 바로 입장합니다.");
+                window.selectPath('gateway');
+            }
+        });
+    } catch (err) {
+        // 💡 SDK 초기화 에러 등 어떤 치명적 오류가 나도 무조건 메뉴로 진입
+        console.log("카카오 초기화 에러, 강제 입장합니다.");
+        window.selectPath('gateway');
+    }
 };
 
 // ==========================================
