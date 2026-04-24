@@ -28,35 +28,6 @@ function preventExit(e) {
     e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
 }
 
-window.handlePdfPrint = function (type) {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
-        alert("⚠️ 카카오톡/인스타 브라우저에서는 저장이 차단될 수 있습니다.\n\n우측 상단 메뉴(⋮)에서 [다른 브라우저에서 열기]를 선택해주세요!");
-        return;
-    }
-    showToast("결과 이미지를 생성 중입니다... 📸");
-    const targetId = (type === 'saju' || type === 'face') ? 'result' : 'tarotResult';
-    const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId}`);
-    const actionArea = elementToCapture.querySelector('.result-actions') || document.getElementById('sajuActionsArea');
-    if (actionArea) actionArea.style.display = 'none';
-
-    setTimeout(() => {
-        html2canvas(elementToCapture, {
-            scale: window.devicePixelRatio ? window.devicePixelRatio * 2 : 4,
-            useCORS: true, backgroundColor: '#000000', scrollY: -window.scrollY
-        }).then(canvas => {
-            if (actionArea) actionArea.style.display = 'block';
-            const link = document.createElement('a');
-            link.download = `포춘스토리_정밀분석.png`;
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.click();
-            showToast("✅ 고화질로 저장이 완료되었습니다!");
-        }).catch(() => {
-            if (actionArea) actionArea.style.display = 'block';
-            alert("이미지 저장 중 오류가 발생했습니다.");
-        });
-    }, 500);
-};
 
 window.shareKakaoCombo = async function (type) {
     let freeText = document.getElementById('freeContentArea') ? document.getElementById('freeContentArea').innerText : "";
@@ -230,18 +201,65 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     }
 }
 
+
+function getPersonalColor(yearStr) {
+    const lastDigit = parseInt(yearStr) % 10;
+    if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', textHex: '#DCE775', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
+    if (lastDigit === 6 || lastDigit === 7) return { element: '화(火)', textHex: '#FFCCBC', highlightHex: '#FFAB91', borderRgba: 'rgba(255, 171, 145, 0.4)' };
+    if (lastDigit === 8 || lastDigit === 9) return { element: '토(土)', textHex: '#FFE082', highlightHex: '#FFD54F', borderRgba: 'rgba(255, 213, 79, 0.4)' };
+    if (lastDigit === 0 || lastDigit === 1) return { element: '금(金)', textHex: '#EEEEEE', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
+    return { element: '수(水)', textHex: '#B3E5FC', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
+}
+
+// 📸 [복구] PDF 저장 시 배경이 까맣게 변하는 오류 수정본
+window.handlePdfPrint = function (type) {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
+        alert("⚠️ 카카오톡 브라우저에서는 저장이 차단될 수 있습니다.\n\n우측 상단 메뉴(⋮)에서 [다른 브라우저에서 열기]를 선택해주세요!");
+        return;
+    }
+    showToast("결과 이미지를 생성 중입니다... 📸");
+    const targetId = (type === 'saju' || type === 'face') ? 'result' : 'tarotResult';
+    const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId}`);
+    const actionArea = elementToCapture.querySelector('.result-actions') || document.getElementById('sajuActionsArea');
+    if (actionArea) actionArea.style.display = 'none';
+
+    setTimeout(() => {
+        html2canvas(elementToCapture, {
+            scale: window.devicePixelRatio ? window.devicePixelRatio * 2 : 4,
+            useCORS: true,
+            backgroundColor: '#1a1a1a', // 💡 PDF 까만 배경 오류 수정 (기존 #000000 -> #1a1a1a)
+            scrollY: -window.scrollY
+        }).then(canvas => {
+            if (actionArea) actionArea.style.display = 'block';
+            const link = document.createElement('a');
+            link.download = `포춘스토리_정밀분석.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+            showToast("✅ 고화질로 저장이 완료되었습니다!");
+        }).catch(() => {
+            if (actionArea) actionArea.style.display = 'block';
+            alert("이미지 저장 중 오류가 발생했습니다.");
+        });
+    }, 500);
+};
+
+// 📊 [복구] 결과창 백지화 해결 및 마스터 권한 연결
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing) {
     document.querySelector('.header-neon').style.display = 'none';
     document.querySelector('.star-bg-fixed').style.display = 'none';
     document.getElementById('result').style.display = 'block';
 
-    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: #FFDF73;">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
+    // 💡 치명적 오류 원인 해결: colorInfo 변수 부활
+    const colorInfo = getPersonalColor(year);
 
-    // 💡 복구: 오행 차트 렌더링
-    let chartHTML = generateSajuChartsHTML(bazi, wuXing);
+    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: ${colorInfo.highlightHex};">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
+
+    // 💡 오행 차트 렌더링 (5각형 제거된 버전)
+    let chartHTML = generateSajuChartsHTML(colorInfo, bazi, wuXing);
     document.getElementById('freeContentArea').innerHTML = resultData.free + chartHTML;
 
-    // 💡 복구: 4대 기운(재물,성공,애정,건강) 막대그래프 렌더링
+    // 💡 4대 기운 막대그래프 렌더링
     let premiumHTML = "";
     if (resultData.scores) {
         const s = resultData.scores;
@@ -298,29 +316,30 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     }
 }
 
-function getPersonalColor(yearStr) {
-    const lastDigit = parseInt(yearStr) % 10;
-    if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', textHex: '#DCE775', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
-    if (lastDigit === 6 || lastDigit === 7) return { element: '화(火)', textHex: '#FFCCBC', highlightHex: '#FFAB91', borderRgba: 'rgba(255, 171, 145, 0.4)' };
-    if (lastDigit === 8 || lastDigit === 9) return { element: '토(土)', textHex: '#FFE082', highlightHex: '#FFD54F', borderRgba: 'rgba(255, 213, 79, 0.4)' };
-    if (lastDigit === 0 || lastDigit === 1) return { element: '금(金)', textHex: '#EEEEEE', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
-    return { element: '수(水)', textHex: '#B3E5FC', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
-}
-
+// 🌿 [복구] 5각형을 빼고 깔끔하게 정리된 오행 분석
 function generateSajuChartsHTML(colorInfo, bazi, wuXing) {
     let counts = [
         (wuXing.match(/木/g) || []).length, (wuXing.match(/火/g) || []).length,
         (wuXing.match(/土/g) || []).length, (wuXing.match(/金/g) || []).length, (wuXing.match(/水/g) || []).length
     ];
+
     let hookMessage = "✨ 오행의 밸런스가 비교적 고른 사주입니다.";
     if (counts[4] === 0) hookMessage = "🌊 사주에 수(水) 기운이 고갈되어 있습니다. 노력해도 막판에 답답함을 느끼지 않으셨나요?";
     else if (counts[1] >= 3) hookMessage = "🔥 불(火)의 에너지가 아주 강합니다. 급격한 감정 소모를 조심해야 합니다.";
+    else if (counts[0] === 0) hookMessage = "🌱 시작과 뻗어나가는 힘인 목(木)이 부족합니다. 생각은 완벽한데 첫발을 내딛는 것을 주저하고 계실 확률이 높습니다.";
+    else if (counts[2] >= 3) hookMessage = "⛰️ 흙(土)의 기운이 태산처럼 쌓여 있습니다. 포용력이 넓지만, 때로는 그 고집 때문에 스스로 답답함을 겪습니다.";
 
     return `
-    <div style="margin-top: 2rem; padding: 2rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background: rgba(0, 0, 0, 0.2);">
-        <div style="font-size: 1.1rem; color: ${colorInfo.textHex}; text-align: center; font-weight: bold; margin-bottom: 15px;">실제 오행(五行) 분포도</div>
-        <p style="color: #fff; text-align: center; margin-bottom: 10px;">목(${counts[0]}), 화(${counts[1]}), 토(${counts[2]}), 금(${counts[3]}), 수(${counts[4]})</p>
-        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-left: 4px solid ${colorInfo.highlightHex}; border-radius: 8px;">
+    <div style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
+        <div style="font-size: 1.1rem; color: ${colorInfo.highlightHex}; text-align: center; font-weight: bold; margin-bottom: 15px;">실제 오행(五行) 분포도</div>
+        <p style="color: #fff; text-align: center; margin-bottom: 10px; font-size: 1.05rem;">
+            목(<span style="color:#4CAF50; font-weight:bold;">${counts[0]}</span>) · 
+            화(<span style="color:#F44336; font-weight:bold;">${counts[1]}</span>) · 
+            토(<span style="color:#FFC107; font-weight:bold;">${counts[2]}</span>) · 
+            금(<span style="color:#9E9E9E; font-weight:bold;">${counts[3]}</span>) · 
+            수(<span style="color:#2196F3; font-weight:bold;">${counts[4]}</span>)
+        </p>
+        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-left: 4px solid ${colorInfo.highlightHex}; border-radius: 8px;">
             <p style="color: #fff; font-size: 1rem; line-height: 1.5; margin: 0;">${hookMessage}</p>
         </div>
     </div>`;

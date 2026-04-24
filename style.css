@@ -14,19 +14,48 @@ body {
     min-height: 100vh;
 }
 
-/* 🌌 우주 배경 (클릭 방해 완벽 차단) */
+/* 🌌 우주 배경 (진짜 별빛이 반짝이는 효과 추가) */
 .star-bg-fixed {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, #1a1a2e 0%, #010101 100%);
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     z-index: -1;
     pointer-events: none;
 }
 
-/* 🌟 프리미엄 네온 간판 */
+.star-bg-fixed::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 90px 40px, #fff, rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 130px 80px, #fff, rgba(0, 0, 0, 0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: stars-twinkle 4s infinite alternate;
+    opacity: 0.6;
+}
+
+@keyframes stars-twinkle {
+    0% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 0.8;
+    }
+}
+
+/* 🌟 실시간으로 색상이 흐르는 프리미엄 네온 간판 */
 .header-neon {
     position: fixed;
     top: 0;
@@ -50,8 +79,9 @@ body {
     background: linear-gradient(90deg, #FFDF73, #D3B8F8, #81D4FA, #FFDF73);
     background-size: 200% auto;
     -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     color: transparent;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
     cursor: pointer;
     animation: neon-shimmer 3s linear infinite;
 }
@@ -286,4 +316,10 @@ textarea:focus {
     justify-content: center;
     align-items: center;
     transition: 0.3s;
+}
+
+@keyframes spin-slow {
+    100% {
+        transform: rotate(360deg);
+    }
 }
