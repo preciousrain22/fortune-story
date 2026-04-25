@@ -25,23 +25,23 @@ function showToast(message) {
 
 function preventExit(e) {
     e.preventDefault();
-    e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다!';
+    e.returnValue = '분석이 진행 중입니다. 페이지를 나가시면 결과를 받을 수 없습니다.';
 }
 
 window.shareKakaoCombo = async function (type) {
     let freeText = document.getElementById('freeContentArea') ? document.getElementById('freeContentArea').innerText : "";
-    const snippet = "[포춘스토리 정밀 분석 리포트]\n\n" + freeText + "\n\n👉 소름 돋는 내 진짜 운세 확인하기\nhttps://fortune-story.com";
+    const snippet = "[포춘스토리 정밀 분석 리포트]\n\n" + freeText + "\n\n👉 본인의 운명 확인하기\nhttps://fortune-story.com";
     try {
         if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(snippet);
         else throw new Error("Clipboard API 불가");
-        showToast("✅ 결과가 복사되었습니다! 카톡 창에 붙여넣기 하세요.");
+        showToast("결과가 복사되었습니다. 카카오톡 대화창에 붙여넣기 하십시오.");
     } catch (err) {
-        showToast("❌ 복사에 실패했습니다.");
+        showToast("복사에 실패했습니다.");
     }
 };
 
 // ==========================================
-// 2. 파이어베이스 및 카카오 로그인 (화면 멈춤 완벽 방지)
+// 2. 파이어베이스 및 카카오 로그인
 // ==========================================
 let db = null;
 try {
@@ -62,10 +62,7 @@ try {
 }
 
 window.loginWithKakao = function () {
-    // 💡 핵심: 어떤 에러가 나더라도 무조건 화면부터 메뉴로 넘깁니다! (하이패스)
     window.selectPath('gateway');
-
-    // 카카오 로직은 백그라운드에서 조용히 실행
     try {
         if (typeof Kakao !== 'undefined') {
             if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
@@ -124,7 +121,7 @@ window.quickNav = function (path) {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진 (화면 멈춤 방지 적용)
+// 4. 사주 AI 엔진 (화면 멈춤 및 이모티콘 완벽 제거)
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -135,7 +132,7 @@ if (sajuForm) {
         window.isMasterKey = rawName.includes('**') || sessionStorage.getItem('isFortuneMaster') === 'true';
         const name = rawName.replace(/[*']/g, '');
 
-        if (name.length < 2) { alert("정확한 분석을 위해 이름을 2글자 이상 입력해주세요."); return; }
+        if (name.length < 2) { alert("정확한 분석을 위해 이름을 2글자 이상 입력해주십시오."); return; }
 
         const gender = document.querySelector('input[name="gender"]:checked').value;
         const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
@@ -144,12 +141,19 @@ if (sajuForm) {
         let month = document.getElementById('birthMonth').value;
         let day = document.getElementById('birthDay').value;
 
-        if (!year || !month || !day) { alert('생년월일을 모두 입력해주세요.'); return; }
+        if (!year || !month || !day) { alert('생년월일을 모두 입력해주십시오.'); return; }
         month = month.padStart(2, '0'); day = day.padStart(2, '0');
 
-        let displayTypeName = { 'daily': "오늘의 운세", 'weekly': "주간 운세", 'yearly': "1년 심층 운세", 'love': "애정/연애운" }[fortuneType];
+        // 💡 버튼 멈춤을 유발했던 괄호 빠짐 에러 완벽 해결
+        let displayTypeName = {
+            'daily': "오늘의 운세",
+            'weekly': "주간 운세",
+            'yearly': "1년 심층 운세",
+            'wealth': "재물운 심층 분석",
+            'love': "애정 및 연애운",
+            'subscribe': "월간 운세 프리미엄 구독"
+        }[fortuneType] || "명리 분석";
 
-        // 💡 카카오가 막혀도 무조건 사주 분석이 시작되도록 보호
         try {
             if (typeof Kakao !== 'undefined') {
                 if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
@@ -171,7 +175,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     document.getElementById('daily').style.display = 'none';
     const loadingScreen = document.getElementById('analysisLoading');
     loadingScreen.style.display = 'flex';
-    document.getElementById('loadingTitle').innerHTML = `${name}님의 <span style="color:#81D4FA;">${displayTypeName}</span> 분석 중...`;
+    document.getElementById('loadingTitle').innerHTML = `${name}님의 <span style="color:#81D4FA;">${displayTypeName}</span> 분석 중입니다.`;
     window.addEventListener('beforeunload', preventExit);
 
     const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
@@ -185,30 +189,34 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         ? Solar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0).getLunar()
         : Lunar.fromYmdHms(parseInt(year), parseInt(month), parseInt(day), hour, minute, 0);
     let bazi = lunarObj.getEightChar();
-    let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일 ${isUnknownTime ? '(시간모름)' : bazi.getTime() + '시'}`;
+    let sajuStr = `${bazi.getYear()}년 ${bazi.getMonth()}월 ${bazi.getDay()}일 ${isUnknownTime ? '(시간 미상)' : bazi.getTime() + '시'}`;
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-
-    // 💡 분석 종류에 따라 요구하는 항목 수(1년 운세는 17가지)를 스마트하게 변경
     let detailRequest = "";
-    if (fortuneType === 'yearly') {
-        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 아주 길고 상세하게 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [연애 및 가정운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. (총 17개 항목 필수)";
+    if (fortuneType === 'wealth') {
+        detailRequest = "반드시 [타고난 재물 그릇], [부의 변곡점이 되는 시기], [재물 손실 방지책], [전문적인 재테크 방향]으로 나누어 작성해. 그림이나 차트는 절대 넣지 말고 오직 텍스트로만 각 항목당 500자 이상 아주 깊이 있게 분석해.";
+    } else if (fortuneType === 'yearly') {
+        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [가정 및 대인운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. (총 17개 항목 필수). 각 항목당 최소 300자 이상으로, 구체적인 시기와 대처법을 포함해 길고 상세하게 설명해.";
     } else if (fortuneType === 'love') {
-        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연/연인과의 흐름], [연애 조언].";
+        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연의 흐름], [관계 발전을 위한 조언]. 각 항목당 최소 400자 이상으로 감정선의 변화까지 깊이 있게 분석해.";
     } else {
-        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [가정 및 대인운], [건강 및 조언].";
+        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 실질적이고 구체적인 조언을 담아 상세히 작성해.";
     }
 
+    // 💡 프롬프트 내 모든 이모티콘 제거 및 진지한 어조 강화
     const promptText = `
         너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
         명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
         
+        유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.
+        전체 글자 수는 최소 3000자 이상이 되도록 내용을 풍부하고 깊이 있게 채워. ${fortuneType === 'wealth' ? '재물운 분석 시 시각적인 그림이나 차트는 일절 포함하지 마.' : ''}
+
         반드시 아래 JSON 형식으로만 응답해. (다른 텍스트 절대 불가, 따옴표나 줄바꿈에 주의할 것)
         {
             "scores": { "wealth": 85, "success": 90, "love": 75, "health": 80 },
-            "free": "<div class='free-preview'><h3 style='color:#FFDF73; margin-bottom:10px;'>[운명 요약]</h3><p style='font-size:1.2rem; font-weight:bold; color:#fff; margin-bottom:15px;'>(소름돋는 한줄 풀이)</p><p>(무료공개용 2~3문장)</p></div>",
-            "premium": "<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>🍀 ${displayTypeName} 행운 포인트</h4><p style='color:#fff; margin:0; font-size:1rem;'>🎨 색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 🔢 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 🧭 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>핵심 십성(十星) 기운</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재, 예: 정재(正財) / 식신(食神))</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 알기 쉽게 1~2문장으로 풀이)</p></div>(이곳에 ${detailRequest} 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>"
+            "free": "<div class='free-preview'><h3 style='color:#FFDF73; margin-bottom:10px;'>[운명 요약]</h3><p style='font-size:1.2rem; font-weight:bold; color:#fff; margin-bottom:15px;'>(전문적이고 날카로운 한줄 풀이)</p><p>(무료공개용 2~3문장)</p></div>",
+            "premium": "<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>[${displayTypeName} 행운 지표]</h4><p style='color:#fff; margin:0; font-size:1rem;'>색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>[핵심 십성(十星) 기운]</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재)</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 아주 깊이 있게 3~4문장 이상으로 풀이)</p></div>(이곳에 ${detailRequest} 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용 - 각 항목당 반드시 3~4문장 이상의 긴 호흡으로 구체적인 근거와 시기, 대처법 등을 포함하여 아주 길게 작성할 것)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>"
         }
     `;
 
@@ -234,7 +242,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         console.error(error);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
-        alert("우주의 기운이 혼잡하여 지연되고 있습니다. 다시 시도해 주세요.");
+        alert("분석 중 오류가 발생했습니다. 다시 시도해 주십시오.");
     }
 }
 
@@ -250,10 +258,10 @@ function getPersonalColor(yearStr) {
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
-        alert("⚠️ 카카오톡 브라우저에서는 저장이 차단될 수 있습니다.\n\n우측 상단 메뉴(⋮)에서 [다른 브라우저에서 열기]를 선택해주세요!");
+        alert("카카오톡 내부 브라우저에서는 저장이 차단될 수 있습니다.\n\n우측 상단 메뉴(⋮)에서 [다른 브라우저에서 열기]를 선택해 주십시오.");
         return;
     }
-    showToast("결과 이미지를 생성 중입니다... 📸");
+    showToast("결과 이미지를 생성하고 있습니다.");
     const targetId = (type === 'saju' || type === 'face') ? 'result' : 'tarotResult';
     const elementToCapture = document.querySelector(`#${targetId} .paper-container`) || document.querySelector(`#${targetId}`);
     const actionArea = elementToCapture.querySelector('.result-actions') || document.getElementById('sajuActionsArea');
@@ -271,7 +279,7 @@ window.handlePdfPrint = function (type) {
             link.download = `포춘스토리_정밀분석.png`;
             link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
-            showToast("✅ 고화질로 저장이 완료되었습니다!");
+            showToast("저장이 완료되었습니다.");
         }).catch(() => {
             if (actionArea) actionArea.style.display = 'block';
             alert("이미지 저장 중 오류가 발생했습니다.");
@@ -288,9 +296,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     document.getElementById('result').style.display = 'block';
 
     const colorInfo = getPersonalColor(year);
-    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: ${colorInfo.highlightHex};">${name}님을 위해 풀어낸 명리 비결</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
+    document.getElementById('resultTitle').innerHTML = `<span style="font-size: 0.65em; color: ${colorInfo.highlightHex};">${name}님을 위한 명리 컨설팅</span><br><span style="font-size: 1.15em; display: inline-block; margin-top: 15px;">${typeName}</span>`;
 
-    let chartHTML = generateSajuChartsHTML(colorInfo, bazi, wuXing);
+    let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing);
     document.getElementById('freeContentArea').innerHTML = resultData.free + chartHTML;
 
     let premiumHTML = "";
@@ -298,21 +306,21 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         const s = resultData.scores;
         premiumHTML += `
         <div style="margin-top: 1rem; margin-bottom: 3rem; padding: 2rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
-            <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">📊 핵심 운기 지표</h3>
+            <h3 style="text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;">[핵심 운기 지표]</h3>
             <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💰 재물/금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>재물 및 금전운</span><span style="color: #FFD54F;">${s.wealth}점</span></div>
                 <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.wealth}%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;"></div></div>
             </div>
             <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>📈 성공/학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>성공 및 학업운</span><span style="color: #4CAF50;">${s.success}점</span></div>
                 <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.success}%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;"></div></div>
             </div>
             <div style="margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>❤️ 애정/대인운</span><span style="color: #FF8A80;">${s.love}점</span></div>
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>대인 및 애정운</span><span style="color: #FF8A80;">${s.love}점</span></div>
                 <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.love}%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;"></div></div>
             </div>
             <div style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>💪 건강/활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
+                <div style="display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;"><span>건강 및 활력운</span><span style="color: #81D4FA;">${s.health}점</span></div>
                 <div style="width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;"><div style="width: ${s.health}%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;"></div></div>
             </div>
         </div>`;
@@ -322,6 +330,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
+    // 💡 이모티콘 싹 뺀 버튼 디자인
     if (window.isMasterKey) {
         premiumArea.style.filter = "none";
         premiumArea.style.opacity = "1";
@@ -330,9 +339,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         document.getElementById('sajuActionsArea').style.display = 'block';
         document.getElementById('sajuActionsArea').innerHTML = `
             <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
-                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;">👑 마스터 권한으로 즉시 해제되었습니다.</p>
-                <button class="btn-premium kakao pulse-btn" style="width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;" onclick="shareKakaoCombo('saju')">💬 카카오톡으로 전체 결과 보내기</button>
-                <button class="btn-premium outline" style="width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); border: 1px solid #fff; color: #fff; height: 60px;" onclick="handlePdfPrint('saju')">📸 이미지로 저장</button>
+                <p style="color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;">마스터 권한으로 프리미엄 리포트가 해제되었습니다.</p>
+                <button class="btn-premium kakao pulse-btn" style="width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;" onclick="shareKakaoCombo('saju')">카카오톡으로 전체 결과 발송</button>
+                <button class="btn-premium outline" style="width: 100%; border-radius: 50px; background: rgba(0,0,0,0.3); border: 1px solid #fff; color: #fff; height: 60px;" onclick="handlePdfPrint('saju')">결과 이미지 저장</button>
             </div>`;
     } else {
         premiumArea.style.filter = "blur(8px)";
@@ -341,7 +350,14 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         document.getElementById('unlockOverlay').style.display = 'flex';
         document.getElementById('sajuActionsArea').style.display = 'none';
 
-        const price = { daily: 3900, weekly: 5900, yearly: 9900, love: 8900 }[fortuneType] || 5900;
+        const price = {
+            daily: 3900,
+            weekly: 5900,
+            yearly: 9900,
+            wealth: 12900,
+            love: 8900,
+            subscribe: 13900
+        }[fortuneType] || 5900;
         document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
         document.getElementById('btnUnlockPremium').onclick = () => window.openPaymentModal(typeName, price);
     }
@@ -353,11 +369,11 @@ function generateSajuChartsHTML(colorInfo, bazi, wuXing) {
         (wuXing.match(/土/g) || []).length, (wuXing.match(/金/g) || []).length, (wuXing.match(/水/g) || []).length
     ];
 
-    let hookMessage = "✨ 오행의 밸런스가 비교적 고른 사주입니다.";
-    if (counts[4] === 0) hookMessage = "🌊 사주에 수(水) 기운이 고갈되어 있습니다. 노력해도 막판에 답답함을 느끼지 않으셨나요?";
-    else if (counts[1] >= 3) hookMessage = "🔥 불(火)의 에너지가 아주 강합니다. 급격한 감정 소모를 조심해야 합니다.";
-    else if (counts[0] === 0) hookMessage = "🌱 시작과 뻗어나가는 힘인 목(木)이 부족합니다. 생각은 완벽한데 첫발을 내딛는 것을 주저하고 계실 확률이 높습니다.";
-    else if (counts[2] >= 3) hookMessage = "⛰️ 흙(土)의 기운이 태산처럼 쌓여 있습니다. 포용력이 넓지만, 때로는 그 고집 때문에 스스로 답답함을 겪습니다.";
+    let hookMessage = "오행의 밸런스가 비교적 고른 사주입니다.";
+    if (counts[4] === 0) hookMessage = "사주에 수(水) 기운이 고갈되어 있습니다. 잦은 막힘이나 답답함을 느낄 수 있는 명식입니다.";
+    else if (counts[1] >= 3) hookMessage = "불(火)의 에너지가 아주 강합니다. 급격한 감정 소모와 충동적인 결정을 경계해야 합니다.";
+    else if (counts[0] === 0) hookMessage = "시작과 뻗어나가는 힘인 목(木)이 부족합니다. 실행력 부족으로 기회를 놓칠 확률이 높습니다.";
+    else if (counts[2] >= 3) hookMessage = "흙(土)의 기운이 태산처럼 쌓여 있습니다. 지나친 고집으로 스스로 고립을 자초할 수 있습니다.";
 
     return `
     <div style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
@@ -402,13 +418,13 @@ window.openPaymentModal = function (typeName, amount) {
 
 const urlParamsForPayment = new URLSearchParams(window.location.search);
 if (urlParamsForPayment.has('paymentKey')) {
-    showToast("안전하게 결제를 최종 승인하고 있습니다... ⏳");
+    showToast("안전하게 결제를 최종 승인하고 있습니다.");
     fetch('/api/confirm', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentKey: urlParamsForPayment.get('paymentKey'), orderId: urlParamsForPayment.get('orderId'), amount: urlParamsForPayment.get('amount') })
     }).then(res => res.json()).then(data => {
         if (data.orderId) {
-            alert("✅ 결제가 완료되었습니다! 프리미엄 리포트가 해제됩니다.");
+            alert("결제가 완료되었습니다. 프리미엄 리포트가 해제됩니다.");
             const saved = sessionStorage.getItem('savedSajuResultHTML');
             if (saved) {
                 const header = document.querySelector('.header-neon');
@@ -441,8 +457,8 @@ let selectedTarotCards = [];
 
 document.getElementById('tarotForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (document.getElementById('tarotName').value.trim().length < 2) return alert("이름을 입력하세요.");
-    if (document.getElementById('tarotConcern').value.trim().length < 30) return alert("고민을 30자 이상 적어주세요.");
+    if (document.getElementById('tarotName').value.trim().length < 2) return alert("이름을 입력하십시오.");
+    if (document.getElementById('tarotConcern').value.trim().length < 30) return alert("고민을 30자 이상 구체적으로 작성해 주십시오.");
     document.getElementById('tarot').style.display = 'none';
     document.getElementById('tarotDraw').style.display = 'block';
 
@@ -467,12 +483,12 @@ document.getElementById('tarotForm')?.addEventListener('submit', (e) => {
         };
         deck.appendChild(el);
     });
-    btnRead.onclick = () => { alert("우주의 파동을 읽어 결과로 넘어갑니다."); location.reload(); };
+    btnRead.onclick = () => { alert("우주의 파동을 분석합니다."); location.reload(); };
 });
 
 window.checkSmishing = function () {
     const url = document.getElementById('suspectUrl').value.trim();
-    if (url === '**') { showToast("👑 무제한 감별 해제"); return; }
+    if (url === '**') { showToast("무제한 감별 모드가 활성화되었습니다."); return; }
     document.getElementById('urlCheckResult').style.display = 'block';
-    document.getElementById('urlCheckResult').innerHTML = "✅ 현재 보안 데이터베이스에 보고된 위험이 없습니다.";
+    document.getElementById('urlCheckResult').innerHTML = "현재 보안 데이터베이스에 보고된 위험이 없습니다.";
 };
