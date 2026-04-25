@@ -331,3 +331,12 @@ textarea:focus {
     align-items: center;
     transition: 0.3s;
 }
+
+/* 💡 드롭다운(선택 목록) 다크모드 글씨 안 보이는 현상 해결 */
+select option {
+    background-color: #1a1a1a;
+    /* 고급스러운 어두운 배경 */
+    color: #FFDF73;
+    /* 선명한 금색 글씨 */
+    font-weight: bold;
+}
