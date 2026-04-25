@@ -190,6 +190,16 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
 
+    // 💡 분석 종류에 따라 요구하는 항목 수(1년 운세는 17가지)를 스마트하게 변경
+    let detailRequest = "";
+    if (fortuneType === 'yearly') {
+        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 아주 길고 상세하게 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [연애 및 가정운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. (총 17개 항목 필수)";
+    } else if (fortuneType === 'love') {
+        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연/연인과의 흐름], [연애 조언].";
+    } else {
+        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [가정 및 대인운], [건강 및 조언].";
+    }
+
     const promptText = `
         너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
         명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
@@ -198,7 +208,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         {
             "scores": { "wealth": 85, "success": 90, "love": 75, "health": 80 },
             "free": "<div class='free-preview'><h3 style='color:#FFDF73; margin-bottom:10px;'>[운명 요약]</h3><p style='font-size:1.2rem; font-weight:bold; color:#fff; margin-bottom:15px;'>(소름돋는 한줄 풀이)</p><p>(무료공개용 2~3문장)</p></div>",
-            "premium": "<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>🍀 ${displayTypeName} 행운 포인트</h4><p style='color:#fff; margin:0; font-size:1rem;'>🎨 색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 🔢 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 🧭 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'> 핵심 십성(十星) 기운</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재, 예: 정재(正財) / 식신(食神))</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 알기 쉽게 1~2문장으로 풀이)</p></div><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[재물 및 사업운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[직장 및 명예운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[가정 및 대인운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[건강 및 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p></div>"
+            "premium": "<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>🍀 ${displayTypeName} 행운 포인트</h4><p style='color:#fff; margin:0; font-size:1rem;'>🎨 색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 🔢 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 🧭 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>핵심 십성(十星) 기운</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재, 예: 정재(正財) / 식신(食神))</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 알기 쉽게 1~2문장으로 풀이)</p></div>(이곳에 ${detailRequest} 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>"
         }
     `;
 
