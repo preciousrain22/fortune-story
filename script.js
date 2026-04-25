@@ -151,7 +151,7 @@ if (sajuForm) {
             'yearly': "1년 심층 운세",
             'wealth': "재물운 심층 분석",
             'love': "애정 및 연애운",
-            'subscribe': "월간 운세 프리미엄 구독"
+            'subscribe': "월간 운세 구독"
         }[fortuneType] || "명리 분석";
 
         try {
