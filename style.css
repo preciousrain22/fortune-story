@@ -279,7 +279,7 @@ textarea:focus {
 /* 🚀 퀵메뉴 스타일 */
 .floating-quick-menu {
     position: fixed;
-    bottom: 40%;
+    bottom: 30px;
     right: 20px;
     z-index: 9999;
     display: flex;
