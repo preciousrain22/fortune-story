@@ -279,8 +279,8 @@ textarea:focus {
 /* 🚀 퀵메뉴 스타일 */
 .floating-quick-menu {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 40%;
+    right: 20px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -339,4 +339,11 @@ select option {
     color: #FFDF73;
     /* 선명한 금색 글씨 */
     font-weight: bold;
+}
+
+/* 예시: 제목과 버튼에 적용 */
+.title-text,
+.kakao-button {
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
