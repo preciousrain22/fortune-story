@@ -335,7 +335,17 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         premiumArea.style.opacity = "0.5";
         premiumArea.style.pointerEvents = "none";
         document.getElementById('unlockOverlay').style.display = 'flex';
-        document.getElementById('sajuActionsArea').style.display = 'none';
+
+        // 버튼 영역을 숨기지 않고 다시 보이게 한 뒤, '처음으로' 버튼을 추가합니다.
+        const sajuActionsArea = document.getElementById('sajuActionsArea');
+        sajuActionsArea.style.display = 'block';
+        sajuActionsArea.innerHTML = `
+            <div style="margin-top: 2rem; text-align: center; padding-bottom: 2rem;">
+                <button class="btn-premium outline" style="width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;" onclick="location.href='/'">
+                    처음으로 돌아가기
+                </button>
+            </div>
+        `;
 
         const price = {
             daily: 3900,
