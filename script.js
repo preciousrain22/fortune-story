@@ -153,20 +153,8 @@ if (sajuForm) {
             'love': "애정 및 연애운",
         }[fortuneType] || "명리 분석";
 
-        try {
-            if (typeof Kakao !== 'undefined') {
-                if (!Kakao.isInitialized()) Kakao.init('a5c28b4d706bced99d7282a87113ec82');
-                Kakao.Auth.login({
-                    throughTalk: false,
-                    success: function () { startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); },
-                    fail: function () { startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType); }
-                });
-            } else {
-                startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
-            }
-        } catch (err) {
-            startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
-        }
+        // 카카오 로그인 팝업 강제 호출을 제거하고, 바로 분석(결제 전 단계)으로 직행합니다.
+        startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
     });
 }
 
