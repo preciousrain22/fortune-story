@@ -10,6 +10,9 @@
     window.isMasterKey = sessionStorage.getItem('isFortuneMaster') === 'true';
 })();
 
+window.addEventListener('popstate', function () {
+    location.href = '/';
+});
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -275,6 +278,8 @@ window.handlePdfPrint = function (type) {
 };
 
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing) {
+    history.pushState({ page: 'result' }, null, '');
+
     const header = document.querySelector('.header-neon');
     if (header) header.style.display = 'none';
     const bg = document.querySelector('.star-bg-fixed');
