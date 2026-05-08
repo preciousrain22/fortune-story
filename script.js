@@ -10,9 +10,7 @@
     window.isMasterKey = sessionStorage.getItem('isFortuneMaster') === 'true';
 })();
 
-window.addEventListener('popstate', function () {
-    location.href = '/';
-});
+
 function showToast(message) {
     let toast = document.getElementById('customToast');
     if (!toast) {
@@ -93,7 +91,13 @@ window.loginWithKakao = function () {
 // ==========================================
 // 3. 화면 이동 (네비게이션)
 // ==========================================
-window.selectPath = function (path) {
+history.replaceState({ view: 'gateway' }, null, '');
+
+window.selectPath = function (path, isHistory = false) {
+    if (!isHistory) {
+        history.pushState({ view: path }, null, '');
+    }
+
     const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'result', 'tarotResult', 'tarotDraw'];
     sections.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
 
@@ -110,6 +114,14 @@ window.selectPath = function (path) {
     else if (path === 'amulet') document.getElementById('amuletSection').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
+
+window.addEventListener('popstate', function (e) {
+    if (e.state && e.state.view) {
+        window.selectPath(e.state.view, true);
+    } else {
+        window.selectPath('gateway', true);
+    }
+});
 
 window.toggleQuickMenu = function () {
     const opts = document.getElementById('fabOptions');
