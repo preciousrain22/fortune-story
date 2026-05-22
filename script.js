@@ -334,12 +334,15 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
-    // 💡 이모티콘 싹 뺀 버튼 디자인
     if (window.isMasterKey) {
         premiumArea.style.filter = "none";
         premiumArea.style.opacity = "1";
         premiumArea.style.pointerEvents = "auto";
-        document.getElementById('unlockOverlay').style.display = 'none';
+        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
+        if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
+
         document.getElementById('sajuActionsArea').style.display = 'block';
         document.getElementById('sajuActionsArea').innerHTML = `
             <div style="margin-top: 1rem; text-align: center; padding-bottom: 2rem;">
@@ -351,9 +354,10 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         premiumArea.style.filter = "blur(8px)";
         premiumArea.style.opacity = "0.5";
         premiumArea.style.pointerEvents = "none";
-        document.getElementById('unlockOverlay').style.display = 'flex';
+        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
 
-        // 버튼 영역을 숨기지 않고 다시 보이게 한 뒤, '처음으로' 버튼을 추가합니다.
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
+
         const sajuActionsArea = document.getElementById('sajuActionsArea');
         sajuActionsArea.style.display = 'block';
         sajuActionsArea.innerHTML = `
@@ -371,37 +375,29 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
             wealth: 12900,
             love: 8900,
         }[fortuneType] || 5900;
-        document.getElementById('lockPriceAmount').textContent = `${price.toLocaleString()}원`;
-        document.getElementById('btnUnlockPremium').onclick = () => window.openPaymentModal(typeName, price);
+        const priceStr = `${price.toLocaleString()}원`;
+
+        if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
+        if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
+
+        const openPay = () => window.openPaymentModal(typeName, price);
+        if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
+        if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
+
+        const observer = new IntersectionObserver((entries) => {
+            const stickyWrapper = document.getElementById('stickyPayWrapper');
+            if (stickyWrapper) {
+                if (entries[0].isIntersecting) {
+                    stickyWrapper.classList.remove('visible');
+                } else {
+                    stickyWrapper.classList.add('visible');
+                }
+            }
+        }, { threshold: 0 });
+
+        const inlineWrapper = document.getElementById('inlinePayWrapper');
+        if (inlineWrapper) observer.observe(inlineWrapper);
     }
-}
-
-function generateSajuChartsHTML(colorInfo, bazi, wuXing) {
-    let counts = [
-        (wuXing.match(/木/g) || []).length, (wuXing.match(/火/g) || []).length,
-        (wuXing.match(/土/g) || []).length, (wuXing.match(/金/g) || []).length, (wuXing.match(/水/g) || []).length
-    ];
-
-    let hookMessage = "오행의 밸런스가 비교적 고른 사주입니다.";
-    if (counts[4] === 0) hookMessage = "사주에 수(水) 기운이 고갈되어 있습니다. 잦은 막힘이나 답답함을 느낄 수 있는 명식입니다.";
-    else if (counts[1] >= 3) hookMessage = "불(火)의 에너지가 아주 강합니다. 급격한 감정 소모와 충동적인 결정을 경계해야 합니다.";
-    else if (counts[0] === 0) hookMessage = "시작과 뻗어나가는 힘인 목(木)이 부족합니다. 실행력 부족으로 기회를 놓칠 확률이 높습니다.";
-    else if (counts[2] >= 3) hookMessage = "흙(土)의 기운이 태산처럼 쌓여 있습니다. 지나친 고집으로 스스로 고립을 자초할 수 있습니다.";
-
-    return `
-    <div style="margin-top: 2rem; margin-bottom: 2rem; padding: 2rem; border: 1px solid ${colorInfo.borderRgba}; border-radius: 12px; background-color: rgba(0, 0, 0, 0.2);">
-        <div style="font-size: 1.1rem; color: ${colorInfo.highlightHex}; text-align: center; font-weight: bold; margin-bottom: 15px;">실제 오행(五行) 분포도</div>
-        <p style="color: #fff; text-align: center; margin-bottom: 10px; font-size: 1.05rem;">
-            목(<span style="color:#4CAF50; font-weight:bold;">${counts[0]}</span>) · 
-            화(<span style="color:#F44336; font-weight:bold;">${counts[1]}</span>) · 
-            토(<span style="color:#FFC107; font-weight:bold;">${counts[2]}</span>) · 
-            금(<span style="color:#9E9E9E; font-weight:bold;">${counts[3]}</span>) · 
-            수(<span style="color:#2196F3; font-weight:bold;">${counts[4]}</span>)
-        </p>
-        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-left: 4px solid ${colorInfo.highlightHex}; border-radius: 8px;">
-            <p style="color: #fff; font-size: 1rem; line-height: 1.5; margin: 0;">${hookMessage}</p>
-        </div>
-    </div>`;
 }
 
 // ==========================================

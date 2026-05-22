@@ -347,3 +347,54 @@ select option {
     word-break: keep-all;
     overflow-wrap: break-word;
 }
+
+/* --- 스크롤 반응형 결제 콤보 버튼 스타일 --- */
+.premium-pay-btn {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #000;
+    font-size: 1.15rem;
+    font-weight: 900;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 12px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.premium-pay-btn:active {
+    transform: scale(0.98);
+}
+
+.sticky-bottom-wrapper {
+    position: fixed;
+    bottom: -120px;
+    /* 초기에는 화면 아래에 숨겨둠 */
+    left: 0;
+    width: 100%;
+    /* 배경과 자연스럽게 섞이는 그라데이션 */
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 0.9) 30%, rgba(26, 26, 26, 1) 100%);
+    padding: 20px;
+    padding-bottom: 30px;
+    /* 아이폰 홈바 여백 고려 */
+    transition: bottom 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+}
+
+.sticky-bottom-wrapper button {
+    max-width: 600px;
+    /* PC화면에서 버튼이 너무 길어지지 않게 방어 */
+}
+
+/* 감시자가 켜지면 버튼이 올라옴 */
+.sticky-bottom-wrapper.visible {
+    bottom: 0;
+}
+
+/* 고정 버튼에 글씨가 가려지지 않게 컨테이너 하단 여백 추가 */
+.result-container {
+    padding-bottom: 100px !important;
+}
