@@ -501,3 +501,46 @@ window.checkSmishing = function () {
     document.getElementById('urlCheckResult').style.display = 'block';
     document.getElementById('urlCheckResult').innerHTML = "현재 보안 데이터베이스에 보고된 위험이 없습니다.";
 };
+// ▼▼▼ 여기서부터 복사해서 script.js 맨 밑바닥에 붙여넣으세요 ▼▼▼
+
+function generateSajuChartsHTML(colorInfo, bazi, wuXing) {
+    try {
+        // 사주 데이터가 넘어오지 않으면 화면이 깨지지 않게 조용히 빈칸 반환
+        if (!bazi) return "";
+
+        // 나이(Nai)가 새로 디자인한 프리미엄 황금빛 사주 명식표
+        return `
+        <div style="margin-top: 1.5rem; margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
+            <h3 style="text-align: center; color: ${colorInfo?.highlightHex || '#FFDF73'}; font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: bold;">[나의 사주 명식]</h3>
+            
+            <div style="display: flex; justify-content: space-between; text-align: center; color: #fff;">
+                <div style="flex: 1; margin: 0 4px; background: rgba(255,255,255,0.05); padding: 12px 0; border-radius: 10px;">
+                    <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 8px;">시주(시간)</div>
+                    <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;">${bazi.time ? bazi.time[0] : '？'}</div>
+                    <div style="font-size: 1.4rem; font-weight: bold;">${bazi.time ? bazi.time[1] : '？'}</div>
+                </div>
+                <div style="flex: 1; margin: 0 4px; background: rgba(212, 175, 55, 0.15); padding: 12px 0; border-radius: 10px; border: 1px solid rgba(212, 175, 55, 0.5); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);">
+                    <div style="font-size: 0.8rem; color: ${colorInfo?.highlightHex || '#FFDF73'}; margin-bottom: 8px; font-weight: bold;">일주(나)</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: ${colorInfo?.highlightHex || '#FFDF73'}; margin-bottom: 5px;">${bazi.day ? bazi.day[0] : '？'}</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: ${colorInfo?.highlightHex || '#FFDF73'};">${bazi.day ? bazi.day[1] : '？'}</div>
+                </div>
+                <div style="flex: 1; margin: 0 4px; background: rgba(255,255,255,0.05); padding: 12px 0; border-radius: 10px;">
+                    <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 8px;">월주(환경)</div>
+                    <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;">${bazi.month ? bazi.month[0] : '？'}</div>
+                    <div style="font-size: 1.4rem; font-weight: bold;">${bazi.month ? bazi.month[1] : '？'}</div>
+                </div>
+                <div style="flex: 1; margin: 0 4px; background: rgba(255,255,255,0.05); padding: 12px 0; border-radius: 10px;">
+                    <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 8px;">년주(조상)</div>
+                    <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;">${bazi.year ? bazi.year[0] : '？'}</div>
+                    <div style="font-size: 1.4rem; font-weight: bold;">${bazi.year ? bazi.year[1] : '？'}</div>
+                </div>
+            </div>
+        </div>
+        `;
+    } catch (e) {
+        console.error("차트 생성 중 문제가 발생했습니다 (에러 방어 성공!):", e);
+        return ""; // 에러가 나더라도 하얀 화면 대신 빈 공간을 넘겨서 앱을 살림
+    }
+}
+
+// ▲▲▲ 여기까지 복사 완료! ▲▲▲
