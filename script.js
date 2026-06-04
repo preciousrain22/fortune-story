@@ -401,7 +401,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 }
 
 // ==========================================
-// 5. 결제 모듈 연동
+// 5. 결제 모듈 연동 (수정본)
 // ==========================================
 window.openPaymentModal = function (typeName, amount) {
     const modal = document.getElementById('paymentModal');
@@ -413,14 +413,15 @@ window.openPaymentModal = function (typeName, amount) {
 
     document.getElementById('confirmPaymentBtn').onclick = () => {
         modal.style.display = 'none';
-        sessionStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
+        // 💡 수정포인트 1: 탭이동에 강한 localStorage로 변경
+        localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
         const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
         tossPayments.requestPayment('카드', {
             amount: amount, orderId: 'saju_' + new Date().getTime(), orderName: typeName,
             customerName: "고객", successUrl: window.location.href + "?orderId=" + new Date().getTime(), failUrl: window.location.href
         }).catch(() => {
             alert("결제가 취소되었습니다.");
-            sessionStorage.removeItem('savedSajuResultHTML');
+            localStorage.removeItem('savedSajuResultHTML'); // 취소 시 삭제
         });
     };
 };
@@ -434,14 +435,19 @@ if (urlParamsForPayment.has('paymentKey')) {
     }).then(res => res.json()).then(data => {
         if (data.orderId) {
             alert("결제가 완료되었습니다. 프리미엄 리포트가 해제됩니다.");
-            const saved = sessionStorage.getItem('savedSajuResultHTML');
+            // 💡 수정포인트 2: localStorage에서 불러오기
+            const saved = localStorage.getItem('savedSajuResultHTML');
             if (saved) {
                 const header = document.querySelector('.header-neon');
                 if (header) header.style.display = 'none';
                 const bg = document.querySelector('.star-bg-fixed');
                 if (bg) bg.style.display = 'none';
 
+                // 💡 수정포인트 3: 불필요한 첫 화면들 확실하게 숨기기
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('gateway').style.display = 'none';
                 document.getElementById('daily').style.display = 'none';
+
                 const resultSec = document.getElementById('result');
                 resultSec.innerHTML = saved;
                 resultSec.style.display = 'block';
@@ -450,9 +456,13 @@ if (urlParamsForPayment.has('paymentKey')) {
                 document.getElementById('premiumContentArea').style.pointerEvents = "auto";
                 document.getElementById('unlockOverlay').style.display = 'none';
                 document.getElementById('sajuActionsArea').style.display = 'block';
-                sessionStorage.removeItem('savedSajuResultHTML');
+
+                localStorage.removeItem('savedSajuResultHTML'); // 사용 후 깔끔하게 삭제
             }
         }
+    }).catch(err => {
+        console.error("결제 승인 오류:", err);
+        alert("결제 승인 중 통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     });
     window.history.replaceState({}, document.title, window.location.pathname);
 }
