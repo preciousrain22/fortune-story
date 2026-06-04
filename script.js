@@ -193,6 +193,22 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     document.getElementById('loadingTitle').innerHTML = `${name}님의 <span style="color:#81D4FA;">${displayTypeName}</span> 분석 중입니다.`;
     window.addEventListener('beforeunload', preventExit);
 
+    // 💡 나이의 시각적 마술: 2.5초마다 바뀌는 로딩 메시지
+    const loadingMessageEl = document.getElementById('loadingMessage');
+    const loadingMessages = [
+        "명식과 우주의 기운을 동기화하고 있습니다...",
+        "타고난 오행의 흐름을 짚어내는 중입니다...",
+        "올해의 운기 변곡점을 정밀 타격 중입니다...",
+        "VIP 전용 운명 리포트를 정성껏 작성 중입니다..."
+    ];
+    let msgIndex = 0;
+    loadingMessageEl.innerText = loadingMessages[0];
+
+    const messageInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        loadingMessageEl.innerText = loadingMessages[msgIndex];
+    }, 2500);
+
     const isUnknownTime = document.getElementById('unknownTime') && document.getElementById('unknownTime').checked;
     let hour = 12, minute = 0;
     if (!isUnknownTime && document.getElementById('birthHour') && document.getElementById('birthMinute')) {
@@ -219,7 +235,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 실질적이고 구체적인 조언을 담아 상세히 작성해.";
     }
 
-    // 💡 프롬프트 내 모든 이모티콘 제거 및 진지한 어조 강화
     const promptText = `
         너는 최고급 명리학자야. 고객 정보 - 이름: '${name}', 성별: '${gender}', 생년월일: ${year}년 ${month}월 ${day}일, 결혼여부: '${maritalStatus}'
         명식: ${sajuStr}, 오행: ${wuXing}. 분석 종류: '${displayTypeName}'.
@@ -242,6 +257,9 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
             body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
         });
         const data = await response.json();
+
+        // 💡 통신이 끝나면 타이머 정지 및 로딩 화면 가리기
+        clearInterval(messageInterval);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
 
@@ -255,6 +273,9 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         }
     } catch (error) {
         console.error(error);
+
+        // 💡 에러 시에도 타이머 정지
+        clearInterval(messageInterval);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
         alert("분석 중 오류가 발생했습니다. 다시 시도해 주십시오.");
