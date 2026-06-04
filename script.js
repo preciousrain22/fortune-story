@@ -125,9 +125,22 @@ window.addEventListener('popstate', function (e) {
 
 window.toggleQuickMenu = function () {
     const opts = document.getElementById('fabOptions');
-    const btn = document.getElementById('fabMainBtn');
+    const btnIcon = document.getElementById('fabIconMenu');
     opts.classList.toggle('active');
-    btn.innerText = opts.classList.contains('active') ? '✕' : '✦';
+
+    if (opts.classList.contains('active')) {
+        btnIcon.innerHTML = `
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        `;
+        btnIcon.style.transform = "rotate(90deg)";
+    } else {
+        btnIcon.innerHTML = `
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+        `;
+        btnIcon.style.transform = "rotate(0deg)";
+    }
 };
 
 window.quickNav = function (path) {

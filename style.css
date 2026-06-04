@@ -319,17 +319,20 @@ textarea:focus {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: #FFDF73;
-    color: #000;
-    font-size: 1.8rem;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    background: #0d0d0d;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: 0.3s;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#fabMainBtn:active {
+    transform: scale(0.95);
+    border-color: #FFDF73;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.4);
 }
 
 /* 💡 드롭다운(선택 목록) 다크모드 글씨 안 보이는 현상 해결 */
