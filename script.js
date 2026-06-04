@@ -449,7 +449,7 @@ window.openPaymentModal = function (typeName, amount) {
         modal.style.display = 'none';
         // 💡 수정포인트 1: 탭이동에 강한 localStorage로 변경
         localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
-        const tossPayments = TossPayments("live_ck_ORzdMaqN3wyPbE0GKqQbR5AkYXQG");
+        const tossPayments = TossPayments("live_sk_ZLKGPx4M3MPGYxZ6vLye8BaWypv1");
         tossPayments.requestPayment('카드', {
             amount: amount, orderId: 'saju_' + new Date().getTime(), orderName: typeName,
             customerName: "고객", successUrl: window.location.href + "?orderId=" + new Date().getTime(), failUrl: window.location.href
