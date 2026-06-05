@@ -161,8 +161,8 @@ if (sajuForm) {
         const name = rawName.replace(/[*']/g, '');
 
         if (name.length < 2) { alert("정확한 분석을 위해 이름을 2글자 이상 입력해주십시오."); return; }
-        if (parseInt(month) < 1 || parseInt(month) > 12) { alert('태어난 월은 1월부터 12월 사이로 정확히 입력해 주십시오.'); return; }
-        if (parseInt(day) < 1 || parseInt(day) > 31) { alert('태어난 일은 1일부터 31일 사이로 정확히 입력해 주십시오.'); return; }
+
+        // 1. 먼저 화면에서 데이터를 전부 가져옵니다.
         const gender = document.querySelector('input[name="gender"]:checked').value;
         const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
         const calendarType = document.querySelector('input[name="calendarType"]:checked').value;
@@ -170,10 +170,17 @@ if (sajuForm) {
         let month = document.getElementById('birthMonth').value;
         let day = document.getElementById('birthDay').value;
 
+        // 2. 가져온 데이터가 비어있는지 확인합니다.
         if (!year || !month || !day) { alert('생년월일을 모두 입력해주십시오.'); return; }
-        month = month.padStart(2, '0'); day = day.padStart(2, '0');
 
-        // 💡 버튼 멈춤을 유발했던 괄호 빠짐 에러 완벽 해결
+        // 3. 가져온 숫자가 정상적인 범위인지 방어합니다.
+        if (parseInt(month) < 1 || parseInt(month) > 12) { alert('태어난 월은 1월부터 12월 사이로 정확히 입력해 주십시오.'); return; }
+        if (parseInt(day) < 1 || parseInt(day) > 31) { alert('태어난 일은 1일부터 31일 사이로 정확히 입력해 주십시오.'); return; }
+
+        // 4. 안전하게 변환합니다.
+        month = String(month).padStart(2, '0');
+        day = String(day).padStart(2, '0');
+
         let displayTypeName = {
             'daily': "오늘의 운세",
             'weekly': "주간 운세",
@@ -182,11 +189,9 @@ if (sajuForm) {
             'love': "애정 및 연애운",
         }[fortuneType] || "명리 분석";
 
-        // 카카오 로그인 팝업 강제 호출을 제거하고, 바로 분석(결제 전 단계)으로 직행합니다.
         startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType);
     });
 }
-
 async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType) {
     document.getElementById('daily').style.display = 'none';
     const loadingScreen = document.getElementById('analysisLoading');
