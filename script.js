@@ -161,7 +161,8 @@ if (sajuForm) {
         const name = rawName.replace(/[*']/g, '');
 
         if (name.length < 2) { alert("정확한 분석을 위해 이름을 2글자 이상 입력해주십시오."); return; }
-
+        if (parseInt(month) < 1 || parseInt(month) > 12) { alert('태어난 월은 1월부터 12월 사이로 정확히 입력해 주십시오.'); return; }
+        if (parseInt(day) < 1 || parseInt(day) > 31) { alert('태어난 일은 1일부터 31일 사이로 정확히 입력해 주십시오.'); return; }
         const gender = document.querySelector('input[name="gender"]:checked').value;
         const maritalStatus = document.querySelector('input[name="maritalStatus"]:checked').value;
         const calendarType = document.querySelector('input[name="calendarType"]:checked').value;
