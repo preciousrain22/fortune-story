@@ -149,7 +149,7 @@ window.quickNav = function (path) {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진
+// 4. 사주 AI 엔진 (디자인 100% 강제 고정 모드)
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -229,27 +229,30 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 
     let detailRequest = "";
     if (fortuneType === 'wealth') {
-        detailRequest = "반드시 [타고난 재물 그릇], [부의 변곡점이 되는 시기], [재물 손실 방지책], [전문적인 재테크 방향]으로 나누어 작성해. 그림이나 차트는 절대 넣지 말고 오직 텍스트로만 각 항목당 500자 이상 아주 깊이 있게 분석해.";
+        detailRequest = "반드시 [타고난 재물 그릇], [부의 변곡점이 되는 시기], [재물 손실 방지책], [전문적인 재테크 방향]으로 나누어 작성해. 오직 텍스트로만 각 항목당 500자 이상 아주 깊이 있게 분석해.";
     } else if (fortuneType === 'yearly') {
-        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [가정 및 대인운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. (총 17개 항목 필수). 각 항목당 최소 300자 이상으로, 구체적인 시기와 대처법을 포함해 길고 상세하게 설명해.";
+        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [가정 및 대인운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. 각 항목당 최소 300자 이상으로 길고 상세하게 설명해.";
     } else if (fortuneType === 'love') {
-        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연의 흐름], [관계 발전을 위한 조언]. 각 항목당 최소 400자 이상으로 감정선의 변화까지 깊이 있게 분석해.";
+        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연의 흐름], [관계 발전을 위한 조언]. 각 항목당 최소 400자 이상으로 깊이 있게 분석해.";
     } else {
-        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 실질적이고 구체적인 조언을 담아 상세히 작성해.";
+        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 상세히 작성해.";
     }
 
+    // 💡 AI 환각 방지! HTML 대신 순수 데이터만 요구하도록 프롬프트 수정
     const promptText = "너는 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
         "명식: " + sajuStr + ", 오행: " + wuXing + ". 분석 종류: '" + displayTypeName + "'.\n" +
         "유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.\n" +
-        "전체 글자 수는 최소 3000자 이상이 되도록 내용을 풍부하고 깊이 있게 채워. " + (fortuneType === 'wealth' ? '재물운 분석 시 시각적인 그림이나 차트는 일절 포함하지 마.' : '') + "\n" +
-        "반드시 아래 JSON 형식으로만 응답해. (다른 텍스트 절대 불가, 따옴표나 줄바꿈에 주의할 것)\n" +
+        "반드시 아래 JSON 형식으로만 응답해. (HTML 태그 절대 금지)\n" +
         "{\n" +
         "    \"scores\": { \"wealth\": 85, \"success\": 90, \"love\": 75, \"health\": 80 },\n" +
-        "    \"free\": \"<div class='free-preview' style='position: relative; background: rgba(10, 10, 10, 0.4); border: 2px solid #D4AF37; border-radius: 8px; padding: 40px 20px 30px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0,0,0,0.5);'><div style='position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #1a1a1a; padding: 0 15px; color: #D4AF37; font-size: 1.1rem; letter-spacing: 3px; font-weight: bold; border: 1px solid #D4AF37; border-radius: 20px;'>[ 운 명 요 약 ]</div><div style='margin-bottom: 30px; line-height: 1.4; margin-top: 10px;'><div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>(분석을 관통하는 거대한 핵심 키워드 1)</div><div style='font-size: 2.2rem; font-weight: 900; background: linear-gradient(to bottom, #FFE066, #F9A826); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 4px 12px rgba(0,0,0,0.8);'>(가장 강력한 운명의 특징 2)</div><div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>(앞으로 다가올 변화 3)</div></div><p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>(이곳에 무료공개용 사주 요약 3~4문장을 아주 무게감 있게 작성해. 단, 문장 속에서 가장 중요한 명사나 핵심 단어 양옆에는 반드시 <strong style='color:#FFDF73; font-weight:bold; border-bottom: 1px solid #D4AF37; padding-bottom: 2px;'>핵심단어</strong> 형태로 금색 밑줄 강조 태그를 씌워줄 것)</p></div>\",\n" +
+        "    \"keyword1\": \"(분석을 관통하는 거대한 핵심 키워드 1 - 10자 이내)\",\n" +
+        "    \"keyword2\": \"(가장 강력한 운명의 특징 2 - 10자 이내)\",\n" +
+        "    \"keyword3\": \"(앞으로 다가올 변화 3 - 10자 이내)\",\n" +
+        "    \"summary\": \"(이곳에 무료공개용 사주 요약 3~4문장을 작성해. 중요한 단어 양옆에는 반드시 **단어** 형태로 별표 2개를 붙여서 강조해줄 것)\",\n" +
         "    \"premium\": \"<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>[" + displayTypeName + " 행운 지표]</h4><p style='color:#fff; margin:0; font-size:1rem;'>색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>[핵심 십성(十星) 기운]</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재)</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 아주 깊이 있게 3~4문장 이상으로 풀이)</p></div>(이곳에 " + detailRequest + " 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용 - 각 항목당 반드시 3~4문장 이상의 긴 호흡으로 구체적인 근거와 시기, 대처법 등을 포함하여 아주 길게 작성할 것)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>\"\n" +
         "}";
 
-    // ▼▼▼ API 비용 절약을 위한 [테스트 프리패스 모드] 시작 ▼▼▼
+    // ▼▼▼ API 비용 절약을 위한 [테스트 프리패스 모드] ▼▼▼
     if (name === '테스트') {
         clearInterval(messageInterval);
         loadingScreen.style.display = 'none';
@@ -257,11 +260,14 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 
         const testResultData = {
             "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
-            "free": "<div class='free-preview' style='position: relative; background: rgba(10, 10, 10, 0.4); border: 2px solid #D4AF37; border-radius: 8px; padding: 40px 20px 30px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0,0,0,0.5);'><div style='position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #1a1a1a; padding: 0 15px; color: #D4AF37; font-size: 1.1rem; letter-spacing: 3px; font-weight: bold; border: 1px solid #D4AF37; border-radius: 20px;'>[ 운 명 요 약 ]</div><div style='margin-bottom: 30px; line-height: 1.4; margin-top: 10px;'><div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>막강한 사회적 명예</div><div style='font-size: 2.2rem; font-weight: 900; background: linear-gradient(to bottom, #FFE066, #F9A826); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 4px 12px rgba(0,0,0,0.8);'>안정적 성장의 기틀</div><div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>중대한 도약의 기회</div></div><p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>이 화면은 진우님이 디자인을 확인하기 위해 띄운 <b>테스트 전용 화면</b>입니다. 문장 속 <strong style='color:#FFDF73; font-weight:bold; border-bottom: 1px solid #D4AF37; padding-bottom: 2px;'>강조 단어</strong>가 황금색으로 잘 적용되었는지 폰트와 밸런스를 확인해 보세요.</p></div>",
+            "keyword1": "막강한 사회적 명예",
+            "keyword2": "안정적 성장의 기틀",
+            "keyword3": "중대한 도약의 기회",
+            "summary": "갑진년은 귀하의 **사회적 명예**가 굳건해지는 시기입니다. 이 화면은 진우님이 디자인을 확인하기 위해 띄운 **테스트 전용 화면**입니다.",
             "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>(테스트 모드에서는 내용이 생략됩니다)</div></div>"
         };
         renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, bazi, wuXing, isUnknownTime);
-        return; // 불필요한 API 통신 완벽 차단!
+        return;
     }
     // ▲▲▲ [테스트 프리패스 모드] 끝 ▲▲▲
 
@@ -335,6 +341,9 @@ window.handlePdfPrint = function (type) {
     }, 500);
 };
 
+// ==========================================
+// 💡 화면 렌더링 (디자인 강제 입히기 + 배경 적용)
+// ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
 
@@ -343,13 +352,36 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const bg = document.querySelector('.star-bg-fixed');
     if (bg) bg.style.display = 'block';
 
-    document.getElementById('result').style.display = 'block';
+    const resultSec = document.getElementById('result');
+    resultSec.style.display = 'block';
+
+    // 💡 환상적인 고목나무 배경 적용 (어둡게 처리하여 글씨가 잘 보이게 세팅)
+    resultSec.style.backgroundImage = "linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)), url('images/1000018033.png')";
+    resultSec.style.backgroundSize = "cover";
+    resultSec.style.backgroundPosition = "center top";
+    resultSec.style.backgroundAttachment = "fixed";
+    resultSec.style.minHeight = "100vh";
+    resultSec.style.padding = "20px 0";
 
     const colorInfo = getPersonalColor(year);
     document.getElementById('resultTitle').innerHTML = "<span style='font-size: 0.65em; color: " + colorInfo.highlightHex + ";'>" + name + "님을 위한 명리 컨설팅</span><br><span style='font-size: 1.15em; display: inline-block; margin-top: 15px;'>" + typeName + "</span>";
 
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
-    document.getElementById('freeContentArea').innerHTML = resultData.free + chartHTML;
+
+    // 💡 AI가 뱉어낸 텍스트를 무조건 '황금 두루마리' 포장지에 강제로 집어넣습니다!
+    let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFDF73; font-weight:bold; border-bottom: 1px solid #D4AF37; padding-bottom: 2px;'>$1</strong>");
+
+    let forcedGoldenScrollHTML = "<div class='free-preview' style='position: relative; background: rgba(10, 10, 10, 0.6); border: 2px solid #D4AF37; border-radius: 8px; padding: 40px 20px 30px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0,0,0,0.5);'>" +
+        "<div style='position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #1a1a1a; padding: 0 15px; color: #D4AF37; font-size: 1.1rem; letter-spacing: 3px; font-weight: bold; border: 1px solid #D4AF37; border-radius: 20px;'>[ 운 명 요 약 ]</div>" +
+        "<div style='margin-bottom: 30px; line-height: 1.4; margin-top: 10px;'>" +
+        "<div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>" + (resultData.keyword1 || "강력한 운명의 힘") + "</div>" +
+        "<div style='font-size: 2.2rem; font-weight: 900; background: linear-gradient(to bottom, #FFE066, #F9A826); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 4px 12px rgba(0,0,0,0.8);'>" + (resultData.keyword2 || "성장과 도약의 기틀") + "</div>" +
+        "<div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>" + (resultData.keyword3 || "새로운 국면의 시작") + "</div>" +
+        "</div>" +
+        "<p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>" + safeSummary + "</p>" +
+        "</div>";
+
+    document.getElementById('freeContentArea').innerHTML = forcedGoldenScrollHTML + chartHTML;
 
     let premiumHTML = "";
     if (resultData.scores) {
@@ -363,7 +395,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
             "</div>";
     }
 
-    premiumHTML += resultData.premium;
+    premiumHTML += (resultData.premium || "");
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
@@ -423,7 +455,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 }
 
 // ==========================================
-// 5. 결제 모듈 연동 (수정본)
+// 5. 결제 모듈 연동
 // ==========================================
 window.openPaymentModal = function (typeName, amount) {
     const modal = document.getElementById('paymentModal');
@@ -472,6 +504,13 @@ if (urlParamsForPayment.has('paymentKey')) {
                 const resultSec = document.getElementById('result');
                 resultSec.innerHTML = saved;
                 resultSec.style.display = 'block';
+
+                // 결제 후 돌아왔을 때 배경 유지
+                resultSec.style.backgroundImage = "linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)), url('images/1000018033.png')";
+                resultSec.style.backgroundSize = "cover";
+                resultSec.style.backgroundPosition = "center top";
+                resultSec.style.backgroundAttachment = "fixed";
+
                 document.getElementById('premiumContentArea').style.filter = "none";
                 document.getElementById('premiumContentArea').style.opacity = "1";
                 document.getElementById('premiumContentArea').style.pointerEvents = "auto";
