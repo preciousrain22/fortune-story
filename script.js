@@ -149,7 +149,7 @@ window.quickNav = function (path) {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진 (디자인 100% 강제 고정 모드)
+// 4. 사주 AI 엔진
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -238,7 +238,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 상세히 작성해.";
     }
 
-    // 💡 AI 환각 방지! HTML 대신 순수 데이터만 요구하도록 프롬프트 수정
     const promptText = "너는 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
         "명식: " + sajuStr + ", 오행: " + wuXing + ". 분석 종류: '" + displayTypeName + "'.\n" +
         "유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.\n" +
@@ -260,10 +259,10 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 
         const testResultData = {
             "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
-            "keyword1": "막강한 사회적 명예",
-            "keyword2": "안정적 성장의 기틀",
-            "keyword3": "중대한 도약의 기회",
-            "summary": "갑진년은 귀하의 **사회적 명예**가 굳건해지는 시기입니다. 이 화면은 진우님이 디자인을 확인하기 위해 띄운 **테스트 전용 화면**입니다.",
+            "keyword1": "거대한 조력자",
+            "keyword2": "제왕의 기틀",
+            "keyword3": "중차대한 전환점",
+            "summary": "올해는 정재와 겁재의 운이 교차하며, 이는 단순한 재물 증식을 넘어 **사회적 지위의 공고화**와 **권위의 확립**을 의미하는 중차대한 변환점이 될 것입니다.",
             "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>(테스트 모드에서는 내용이 생략됩니다)</div></div>"
         };
         renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, bazi, wuXing, isUnknownTime);
@@ -342,7 +341,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (디자인 강제 입히기 + 배경 적용)
+// 💡 화면 렌더링 (영화 포스터 디자인 강제 입히기 + 용 배경 적용)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -350,13 +349,14 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const header = document.querySelector('.header-neon');
     if (header) header.style.display = 'none';
     const bg = document.querySelector('.star-bg-fixed');
-    if (bg) bg.style.display = 'block';
+    if (bg) bg.style.display = 'none'; // 별 배경은 끄고 새로운 배경을 씁니다.
 
     const resultSec = document.getElementById('result');
     resultSec.style.display = 'block';
 
-    // 💡 환상적인 고목나무 배경 적용 (어둡게 처리하여 글씨가 잘 보이게 세팅)
-    resultSec.style.backgroundImage = "linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)), url('images/1000018033.png')";
+    // 💡 특별한 용(Dragon) 또는 원하시는 배경 적용 
+    // Vercel의 images 폴더 안에 dragon.png 라는 이름으로 이미지를 꼭 올려주세요!
+    resultSec.style.backgroundImage = "linear-gradient(rgba(15, 15, 20, 0.6), rgba(10, 10, 15, 0.9)), url('images/dragon.png')";
     resultSec.style.backgroundSize = "cover";
     resultSec.style.backgroundPosition = "center top";
     resultSec.style.backgroundAttachment = "fixed";
@@ -368,20 +368,20 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 AI가 뱉어낸 텍스트를 무조건 '황금 두루마리' 포장지에 강제로 집어넣습니다!
-    let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFDF73; font-weight:bold; border-bottom: 1px solid #D4AF37; padding-bottom: 2px;'>$1</strong>");
+    // 💡 텍스트 강조 (볼드 + 금색 텍스트로 깔끔하게)
+    let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700; font-weight:bold;'>$1</strong>");
 
-    let forcedGoldenScrollHTML = "<div class='free-preview' style='position: relative; background: rgba(10, 10, 10, 0.6); border: 2px solid #D4AF37; border-radius: 8px; padding: 40px 20px 30px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0,0,0,0.5);'>" +
-        "<div style='position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: #1a1a1a; padding: 0 15px; color: #D4AF37; font-size: 1.1rem; letter-spacing: 3px; font-weight: bold; border: 1px solid #D4AF37; border-radius: 20px;'>[ 운 명 요 약 ]</div>" +
-        "<div style='margin-bottom: 30px; line-height: 1.4; margin-top: 10px;'>" +
-        "<div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>" + (resultData.keyword1 || "강력한 운명의 힘") + "</div>" +
-        "<div style='font-size: 2.2rem; font-weight: 900; background: linear-gradient(to bottom, #FFE066, #F9A826); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; text-shadow: 0px 4px 12px rgba(0,0,0,0.8);'>" + (resultData.keyword2 || "성장과 도약의 기틀") + "</div>" +
-        "<div style='font-size: 1.6rem; font-weight: 900; background: linear-gradient(to bottom, #FFFDE4, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 2px 8px rgba(0,0,0,0.6);'>" + (resultData.keyword3 || "새로운 국면의 시작") + "</div>" +
+    // 💡 네모 박스를 없애고, 영화 포스터처럼 글자가 입체적으로 허공에 뜨게 만듭니다!
+    let posterStyleHTML = "<div class='free-preview' style='text-align: center; margin-bottom: 40px; padding-top: 30px;'>" +
+        "<div style='margin-bottom: 40px; line-height: 1.5; font-family: \"Gowun Dodum\", \"Nanum Myeongjo\", serif;'>" +
+        "<div style='font-size: 1.8rem; font-weight: 900; color: #E5C07B; text-shadow: 2px 4px 10px rgba(0,0,0,0.8), 0 0 20px rgba(229,192,123,0.4); margin-bottom: 12px; letter-spacing: 1px;'>" + (resultData.keyword1 || "강력한 운명의 힘") + "</div>" +
+        "<div style='font-size: 2.6rem; font-weight: 900; color: #FFD700; text-shadow: 3px 5px 15px rgba(0,0,0,0.9), 0 0 30px rgba(255,215,0,0.5); margin-bottom: 12px; letter-spacing: 2px;'>" + (resultData.keyword2 || "성장과 도약의 기틀") + "</div>" +
+        "<div style='font-size: 1.8rem; font-weight: 900; color: #E5C07B; text-shadow: 2px 4px 10px rgba(0,0,0,0.8), 0 0 20px rgba(229,192,123,0.4); letter-spacing: 1px;'>" + (resultData.keyword3 || "새로운 국면의 시작") + "</div>" +
         "</div>" +
-        "<p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>" + safeSummary + "</p>" +
+        "<p style='color:#e0e0e0; font-size: 1.1rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0; padding: 0 10px;'>" + safeSummary + "</p>" +
         "</div>";
 
-    document.getElementById('freeContentArea').innerHTML = forcedGoldenScrollHTML + chartHTML;
+    document.getElementById('freeContentArea').innerHTML = posterStyleHTML + chartHTML;
 
     let premiumHTML = "";
     if (resultData.scores) {
@@ -495,7 +495,7 @@ if (urlParamsForPayment.has('paymentKey')) {
                 if (header) header.style.display = 'none';
 
                 const bg = document.querySelector('.star-bg-fixed');
-                if (bg) bg.style.display = 'block';
+                if (bg) bg.style.display = 'none'; // 결제 후에도 별 배경은 끕니다.
 
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('gateway').style.display = 'none';
@@ -505,8 +505,8 @@ if (urlParamsForPayment.has('paymentKey')) {
                 resultSec.innerHTML = saved;
                 resultSec.style.display = 'block';
 
-                // 결제 후 돌아왔을 때 배경 유지
-                resultSec.style.backgroundImage = "linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)), url('images/1000018033.png')";
+                // 결제 후 돌아왔을 때 용 배경 유지
+                resultSec.style.backgroundImage = "linear-gradient(rgba(15, 15, 20, 0.6), rgba(10, 10, 15, 0.9)), url('images/dragon.png')";
                 resultSec.style.backgroundSize = "cover";
                 resultSec.style.backgroundPosition = "center top";
                 resultSec.style.backgroundAttachment = "fixed";
