@@ -92,7 +92,7 @@ window.loginWithKakao = function () {
 };
 
 // ==========================================
-// 3. 화면 이동 (네비게이션)
+// 3. 화면 이동 및 이어보기(Keep) 엔진
 // ==========================================
 history.replaceState({ view: 'gateway' }, null, '');
 
@@ -114,10 +114,14 @@ window.selectPath = function (path, isHistory) {
     if (bg) bg.style.display = 'block';
 
     if (path === 'gateway') document.getElementById('gateway').style.display = 'block';
-    else if (path === 'saju') document.getElementById('daily').style.display = 'block';
+    else if (path === 'saju') {
+        document.getElementById('daily').style.display = 'block';
+        renderKeepBanner(); // 사주 입력창 진입 시 임시저장 데이터 확인
+    }
     else if (path === 'tarot') document.getElementById('tarot').style.display = 'block';
     else if (path === 'face') document.getElementById('faceSection').style.display = 'block';
     else if (path === 'amulet') document.getElementById('amuletSection').style.display = 'block';
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -146,6 +150,94 @@ window.toggleQuickMenu = function () {
 window.quickNav = function (path) {
     window.selectPath(path);
     window.toggleQuickMenu();
+};
+
+// 💡 새로운 기능: 임시 저장된 결과 불러오기 배너 생성
+function renderKeepBanner() {
+    const keepDataStr = localStorage.getItem('fortune_keep_data');
+    let banner = document.getElementById('keepBannerArea');
+
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'keepBannerArea';
+        const formContainer = document.querySelector('#daily > div');
+        formContainer.insertBefore(banner, formContainer.firstChild);
+    }
+
+    if (!keepDataStr) {
+        banner.style.display = 'none';
+        return;
+    }
+
+    const keepData = JSON.parse(keepDataStr);
+    const now = new Date().getTime();
+
+    // 24시간(86400000ms)이 지났다면 자동 삭제
+    if (now - keepData.timestamp > 86400000) {
+        localStorage.removeItem('fortune_keep_data');
+        banner.style.display = 'none';
+        return;
+    }
+
+    banner.style.display = 'block';
+    banner.innerHTML = `
+        <div style="background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.5); border-radius: 12px; padding: 15px 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(212,175,55,0.15); cursor: pointer;" onclick="loadKeptResult()">
+            <div>
+                <span style="color:#D4AF37; font-size:0.8rem; font-weight:bold; letter-spacing:1px;">👑 보관된 리포트</span><br>
+                <span style="color:#fff; font-size:1.05rem; font-weight:bold; margin-top:5px; display:inline-block;">${keepData.name}님의 ${keepData.typeName}</span>
+            </div>
+            <div style="background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; padding: 10px 18px; border-radius: 30px; font-weight: 900; font-size: 0.9rem; box-shadow: 0 2px 10px rgba(212,175,55,0.4);">
+                이어보기 ➔
+            </div>
+        </div>
+    `;
+}
+
+// 💡 새로운 기능: 저장된 결과 화면으로 즉시 복구
+window.loadKeptResult = function () {
+    const keepDataStr = localStorage.getItem('fortune_keep_data');
+    if (!keepDataStr) return;
+    const keepData = JSON.parse(keepDataStr);
+
+    history.pushState({ view: 'result' }, null, '');
+
+    const header = document.querySelector('.header-neon');
+    if (header) header.style.display = 'none';
+    const bg = document.querySelector('.star-bg-fixed');
+    if (bg) bg.style.display = 'none';
+
+    const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'tarotResult', 'tarotDraw'];
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    const resultSec = document.getElementById('result');
+    resultSec.style.display = 'block';
+    resultSec.style.background = "#080808";
+    resultSec.style.minHeight = "100vh";
+    resultSec.style.padding = "30px 15px";
+
+    document.getElementById('freeContentArea').innerHTML = keepData.freeArea;
+
+    const premiumArea = document.getElementById('premiumContentArea');
+    premiumArea.innerHTML = keepData.premiumArea;
+
+    if (keepData.isUnlocked || window.isMasterKey) {
+        premiumArea.style.filter = "none";
+        premiumArea.style.opacity = "1";
+        premiumArea.style.pointerEvents = "auto";
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
+        if (document.getElementById('sajuActionsArea')) document.getElementById('sajuActionsArea').style.display = 'block';
+    } else {
+        premiumArea.style.filter = "blur(8px)";
+        premiumArea.style.opacity = "0.5";
+        premiumArea.style.pointerEvents = "none";
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
+        if (document.getElementById('sajuActionsArea')) document.getElementById('sajuActionsArea').style.display = 'block';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // ==========================================
@@ -339,7 +431,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (결과지 자체가 명화가 되는 VIP 레이아웃)
+// 💡 화면 렌더링 (VIP 레이아웃 + 임시저장 로직 추가)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -351,15 +443,12 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 
     const resultSec = document.getElementById('result');
     resultSec.style.display = 'block';
-
-    // 1. 화면 전체 배경은 눈이 편안한 가장 어두운 색으로 고정
     resultSec.style.background = "#080808";
     resultSec.style.minHeight = "100vh";
     resultSec.style.padding = "30px 15px";
 
     const colorInfo = getPersonalColor(year);
 
-    // 2. 오행 이미지 결정
     let bgImageName = 'bg_mystic.png';
     if (colorInfo.element === '목(木)') bgImageName = 'bg_wood.png';
     else if (colorInfo.element === '화(火)') bgImageName = 'bg_fire.png';
@@ -370,34 +459,26 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 3. 결과지 카드 자체를 명화+비급서 형태로 디자인
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #111; border: 1px solid #D4AF37; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(212,175,55,0.15);'>
-            
+                < div class= "paper-container" style = 'max-width: 550px; margin: 0 auto; background: #111; border: 1px solid #D4AF37; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(212,175,55,0.15);' >
             <div style='width: 100%; height: 350px; background: url("images/${bgImageName}") center/cover no-repeat; position: relative;'>
                 <div style='position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent, #111);'></div>
             </div>
-
             <div style='padding: 0 25px 30px 25px; text-align: center; position: relative; z-index: 2; margin-top: -50px;'>
-                
                 <h2 style='color: #FFD700; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 20px;'>${name}님을 위한 ${typeName}</h2>
-                
                 <div style='margin-bottom: 35px;'>
                     <div style='font-size: 1.5rem; font-weight: 900; color: #E5C07B; margin-bottom: 8px;'>${resultData.keyword1 || "거대한 조력자"}</div>
                     <div style='font-size: 2.4rem; font-weight: 900; color: #FFD700; margin-bottom: 8px; text-shadow: 0px 2px 10px rgba(255,215,0,0.3);'>${resultData.keyword2 || "제왕의 기틀"}</div>
                     <div style='font-size: 1.5rem; font-weight: 900; color: #E5C07B;'>${resultData.keyword3 || "중차대한 전환점"}</div>
                 </div>
-
                 <div style='position: relative; padding: 25px 20px; border-top: 1px dashed rgba(212,175,55,0.4); border-bottom: 1px dashed rgba(212,175,55,0.4);'>
                     <div style='position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #111; padding: 0 15px; color: #D4AF37; font-size: 0.9rem; font-weight: bold;'>[ 운명 요약 ]</div>
                     <p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>${safeSummary}</p>
                 </div>
-                
                 ${chartHTML}
-
             </div>
-        </div>
-    `;
+        </div >
+                `;
 
     document.getElementById('freeContentArea').innerHTML = premiumCardHTML;
     if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
@@ -418,7 +499,10 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
+    let isUnlockedStatus = false;
+
     if (window.isMasterKey) {
+        isUnlockedStatus = true;
         premiumArea.style.filter = "none";
         premiumArea.style.opacity = "1";
         premiumArea.style.pointerEvents = "auto";
@@ -441,13 +525,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         sajuActionsArea.style.display = 'block';
         sajuActionsArea.innerHTML = "<div style='margin-top: 2rem; text-align: center; padding-bottom: 2rem;'><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"location.href='/'\">처음으로 돌아가기</button></div>";
 
-        const price = {
-            daily: 3900,
-            weekly: 5900,
-            yearly: 9900,
-            wealth: 12900,
-            love: 8900
-        }[fortuneType] || 5900;
+        const price = { daily: 3900, weekly: 5900, yearly: 9900, wealth: 12900, love: 8900 }[fortuneType] || 5900;
         const priceStr = price.toLocaleString() + "원";
 
         if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
@@ -471,6 +549,17 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         const inlineWrapper = document.getElementById('inlinePayWrapper');
         if (inlineWrapper) observer.observe(inlineWrapper);
     }
+
+    // 💡 분석 완료 시 데이터를 localStorage에 100% 저장
+    const recentData = {
+        name: name,
+        typeName: typeName,
+        timestamp: new Date().getTime(),
+        freeArea: premiumCardHTML,
+        premiumArea: premiumHTML,
+        isUnlocked: isUnlockedStatus
+    };
+    localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 }
 
 // ==========================================
@@ -516,21 +605,34 @@ if (urlParamsForPayment.has('paymentKey')) {
                 const bg = document.querySelector('.star-bg-fixed');
                 if (bg) bg.style.display = 'none';
 
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('gateway').style.display = 'none';
-                document.getElementById('daily').style.display = 'none';
+                const sections = ['login-section', 'gateway', 'daily'];
+                sections.forEach(id => {
+                    if (document.getElementById(id)) document.getElementById(id).style.display = 'none';
+                });
 
                 const resultSec = document.getElementById('result');
                 resultSec.innerHTML = saved;
                 resultSec.style.display = 'block';
+                resultSec.style.background = "#080808";
+                resultSec.style.minHeight = "100vh";
+                resultSec.style.padding = "30px 15px";
 
                 document.getElementById('premiumContentArea').style.filter = "none";
                 document.getElementById('premiumContentArea').style.opacity = "1";
                 document.getElementById('premiumContentArea').style.pointerEvents = "auto";
-                document.getElementById('unlockOverlay').style.display = 'none';
-                document.getElementById('sajuActionsArea').style.display = 'block';
+                if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+                if (document.getElementById('sajuActionsArea')) document.getElementById('sajuActionsArea').style.display = 'block';
 
                 localStorage.removeItem('savedSajuResultHTML');
+
+                // 결제 성공 후 열린 화면 상태도 보관(Keep) 업데이트
+                const keepDataStr = localStorage.getItem('fortune_keep_data');
+                if (keepDataStr) {
+                    const keepData = JSON.parse(keepDataStr);
+                    keepData.isUnlocked = true;
+                    localStorage.setItem('fortune_keep_data', JSON.stringify(keepData));
+                }
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
