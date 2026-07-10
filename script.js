@@ -238,7 +238,7 @@ window.loadKeptResult = function () {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진 
+// 4. 사주 AI 엔진 (테스트 모드 즉시 로딩 적용)
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -279,6 +279,21 @@ if (sajuForm) {
 }
 
 async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType) {
+
+    // 💡 핵심 수정: 이름에 '테스트'가 포함되어 있다면 로딩 화면조차 띄우지 않고 0초 만에 바로 결과로 점프합니다.
+    if (name.indexOf('테스트') !== -1) {
+        const testResultData = {
+            "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
+            "keyword1": "거대한 조력자",
+            "keyword2": "제왕의 기틀",
+            "keyword3": "중차대한 전환점",
+            "summary": "오늘의 운세는 **새로운 기회**와 함께 막중한 책임감이 부여되는 하루가 될 것입니다. 외부로부터의 재물 운과 명예 운이 동시에 활성화되지만, 이를 성공적으로 이끌기 위한 지혜로운 대처가 요구됩니다.",
+            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>(테스트 모드에서는 내용이 생략됩니다)</div></div>"
+        };
+        renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, null, null, false);
+        return;
+    }
+
     document.getElementById('daily').style.display = 'none';
     const loadingScreen = document.getElementById('analysisLoading');
     loadingScreen.style.display = 'flex';
@@ -340,23 +355,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         "    \"premium\": \"<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>[" + displayTypeName + " 행운 지표]</h4><p style='color:#fff; margin:0; font-size:1rem;'>색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>[핵심 십성(十星) 기운]</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재)</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 아주 깊이 있게 3~4문장 이상으로 풀이)</p></div>(이곳에 " + detailRequest + " 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용 - 각 항목당 반드시 3~4문장 이상의 긴 호흡으로 구체적인 근거와 시기, 대처법 등을 포함하여 아주 길게 작성할 것)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>\"\n" +
         "}";
 
-    if (name === '테스트') {
-        clearInterval(messageInterval);
-        loadingScreen.style.display = 'none';
-        window.removeEventListener('beforeunload', preventExit);
-
-        const testResultData = {
-            "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
-            "keyword1": "거대한 조력자",
-            "keyword2": "제왕의 기틀",
-            "keyword3": "중차대한 전환점",
-            "summary": "올해는 정재와 겁재의 운이 교차하며, 이는 단순한 재물 증식을 넘어 **사회적 지위의 공고화**와 **권위의 확립**을 의미하는 중차대한 변환점이 될 것입니다.",
-            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>(테스트 모드에서는 내용이 생략됩니다)</div></div>"
-        };
-        renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, bazi, wuXing, isUnknownTime);
-        return;
-    }
-
     try {
         const response = await fetch('/api/gemini', {
             method: 'POST',
@@ -387,6 +385,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 }
 
 function getPersonalColor(yearStr) {
+    if (!yearStr) return { element: '금(金)', textHex: '#EEEEEE', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
     const lastDigit = parseInt(yearStr, 10) % 10;
     if (lastDigit === 4 || lastDigit === 5) return { element: '목(木)', textHex: '#DCE775', highlightHex: '#C5E1A5', borderRgba: 'rgba(197, 225, 165, 0.4)' };
     if (lastDigit === 6 || lastDigit === 7) return { element: '화(火)', textHex: '#FFCCBC', highlightHex: '#FFAB91', borderRgba: 'rgba(255, 171, 145, 0.4)' };
@@ -428,7 +427,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (3번 사진의 완벽한 액자 프레임 적용)
+// 💡 화면 렌더링 (배경 찌그러짐 완벽 해결본)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -456,15 +455,13 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 핵심 수정: 나무 이미지를 상자 전체의 배경으로 꽉 채워서 늘리고, 안쪽에 반투명 검은색 명패를 띄움
+    // 💡 핵심 수정: 이미지가 찌그러지지 않도록 'top center / 100% auto' 적용 및 배경을 짙은 검은색(#0d0d0d)으로 채움
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: url("images/${bgImageName}") center/100% 100% no-repeat; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; position: relative;'>
+        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #0d0d0d url("images/${bgImageName}") top center / 100% auto no-repeat; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; position: relative;'>
             
-            <!-- 1. 황금 나무 그림이 온전히 보이도록 위쪽 공간 비워두기 -->
-            <div style='height: 330px; width: 100%;'></div>
+            <div style='height: 280px; width: 100%;'></div>
             
-            <!-- 2. 측면 금장 테두리가 보이도록 좌우 여백을 준 흑요석 반투명 명패 영역 -->
-            <div style='margin: 0 18px 30px 18px; background: rgba(8, 8, 8, 0.85); backdrop-filter: blur(4px); border-radius: 12px; padding: 25px 20px; text-align: center; border: 1px solid rgba(212,175,55,0.25); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.7); position: relative; z-index: 2;'>
+            <div style='margin: -20px 15px 30px 15px; background: rgba(12, 12, 12, 0.95); backdrop-filter: blur(8px); border-radius: 15px; padding: 30px 20px; text-align: center; border: 1px solid rgba(212,175,55,0.25); box-shadow: 0 -10px 25px rgba(0,0,0,0.6), 0 5px 15px rgba(0,0,0,0.7); position: relative; z-index: 2;'>
                 
                 <h2 style='color: #FFD700; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 20px;'>${name}님을 위한 ${typeName}</h2>
                 <div style='margin-bottom: 35px;'>
