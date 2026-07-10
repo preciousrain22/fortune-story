@@ -238,7 +238,7 @@ window.loadKeptResult = function () {
 };
 
 // ==========================================
-// 4. 사주 AI 엔진 (테스트 모드 즉시 로딩 적용)
+// 4. 사주 AI 엔진 
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -280,7 +280,7 @@ if (sajuForm) {
 
 async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType) {
 
-    // 💡 핵심 수정: 이름에 '테스트'가 포함되어 있다면 로딩 화면조차 띄우지 않고 0초 만에 바로 결과로 점프합니다.
+    // 💡 [추가됨] '테스트' 입력 시 0초 패스
     if (name.indexOf('테스트') !== -1) {
         const testResultData = {
             "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
@@ -288,7 +288,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
             "keyword2": "제왕의 기틀",
             "keyword3": "중차대한 전환점",
             "summary": "오늘의 운세는 **새로운 기회**와 함께 막중한 책임감이 부여되는 하루가 될 것입니다. 외부로부터의 재물 운과 명예 운이 동시에 활성화되지만, 이를 성공적으로 이끌기 위한 지혜로운 대처가 요구됩니다.",
-            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>(테스트 모드에서는 내용이 생략됩니다)</div></div>"
+            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>실제 분석 시 2000자가 넘는 아주 상세한 전문가의 해설이 이곳에 출력됩니다.</div></div>"
         };
         renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, null, null, false);
         return;
@@ -331,20 +331,11 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-    let detailRequest = "";
-    if (fortuneType === 'wealth') {
-        detailRequest = "반드시 [타고난 재물 그릇], [부의 변곡점이 되는 시기], [재물 손실 방지책], [전문적인 재테크 방향]으로 나누어 작성해. 오직 텍스트로만 각 항목당 500자 이상 아주 깊이 있게 분석해.";
-    } else if (fortuneType === 'yearly') {
-        detailRequest = "반드시 다음 17가지 항목으로 세분화해서 작성해: [올해의 총운], [재물 및 투자운], [직장 및 사업운], [가정 및 대인운], [건강 및 주의사항], 그리고 [1월 운세]부터 [12월 운세]까지 월별 운세 12개. 각 항목당 최소 300자 이상으로 길고 상세하게 설명해.";
-    } else if (fortuneType === 'love') {
-        detailRequest = "반드시 다음 항목으로 세분화해: [현재의 애정운], [나의 매력 포인트], [다가오는 인연의 흐름], [관계 발전을 위한 조언]. 각 항목당 최소 400자 이상으로 깊이 있게 분석해.";
-    } else {
-        detailRequest = "반드시 다음 4가지 항목으로 세분화해: [재물 및 사업운], [직장 및 명예운], [대인관계 및 가정운], [건강 및 주의사항]. 각 항목당 최소 400자 이상으로 상세히 작성해.";
-    }
-
-    const promptText = "너는 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
+    // 💡 [추가됨] AI에게 요약하지 말고 쏟아내듯 길게 쓰라는 강력한 프롬프트
+    const promptText = "너는 30년 경력의 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
         "명식: " + sajuStr + ", 오행: " + wuXing + ". 분석 종류: '" + displayTypeName + "'.\n" +
         "유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.\n" +
+        "절대 짧게 요약하지 마라. 모든 항목을 아주 길고 상세하게, 최소 800자 이상의 프리미엄 리포트 형식으로 쏟아내듯이 작성해.\n" +
         "반드시 아래 JSON 형식으로만 응답해. (HTML 태그 절대 금지)\n" +
         "{\n" +
         "    \"scores\": { \"wealth\": 85, \"success\": 90, \"love\": 75, \"health\": 80 },\n" +
@@ -352,7 +343,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
         "    \"keyword2\": \"(가장 강력한 운명의 특징 2 - 10자 이내)\",\n" +
         "    \"keyword3\": \"(앞으로 다가올 변화 3 - 10자 이내)\",\n" +
         "    \"summary\": \"(이곳에 무료공개용 사주 요약 3~4문장을 작성해. 중요한 단어 양옆에는 반드시 **단어** 형태로 별표 2개를 붙여서 강조해줄 것)\",\n" +
-        "    \"premium\": \"<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>[" + displayTypeName + " 행운 지표]</h4><p style='color:#fff; margin:0; font-size:1rem;'>색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>[핵심 십성(十星) 기운]</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재)</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 아주 깊이 있게 3~4문장 이상으로 풀이)</p></div>(이곳에 " + detailRequest + " 각 항목은 반드시 <h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[항목명]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(풀이 내용 - 각 항목당 반드시 3~4문장 이상의 긴 호흡으로 구체적인 근거와 시기, 대처법 등을 포함하여 아주 길게 작성할 것)</p> 형태의 HTML을 사용해서 반복 작성할 것)</div>\"\n" +
+        "    \"premium\": \"<div class='premium-content'><div style='background:rgba(255,223,115,0.08); border:1px solid rgba(255,223,115,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);'><h4 style='color:#FFDF73; margin-bottom:15px; font-size:1.15rem; letter-spacing: 1px;'>[" + displayTypeName + " 행운 지표]</h4><p style='color:#fff; margin:0; font-size:1rem;'>색상: <strong style='color:#81D4FA;'>(색상)</strong> &nbsp;|&nbsp; 숫자: <strong style='color:#F48FB1;'>(숫자)</strong> &nbsp;|&nbsp; 방향: <strong style='color:#A5D6A7;'>(방향)</strong></p></div><div style='margin-bottom:30px; padding:15px; background:rgba(156, 39, 176, 0.1); border-left:4px solid #D3B8F8; border-radius:8px;'><h4 style='color:#D3B8F8; margin-bottom:10px; font-size:1.15rem;'>[핵심 십성(十星) 기운]</h4><p style='color:#fff; font-size:1.05rem; margin:0;'><strong style='color:#FFDF73;'>(해당 운세 기간에 강하게 들어오는 십성 1~2개 기재)</strong> - (이 십성이 현재 고객에게 어떤 영향을 주는지 아주 깊이 있게 3~4문장 이상으로 풀이)</p></div><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[1. 타고난 운명의 그릇과 기질]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(500자 이상 아주 상세한 성격 및 기질 풀이)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[2. 다가오는 재물과 성공의 흐름]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(500자 이상 구체적인 시기와 방향을 포함한 재물운 분석)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[3. 대인관계 및 애정 운세]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(500자 이상 인간관계 흐름과 주의점 분석)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[4. 전문가가 전하는 실전 개운법]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px; font-size: 1.05rem;'>(500자 이상 구체적인 행동 지침, 액운 방지책 상세 조언)</p></div>\"\n" +
         "}";
 
     try {
@@ -427,7 +418,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (배경 찌그러짐 완벽 해결본)
+// 💡 화면 렌더링 (스토리텔링형 오행 액자 배치)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -445,36 +436,38 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 
     const colorInfo = getPersonalColor(year);
 
-    let bgImageName = 'bg_mystic.png';
-    if (colorInfo.element === '목(木)') bgImageName = 'bg_wood.png';
-    else if (colorInfo.element === '화(火)') bgImageName = 'bg_fire.png';
-    else if (colorInfo.element === '토(土)') bgImageName = 'bg_earth.png';
-    else if (colorInfo.element === '금(金)') bgImageName = 'bg_metal.png';
-    else if (colorInfo.element === '수(水)') bgImageName = 'bg_water.png';
+    const elementMeta = {
+        '목(木)': { img: 'bg_wood.png', desc: '성장과 활력을 상징하는 목(木)의 기운입니다. 뻗어 나가는 나무처럼 당신의 운명도 새로운 시작을 향하고 있습니다.' },
+        '화(火)': { img: 'bg_fire.png', desc: '열정과 밝음을 상징하는 화(火)의 기운입니다. 타오르는 불꽃처럼 당신의 에너지가 세상에 널리 퍼질 시기입니다.' },
+        '토(土)': { img: 'bg_earth.png', desc: '신뢰와 중심을 상징하는 토(土)의 기운입니다. 대지처럼 흔들림 없는 당신의 뿌리가 운명을 든든히 지탱합니다.' },
+        '금(金)': { img: 'bg_metal.png', desc: '결단과 완성의 상징인 금(金)의 기운입니다. 단단한 금속처럼 당신의 의지가 현실적인 성과로 나타나는 운기입니다.' },
+        '수(水)': { img: 'bg_water.png', desc: '지혜와 흐름을 상징하는 수(水)의 기운입니다. 유연하게 흐르는 물처럼 당신은 지혜롭게 고난을 극복할 것입니다.' }
+    };
 
+    const meta = elementMeta[colorInfo.element] || elementMeta['금(金)'];
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 핵심 수정: 이미지가 찌그러지지 않도록 'top center / 100% auto' 적용 및 배경을 짙은 검은색(#0d0d0d)으로 채움
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #0d0d0d url("images/${bgImageName}") top center / 100% auto no-repeat; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; position: relative;'>
+        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #0d0d0d; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 8px solid #3E2723;'>
             
-            <div style='height: 280px; width: 100%;'></div>
+            <!-- 상단: 오행 이미지 -->
+            <img src="images/${meta.img}" style='width: 100%; height: auto; display: block;'>
             
-            <div style='margin: -20px 15px 30px 15px; background: rgba(12, 12, 12, 0.95); backdrop-filter: blur(8px); border-radius: 15px; padding: 30px 20px; text-align: center; border: 1px solid rgba(212,175,55,0.25); box-shadow: 0 -10px 25px rgba(0,0,0,0.6), 0 5px 15px rgba(0,0,0,0.7); position: relative; z-index: 2;'>
+            <!-- 중앙: 텍스트 및 풀이 -->
+            <div style='padding: 40px 30px; text-align: center; color: #fff;'>
+                <h2 style='color: #FFD700; font-size: 1rem; letter-spacing: 3px; margin-bottom: 25px;'>${name}님을 위한 ${typeName}</h2>
+                <div style='font-size: 2.8rem; font-weight: 900; color: #FFD700; margin-bottom: 10px;'>${resultData.keyword2 || "제왕의 기틀"}</div>
+                <p style='color: #81D4FA; font-size: 1.1rem; margin-bottom: 30px; font-weight: bold;'>${meta.desc}</p>
                 
-                <h2 style='color: #FFD700; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 20px;'>${name}님을 위한 ${typeName}</h2>
-                <div style='margin-bottom: 35px;'>
-                    <div style='font-size: 1.5rem; font-weight: 900; color: #E5C07B; margin-bottom: 8px;'>${resultData.keyword1 || "거대한 조력자"}</div>
-                    <div style='font-size: 2.4rem; font-weight: 900; color: #FFD700; margin-bottom: 8px; text-shadow: 0px 2px 10px rgba(255,215,0,0.3);'>${resultData.keyword2 || "제왕의 기틀"}</div>
-                    <div style='font-size: 1.5rem; font-weight: 900; color: #E5C07B;'>${resultData.keyword3 || "중차대한 전환점"}</div>
-                </div>
-                <div style='position: relative; padding: 25px 20px; border-top: 1px dashed rgba(212,175,55,0.4); border-bottom: 1px dashed rgba(212,175,55,0.4);'>
-                    <div style='position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #111; padding: 0 15px; color: #D4AF37; font-size: 0.9rem; font-weight: bold;'>[ 운명 요약 ]</div>
-                    <p style='color:#e0e0e0; font-size: 1.05rem; line-height: 1.8; text-align: justify; word-break: keep-all; margin: 0;'>${safeSummary}</p>
+                <div style='background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.2);'>
+                     <p style='color:#e0e0e0; font-size: 1.1rem; line-height: 2; text-align: justify; word-break: keep-all; margin: 0;'>${safeSummary}</p>
                 </div>
                 ${chartHTML}
             </div>
+            
+            <!-- 하단: 마무리를 위한 이미지 요소 -->
+            <div style='height: 100px; background: url("images/${meta.img}") bottom center / 100% 300% no-repeat; opacity: 0.6;'></div>
         </div>
     `;
 
