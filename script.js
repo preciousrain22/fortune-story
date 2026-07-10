@@ -116,7 +116,7 @@ window.selectPath = function (path, isHistory) {
     if (path === 'gateway') document.getElementById('gateway').style.display = 'block';
     else if (path === 'saju') {
         document.getElementById('daily').style.display = 'block';
-        renderKeepBanner(); // 사주 입력창 진입 시 임시저장 데이터 확인
+        renderKeepBanner();
     }
     else if (path === 'tarot') document.getElementById('tarot').style.display = 'block';
     else if (path === 'face') document.getElementById('faceSection').style.display = 'block';
@@ -152,7 +152,6 @@ window.quickNav = function (path) {
     window.toggleQuickMenu();
 };
 
-// 💡 새로운 기능: 임시 저장된 결과 불러오기 배너 생성
 function renderKeepBanner() {
     const keepDataStr = localStorage.getItem('fortune_keep_data');
     let banner = document.getElementById('keepBannerArea');
@@ -172,7 +171,6 @@ function renderKeepBanner() {
     const keepData = JSON.parse(keepDataStr);
     const now = new Date().getTime();
 
-    // 24시간(86400000ms)이 지났다면 자동 삭제
     if (now - keepData.timestamp > 86400000) {
         localStorage.removeItem('fortune_keep_data');
         banner.style.display = 'none';
@@ -193,7 +191,6 @@ function renderKeepBanner() {
     `;
 }
 
-// 💡 새로운 기능: 저장된 결과 화면으로 즉시 복구
 window.loadKeptResult = function () {
     const keepDataStr = localStorage.getItem('fortune_keep_data');
     if (!keepDataStr) return;
@@ -431,7 +428,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (VIP 레이아웃 + 임시저장 로직 추가)
+// 💡 화면 렌더링 (VIP 레이아웃 + 스크롤 고정 완벽 해결)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -459,8 +456,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
+    // HTML 태그 띄어쓰기 오류 수정본 적용
     let premiumCardHTML = `
-                < div class= "paper-container" style = 'max-width: 550px; margin: 0 auto; background: #111; border: 1px solid #D4AF37; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(212,175,55,0.15);' >
+        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #111; border: 1px solid #D4AF37; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(212,175,55,0.15);'>
             <div style='width: 100%; height: 350px; background: url("images/${bgImageName}") center/cover no-repeat; position: relative;'>
                 <div style='position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent, #111);'></div>
             </div>
@@ -477,8 +475,8 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
                 </div>
                 ${chartHTML}
             </div>
-        </div >
-                `;
+        </div>
+    `;
 
     document.getElementById('freeContentArea').innerHTML = premiumCardHTML;
     if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
@@ -550,7 +548,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         if (inlineWrapper) observer.observe(inlineWrapper);
     }
 
-    // 💡 분석 완료 시 데이터를 localStorage에 100% 저장
     const recentData = {
         name: name,
         typeName: typeName,
@@ -560,6 +557,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
         isUnlocked: isUnlockedStatus
     };
     localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
+
+    // 💡 누락되었던 핵심 코드: 결과창이 완성되면 무조건 스크롤을 맨 위로 부드럽게 끌어올림
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ==========================================
@@ -625,7 +625,6 @@ if (urlParamsForPayment.has('paymentKey')) {
 
                 localStorage.removeItem('savedSajuResultHTML');
 
-                // 결제 성공 후 열린 화면 상태도 보관(Keep) 업데이트
                 const keepDataStr = localStorage.getItem('fortune_keep_data');
                 if (keepDataStr) {
                     const keepData = JSON.parse(keepDataStr);
