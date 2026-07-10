@@ -428,7 +428,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (VIP 레이아웃 + 스크롤 고정 완벽 해결)
+// 💡 화면 렌더링 (VIP 나무 액자 프레임 + 스크롤 고정 완벽 해결)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -456,9 +456,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // HTML 태그 띄어쓰기 오류 수정본 적용
+    // 💡 새로운 '고급 원목 액자 프레임' 스타일 적용 (box-shadow와 border 조합)
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #111; border: 1px solid #D4AF37; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(212,175,55,0.15);'>
+        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #111; border-radius: 12px; border: 7px solid #3E2723; box-shadow: 0 0 0 2px #D4AF37, inset 0 0 0 2px #D4AF37, 0 15px 40px rgba(0,0,0,0.8); overflow: hidden;'>
             <div style='width: 100%; height: 350px; background: url("images/${bgImageName}") center/cover no-repeat; position: relative;'>
                 <div style='position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent, #111);'></div>
             </div>
