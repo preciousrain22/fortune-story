@@ -428,7 +428,7 @@ window.handlePdfPrint = function (type) {
 };
 
 // ==========================================
-// 💡 화면 렌더링 (VIP 나무 액자 프레임 + 스크롤 고정 완벽 해결)
+// 💡 화면 렌더링 (3번 사진의 완벽한 액자 프레임 적용)
 // ==========================================
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
@@ -456,13 +456,16 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 새로운 '고급 원목 액자 프레임' 스타일 적용 (box-shadow와 border 조합)
+    // 💡 핵심 수정: 나무 이미지를 상자 전체의 배경으로 꽉 채워서 늘리고, 안쪽에 반투명 검은색 명패를 띄움
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #111; border-radius: 12px; border: 7px solid #3E2723; box-shadow: 0 0 0 2px #D4AF37, inset 0 0 0 2px #D4AF37, 0 15px 40px rgba(0,0,0,0.8); overflow: hidden;'>
-            <div style='width: 100%; height: 350px; background: url("images/${bgImageName}") center/cover no-repeat; position: relative;'>
-                <div style='position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent, #111);'></div>
-            </div>
-            <div style='padding: 0 25px 30px 25px; text-align: center; position: relative; z-index: 2; margin-top: -50px;'>
+        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: url("images/${bgImageName}") center/100% 100% no-repeat; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; position: relative;'>
+            
+            <!-- 1. 황금 나무 그림이 온전히 보이도록 위쪽 공간 비워두기 -->
+            <div style='height: 330px; width: 100%;'></div>
+            
+            <!-- 2. 측면 금장 테두리가 보이도록 좌우 여백을 준 흑요석 반투명 명패 영역 -->
+            <div style='margin: 0 18px 30px 18px; background: rgba(8, 8, 8, 0.85); backdrop-filter: blur(4px); border-radius: 12px; padding: 25px 20px; text-align: center; border: 1px solid rgba(212,175,55,0.25); box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.7); position: relative; z-index: 2;'>
+                
                 <h2 style='color: #FFD700; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 20px;'>${name}님을 위한 ${typeName}</h2>
                 <div style='margin-bottom: 35px;'>
                     <div style='font-size: 1.5rem; font-weight: 900; color: #E5C07B; margin-bottom: 8px;'>${resultData.keyword1 || "거대한 조력자"}</div>
@@ -558,7 +561,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     };
     localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 
-    // 💡 누락되었던 핵심 코드: 결과창이 완성되면 무조건 스크롤을 맨 위로 부드럽게 끌어올림
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
