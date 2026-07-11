@@ -409,19 +409,11 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     resultSec.style.display = 'block';
     resultSec.style.background = "#080808";
     resultSec.style.minHeight = "100vh";
-    resultSec.style.padding = "30px 15px";
+    resultSec.style.padding = "20px 10px";
 
-    // 💡 이중 테두리 제거 마법 (HTML의 바깥쪽 테두리를 무력화시킵니다)
-    const outerContainer = document.querySelector('#result .result-container');
-    if (outerContainer) {
-        outerContainer.style.padding = '0';
-        outerContainer.style.border = 'none';
-        outerContainer.style.background = 'transparent';
-        outerContainer.style.boxShadow = 'none';
-    }
+    cleanOuterFrame(); // 이중 테두리 제거
 
     const colorInfo = getPersonalColor(year);
-
     const elementMeta = {
         '목(木)': { img: 'bg_wood.png', desc: '성장과 활력을 상징하는 목(木)의 기운입니다. 뻗어 나가는 나무처럼 당신의 운명도 새로운 시작을 향하고 있습니다.' },
         '화(火)': { img: 'bg_fire.png', desc: '열정과 밝음을 상징하는 화(火)의 기운입니다. 타오르는 불꽃처럼 당신의 에너지가 세상에 널리 퍼질 시기입니다.' },
@@ -434,111 +426,107 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 안쪽 테두리만 깔끔하게 남긴 프리미엄 카드
+    // 💡 이미지 1개만 사용하고 아래쪽은 깔끔한 텍스트 풀이로 이어지는 단일 구조
     let premiumCardHTML = `
-        <div style='max-width: 550px; margin: 0 auto; background: #0d0d0d; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid rgba(212,175,55,0.5);'>
-            
-            <!-- 상단: 오행 이미지 (비율 유지) -->
+        <div style='max-width: 550px; margin: 0 auto;'>
             <img src="images/${meta.img}" style='width: 100%; height: auto; display: block;'>
             
-            <!-- 중앙: 텍스트 및 풀이 -->
-            <div style='padding: 40px 30px 10px 30px; text-align: center; color: #fff;'>
-                <h2 style='color: #FFD700; font-size: 1rem; letter-spacing: 3px; margin-bottom: 25px;'>${name}님을 위한 ${typeName}</h2>
-                <div style='font-size: 2.8rem; font-weight: 900; color: #FFD700; margin-bottom: 10px;'>${resultData.keyword2 || "제왕의 기틀"}</div>
+            <div style='padding: 30px 20px; text-align: center; color: #fff; background: #080808;'>
+                <h2 style='color: #FFD700; font-size: 1rem; letter-spacing: 3px; margin-bottom: 20px;'>${name}님을 위한 ${typeName}</h2>
+                <div style='font-size: 2.5rem; font-weight: 900; color: #FFD700; margin-bottom: 15px;'>${resultData.keyword2 || "제왕의 기틀"}</div>
                 <p style='color: #81D4FA; font-size: 1.1rem; margin-bottom: 30px; font-weight: bold;'>${meta.desc}</p>
                 
-                <div style='background: rgba(12,12,12,0.85); padding: 30px 25px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.4); margin-bottom: 40px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.6);'>
-                     <p style='color:#e0e0e0; font-size: 1.1rem; line-height: 2; text-align: justify; word-break: keep-all; margin: 0;'>${safeSummary}</p>
+                <div style='text-align: justify; line-height: 1.8; font-size: 1.1rem; color: #e0e0e0;'>
+                    ${safeSummary}
                 </div>
                 ${chartHTML}
             </div>
-            
-            <!-- 하단: 짤림 방지 완벽 처리 -->
-            <div style='width: 100%; height: 140px; background: url("images/${meta.img}") bottom center / 100% auto no-repeat;'></div>
         </div>
     `;
 
     document.getElementById('freeContentArea').innerHTML = premiumCardHTML;
-    if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
+    // ... 나머지 로직 동일 ...
+}
+if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
 
-    let premiumHTML = "";
-    if (resultData.scores) {
-        const s = resultData.scores;
-        premiumHTML += "<div style='max-width: 550px; margin: 1rem auto 3rem auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.5);'>" +
-            "<h3 style='text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;'>[핵심 운기 지표]</h3>" +
-            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>재물 및 금전운</span><span style='color: #FFD54F;'>" + s.wealth + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.wealth + "%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;'></div></div></div>" +
-            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>성공 및 학업운</span><span style='color: #4CAF50;'>" + s.success + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.success + "%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;'></div></div></div>" +
-            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>대인 및 애정운</span><span style='color: #FF8A80;'>" + s.love + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.love + "%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;'></div></div></div>" +
-            "<div style='margin-bottom: 1rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>건강 및 활력운</span><span style='color: #81D4FA;'>" + s.health + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.health + "%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;'></div></div></div>" +
-            "</div>";
-    }
+let premiumHTML = "";
+if (resultData.scores) {
+    const s = resultData.scores;
+    premiumHTML += "<div style='max-width: 550px; margin: 1rem auto 3rem auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.5);'>" +
+        "<h3 style='text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;'>[핵심 운기 지표]</h3>" +
+        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>재물 및 금전운</span><span style='color: #FFD54F;'>" + s.wealth + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.wealth + "%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;'></div></div></div>" +
+        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>성공 및 학업운</span><span style='color: #4CAF50;'>" + s.success + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.success + "%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;'></div></div></div>" +
+        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>대인 및 애정운</span><span style='color: #FF8A80;'>" + s.love + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.love + "%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;'></div></div></div>" +
+        "<div style='margin-bottom: 1rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>건강 및 활력운</span><span style='color: #81D4FA;'>" + s.health + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.health + "%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;'></div></div></div>" +
+        "</div>";
+}
 
-    premiumHTML += (resultData.premium || "");
-    const premiumArea = document.getElementById('premiumContentArea');
-    premiumArea.innerHTML = premiumHTML;
+premiumHTML += (resultData.premium || "");
+const premiumArea = document.getElementById('premiumContentArea');
+premiumArea.innerHTML = premiumHTML;
 
-    let isUnlockedStatus = false;
+let isUnlockedStatus = false;
 
-    if (window.isMasterKey) {
-        isUnlockedStatus = true;
-        premiumArea.style.filter = "none";
-        premiumArea.style.opacity = "1";
-        premiumArea.style.pointerEvents = "auto";
-        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+if (window.isMasterKey) {
+    isUnlockedStatus = true;
+    premiumArea.style.filter = "none";
+    premiumArea.style.opacity = "1";
+    premiumArea.style.pointerEvents = "auto";
+    if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
 
-        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
-        if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
+    if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
+    if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
 
-        document.getElementById('sajuActionsArea').style.display = 'block';
-        document.getElementById('sajuActionsArea').innerHTML = "<div style='margin-top: 1rem; text-align: center; padding-bottom: 2rem;'><p style='color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;'>마스터 권한으로 프리미엄 리포트가 해제되었습니다.</p><button class='btn-premium kakao pulse-btn' style='width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;' onclick=\"shareKakaoCombo('saju')\">카카오톡으로 전체 결과 발송</button><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"handlePdfPrint('saju')\">결과 이미지 저장</button></div>";
-    } else {
-        premiumArea.style.filter = "blur(8px)";
-        premiumArea.style.opacity = "0.5";
-        premiumArea.style.pointerEvents = "none";
-        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+    document.getElementById('sajuActionsArea').style.display = 'block';
+    document.getElementById('sajuActionsArea').innerHTML = "<div style='margin-top: 1rem; text-align: center; padding-bottom: 2rem;'><p style='color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;'>마스터 권한으로 프리미엄 리포트가 해제되었습니다.</p><button class='btn-premium kakao pulse-btn' style='width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;' onclick=\"shareKakaoCombo('saju')\">카카오톡으로 전체 결과 발송</button><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"handlePdfPrint('saju')\">결과 이미지 저장</button></div>";
+} else {
+    premiumArea.style.filter = "blur(8px)";
+    premiumArea.style.opacity = "0.5";
+    premiumArea.style.pointerEvents = "none";
+    if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
 
-        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
+    if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
 
-        const sajuActionsArea = document.getElementById('sajuActionsArea');
-        sajuActionsArea.style.display = 'block';
-        sajuActionsArea.innerHTML = "<div style='margin-top: 2rem; text-align: center; padding-bottom: 2rem;'><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"location.href='/'\">처음으로 돌아가기</button></div>";
+    const sajuActionsArea = document.getElementById('sajuActionsArea');
+    sajuActionsArea.style.display = 'block';
+    sajuActionsArea.innerHTML = "<div style='margin-top: 2rem; text-align: center; padding-bottom: 2rem;'><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"location.href='/'\">처음으로 돌아가기</button></div>";
 
-        const price = { daily: 3900, weekly: 5900, yearly: 9900, wealth: 12900, love: 8900 }[fortuneType] || 5900;
-        const priceStr = price.toLocaleString() + "원";
+    const price = { daily: 3900, weekly: 5900, yearly: 9900, wealth: 12900, love: 8900 }[fortuneType] || 5900;
+    const priceStr = price.toLocaleString() + "원";
 
-        if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
-        if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
+    if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
+    if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
 
-        const openPay = function () { window.openPaymentModal(typeName, price); };
-        if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
-        if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
+    const openPay = function () { window.openPaymentModal(typeName, price); };
+    if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
+    if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
 
-        const observer = new IntersectionObserver(function (entries) {
-            const stickyWrapper = document.getElementById('stickyPayWrapper');
-            if (stickyWrapper) {
-                if (entries[0].isIntersecting) {
-                    stickyWrapper.classList.remove('visible');
-                } else {
-                    stickyWrapper.classList.add('visible');
-                }
+    const observer = new IntersectionObserver(function (entries) {
+        const stickyWrapper = document.getElementById('stickyPayWrapper');
+        if (stickyWrapper) {
+            if (entries[0].isIntersecting) {
+                stickyWrapper.classList.remove('visible');
+            } else {
+                stickyWrapper.classList.add('visible');
             }
-        }, { threshold: 0 });
+        }
+    }, { threshold: 0 });
 
-        const inlineWrapper = document.getElementById('inlinePayWrapper');
-        if (inlineWrapper) observer.observe(inlineWrapper);
-    }
+    const inlineWrapper = document.getElementById('inlinePayWrapper');
+    if (inlineWrapper) observer.observe(inlineWrapper);
+}
 
-    const recentData = {
-        name: name,
-        typeName: typeName,
-        timestamp: new Date().getTime(),
-        freeArea: premiumCardHTML,
-        premiumArea: premiumHTML,
-        isUnlocked: isUnlockedStatus
-    };
-    localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
+const recentData = {
+    name: name,
+    typeName: typeName,
+    timestamp: new Date().getTime(),
+    freeArea: premiumCardHTML,
+    premiumArea: premiumHTML,
+    isUnlocked: isUnlockedStatus
+};
+localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 window.handlePdfPrint = function (type) {
