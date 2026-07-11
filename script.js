@@ -527,7 +527,7 @@ const recentData = {
 localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 
 window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+
 
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
