@@ -215,6 +215,15 @@ window.loadKeptResult = function () {
     resultSec.style.minHeight = "100vh";
     resultSec.style.padding = "30px 15px";
 
+    // 💡 이중 테두리 제거 마법 (이어보기 시)
+    const outerContainer = document.querySelector('#result .result-container');
+    if (outerContainer) {
+        outerContainer.style.padding = '0';
+        outerContainer.style.border = 'none';
+        outerContainer.style.background = 'transparent';
+        outerContainer.style.boxShadow = 'none';
+    }
+
     document.getElementById('freeContentArea').innerHTML = keepData.freeArea;
 
     const premiumArea = document.getElementById('premiumContentArea');
@@ -280,7 +289,7 @@ if (sajuForm) {
 
 async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType) {
 
-    // 💡 '테스트' 입력 시 0초 즉시 로딩 (디자인 검수용)
+    // 💡 '테스트' 입력 시 0초 즉시 로딩
     if (name.indexOf('테스트') !== -1) {
         const testResultData = {
             "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
@@ -331,7 +340,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-    // 💡 초정밀 상세 분석을 위한 강력한 프롬프트
+    // 💡 초정밀 상세 분석 프롬프트
     const promptText = "너는 30년 경력의 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
         "명식: " + sajuStr + ", 오행: " + wuXing + ". 분석 종류: '" + displayTypeName + "'.\n" +
         "유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.\n" +
@@ -376,7 +385,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 }
 
 // ==========================================
-// 5. 렌더링 엔진 (오행 액자 + 완벽한 디자인 디테일 단일 정의)
+// 5. 렌더링 엔진 (오행 액자 + 이중 테두리 완벽 제거)
 // ==========================================
 function getPersonalColor(yearStr) {
     if (!yearStr) return { element: '금(金)', textHex: '#EEEEEE', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
@@ -402,6 +411,15 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     resultSec.style.minHeight = "100vh";
     resultSec.style.padding = "30px 15px";
 
+    // 💡 이중 테두리 제거 마법 (HTML의 바깥쪽 테두리를 무력화시킵니다)
+    const outerContainer = document.querySelector('#result .result-container');
+    if (outerContainer) {
+        outerContainer.style.padding = '0';
+        outerContainer.style.border = 'none';
+        outerContainer.style.background = 'transparent';
+        outerContainer.style.boxShadow = 'none';
+    }
+
     const colorInfo = getPersonalColor(year);
 
     const elementMeta = {
@@ -416,8 +434,9 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
+    // 💡 안쪽 테두리만 깔끔하게 남긴 프리미엄 카드
     let premiumCardHTML = `
-        <div class="paper-container" style='max-width: 550px; margin: 0 auto; background: #0d0d0d; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 8px solid #3E2723;'>
+        <div style='max-width: 550px; margin: 0 auto; background: #0d0d0d; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); overflow: hidden; border: 1px solid rgba(212,175,55,0.5);'>
             
             <!-- 상단: 오행 이미지 (비율 유지) -->
             <img src="images/${meta.img}" style='width: 100%; height: auto; display: block;'>
@@ -428,7 +447,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
                 <div style='font-size: 2.8rem; font-weight: 900; color: #FFD700; margin-bottom: 10px;'>${resultData.keyword2 || "제왕의 기틀"}</div>
                 <p style='color: #81D4FA; font-size: 1.1rem; margin-bottom: 30px; font-weight: bold;'>${meta.desc}</p>
                 
-                <div style='background: rgba(12,12,12,0.85); padding: 30px 25px; border-radius: 15px; border: 1px solid #D4AF37; margin-bottom: 40px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.6);'>
+                <div style='background: rgba(12,12,12,0.85); padding: 30px 25px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.4); margin-bottom: 40px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.6);'>
                      <p style='color:#e0e0e0; font-size: 1.1rem; line-height: 2; text-align: justify; word-break: keep-all; margin: 0;'>${safeSummary}</p>
                 </div>
                 ${chartHTML}
