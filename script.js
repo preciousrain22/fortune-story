@@ -44,6 +44,24 @@ window.shareKakaoCombo = async function (type) {
     }
 };
 
+// 💡 [핵심] 이중 테두리 및 겉껍데기 강제 제거 마법 함수
+function cleanOuterFrame() {
+    let styleEl = document.getElementById('fortune-clean-frame');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'fortune-clean-frame';
+        styleEl.innerHTML = `
+            #result .result-container {
+                border: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+        `;
+        document.head.appendChild(styleEl);
+    }
+}
+
 // ==========================================
 // 2. 파이어베이스 및 카카오 로그인
 // ==========================================
@@ -215,14 +233,7 @@ window.loadKeptResult = function () {
     resultSec.style.minHeight = "100vh";
     resultSec.style.padding = "30px 15px";
 
-    // 💡 이중 테두리 제거 마법 (이어보기 시)
-    const outerContainer = document.querySelector('#result .result-container');
-    if (outerContainer) {
-        outerContainer.style.padding = '0';
-        outerContainer.style.border = 'none';
-        outerContainer.style.background = 'transparent';
-        outerContainer.style.boxShadow = 'none';
-    }
+    cleanOuterFrame(); // 이중 테두리 제거 
 
     document.getElementById('freeContentArea').innerHTML = keepData.freeArea;
 
@@ -247,7 +258,7 @@ window.loadKeptResult = function () {
 };
 
 // ==========================================
-// 4. 사주 AI 분석 엔진 (단일 흐름 완벽 연결)
+// 4. 사주 AI 분석 엔진 
 // ==========================================
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
@@ -297,7 +308,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
             "keyword2": "제왕의 기틀",
             "keyword3": "중차대한 전환점",
             "summary": "오늘의 운세는 **새로운 기회**와 함께 막중한 책임감이 부여되는 하루가 될 것입니다. 외부로부터의 재물 운과 명예 운이 동시에 활성화되지만, 이를 성공적으로 이끌기 위한 지혜로운 대처가 요구됩니다.",
-            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>실제 분석 시 2000자가 넘는 아주 상세한 전문가의 해설이 이곳에 출력됩니다.</div></div>"
+            "premium": "<div class='premium-content'><div style='text-align:center; color:#fff; padding:50px; background: rgba(255,255,255,0.05); border-radius: 10px;'>이곳은 프리미엄 리포트 영역입니다.<br>실제 분석 시 2000자가 넘는 아주 상세한 전문가의 해설이 이곳에 출력됩니다.</div></div>"
         };
         renderSajuResult(name, displayTypeName, year, month, day, testResultData, fortuneType, null, null, false);
         return;
@@ -340,7 +351,6 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
     let wuXing = bazi.getYearWuXing() + bazi.getMonthWuXing() + bazi.getDayWuXing();
     if (!isUnknownTime) wuXing += bazi.getTimeWuXing();
 
-    // 💡 초정밀 상세 분석 프롬프트
     const promptText = "너는 30년 경력의 최고급 명리학자야. 고객 정보 - 이름: '" + name + "', 성별: '" + gender + "', 생년월일: " + year + "년 " + month + "월 " + day + "일, 결혼여부: '" + maritalStatus + "'\n" +
         "명식: " + sajuStr + ", 오행: " + wuXing + ". 분석 종류: '" + displayTypeName + "'.\n" +
         "유머나 이모티콘은 절대 금지하며, 상위 0.1% VIP 고객에게 전달하는 매우 진지하고 무게감 있는 전문가의 어조로 작성해.\n" +
@@ -385,7 +395,7 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
 }
 
 // ==========================================
-// 5. 렌더링 엔진 (오행 액자 + 이중 테두리 완벽 제거)
+// 5. 렌더링 엔진 (오류 수정 & 단일 레이아웃 적용)
 // ==========================================
 function getPersonalColor(yearStr) {
     if (!yearStr) return { element: '금(金)', textHex: '#EEEEEE', highlightHex: '#FFFFFF', borderRgba: 'rgba(255, 255, 255, 0.4)' };
@@ -397,6 +407,7 @@ function getPersonalColor(yearStr) {
     return { element: '수(水)', textHex: '#B3E5FC', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
 }
 
+// 💡 여기서부터 끝까지 하나로 완벽하게 묶인 렌더링 함수입니다. 
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
 
@@ -426,7 +437,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 이미지 1개만 사용하고 아래쪽은 깔끔한 텍스트 풀이로 이어지는 단일 구조
+    // 💡 이미지 1개만 사용하고 그 아래로 텍스트 풀이로 이어지는 단일 구조 HTML 생성
     let premiumCardHTML = `
         <div style='max-width: 550px; margin: 0 auto;'>
             <img src="images/${meta.img}" style='width: 100%; height: auto; display: block;'>
@@ -445,90 +456,91 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     `;
 
     document.getElementById('freeContentArea').innerHTML = premiumCardHTML;
-    // ... 나머지 로직 동일 ...
-}
-if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
 
-let premiumHTML = "";
-if (resultData.scores) {
-    const s = resultData.scores;
-    premiumHTML += "<div style='max-width: 550px; margin: 1rem auto 3rem auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.5);'>" +
-        "<h3 style='text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;'>[핵심 운기 지표]</h3>" +
-        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>재물 및 금전운</span><span style='color: #FFD54F;'>" + s.wealth + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.wealth + "%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;'></div></div></div>" +
-        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>성공 및 학업운</span><span style='color: #4CAF50;'>" + s.success + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.success + "%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;'></div></div></div>" +
-        "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>대인 및 애정운</span><span style='color: #FF8A80;'>" + s.love + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.love + "%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;'></div></div></div>" +
-        "<div style='margin-bottom: 1rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>건강 및 활력운</span><span style='color: #81D4FA;'>" + s.health + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.health + "%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;'></div></div></div>" +
-        "</div>";
-}
+    if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
 
-premiumHTML += (resultData.premium || "");
-const premiumArea = document.getElementById('premiumContentArea');
-premiumArea.innerHTML = premiumHTML;
+    // 💡 하단 프리미엄 정보 (텍스트) 생성
+    let premiumHTML = "";
+    if (resultData.scores) {
+        const s = resultData.scores;
+        premiumHTML += "<div style='max-width: 550px; margin: 1rem auto 3rem auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.5);'>" +
+            "<h3 style='text-align: center; color: #FFDF73; font-size: 1.3rem; margin-bottom: 2rem; font-weight: bold;'>[핵심 운기 지표]</h3>" +
+            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>재물 및 금전운</span><span style='color: #FFD54F;'>" + s.wealth + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.wealth + "%; background: linear-gradient(90deg, #F9F6CA, #D4AF37); height: 100%; border-radius: 7px;'></div></div></div>" +
+            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>성공 및 학업운</span><span style='color: #4CAF50;'>" + s.success + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.success + "%; background: linear-gradient(90deg, #A5D6A7, #4CAF50); height: 100%; border-radius: 7px;'></div></div></div>" +
+            "<div style='margin-bottom: 1.5rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>대인 및 애정운</span><span style='color: #FF8A80;'>" + s.love + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.love + "%; background: linear-gradient(90deg, #FFCDD2, #FF5252); height: 100%; border-radius: 7px;'></div></div></div>" +
+            "<div style='margin-bottom: 1rem;'><div style='display: flex; justify-content: space-between; color: #fff; margin-bottom: 5px;'><span>건강 및 활력운</span><span style='color: #81D4FA;'>" + s.health + "점</span></div><div style='width: 100%; background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px;'><div style='width: " + s.health + "%; background: linear-gradient(90deg, #B3E5FC, #29B6F6); height: 100%; border-radius: 7px;'></div></div></div>" +
+            "</div>";
+    }
 
-let isUnlockedStatus = false;
+    premiumHTML += (resultData.premium || "");
+    const premiumArea = document.getElementById('premiumContentArea');
+    premiumArea.innerHTML = premiumHTML;
 
-if (window.isMasterKey) {
-    isUnlockedStatus = true;
-    premiumArea.style.filter = "none";
-    premiumArea.style.opacity = "1";
-    premiumArea.style.pointerEvents = "auto";
-    if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+    // 💡 결제 및 마스터 해제 상태 제어 로직 
+    let isUnlockedStatus = false;
+    if (window.isMasterKey) {
+        isUnlockedStatus = true;
+        premiumArea.style.filter = "none";
+        premiumArea.style.opacity = "1";
+        premiumArea.style.pointerEvents = "auto";
+        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
+        if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
 
-    if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
-    if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
+        document.getElementById('sajuActionsArea').style.display = 'block';
+        document.getElementById('sajuActionsArea').innerHTML = "<div style='margin-top: 1rem; text-align: center; padding-bottom: 2rem;'><p style='color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;'>마스터 권한으로 프리미엄 리포트가 해제되었습니다.</p><button class='btn-premium kakao pulse-btn' style='width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;' onclick=\"shareKakaoCombo('saju')\">카카오톡으로 전체 결과 발송</button><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"handlePdfPrint('saju')\">결과 이미지 저장</button></div>";
+    } else {
+        premiumArea.style.filter = "blur(8px)";
+        premiumArea.style.opacity = "0.5";
+        premiumArea.style.pointerEvents = "none";
+        if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+        if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
 
-    document.getElementById('sajuActionsArea').style.display = 'block';
-    document.getElementById('sajuActionsArea').innerHTML = "<div style='margin-top: 1rem; text-align: center; padding-bottom: 2rem;'><p style='color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;'>마스터 권한으로 프리미엄 리포트가 해제되었습니다.</p><button class='btn-premium kakao pulse-btn' style='width: 100%; border-radius: 50px; background-color: #FEE500; color: #000; font-weight: bold; border: none; height: 60px; margin-bottom:10px;' onclick=\"shareKakaoCombo('saju')\">카카오톡으로 전체 결과 발송</button><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"handlePdfPrint('saju')\">결과 이미지 저장</button></div>";
-} else {
-    premiumArea.style.filter = "blur(8px)";
-    premiumArea.style.opacity = "0.5";
-    premiumArea.style.pointerEvents = "none";
-    if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
+        const sajuActionsArea = document.getElementById('sajuActionsArea');
+        sajuActionsArea.style.display = 'block';
+        sajuActionsArea.innerHTML = "<div style='margin-top: 2rem; text-align: center; padding-bottom: 2rem;'><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"location.href='/'\">처음으로 돌아가기</button></div>";
 
-    if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'block';
+        const price = { daily: 3900, weekly: 5900, yearly: 9900, wealth: 12900, love: 8900 }[fortuneType] || 5900;
+        const priceStr = price.toLocaleString() + "원";
 
-    const sajuActionsArea = document.getElementById('sajuActionsArea');
-    sajuActionsArea.style.display = 'block';
-    sajuActionsArea.innerHTML = "<div style='margin-top: 2rem; text-align: center; padding-bottom: 2rem;'><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"location.href='/'\">처음으로 돌아가기</button></div>";
+        if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
+        if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
 
-    const price = { daily: 3900, weekly: 5900, yearly: 9900, wealth: 12900, love: 8900 }[fortuneType] || 5900;
-    const priceStr = price.toLocaleString() + "원";
+        const openPay = function () { window.openPaymentModal(typeName, price); };
+        if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
+        if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
 
-    if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
-    if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
-
-    const openPay = function () { window.openPaymentModal(typeName, price); };
-    if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
-    if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
-
-    const observer = new IntersectionObserver(function (entries) {
-        const stickyWrapper = document.getElementById('stickyPayWrapper');
-        if (stickyWrapper) {
-            if (entries[0].isIntersecting) {
-                stickyWrapper.classList.remove('visible');
-            } else {
-                stickyWrapper.classList.add('visible');
+        const observer = new IntersectionObserver(function (entries) {
+            const stickyWrapper = document.getElementById('stickyPayWrapper');
+            if (stickyWrapper) {
+                if (entries[0].isIntersecting) {
+                    stickyWrapper.classList.remove('visible');
+                } else {
+                    stickyWrapper.classList.add('visible');
+                }
             }
-        }
-    }, { threshold: 0 });
+        }, { threshold: 0 });
 
-    const inlineWrapper = document.getElementById('inlinePayWrapper');
-    if (inlineWrapper) observer.observe(inlineWrapper);
-}
+        const inlineWrapper = document.getElementById('inlinePayWrapper');
+        if (inlineWrapper) observer.observe(inlineWrapper);
+    }
 
-const recentData = {
-    name: name,
-    typeName: typeName,
-    timestamp: new Date().getTime(),
-    freeArea: premiumCardHTML,
-    premiumArea: premiumHTML,
-    isUnlocked: isUnlockedStatus
-};
-localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
+    const recentData = {
+        name: name,
+        typeName: typeName,
+        timestamp: new Date().getTime(),
+        freeArea: premiumCardHTML,
+        premiumArea: premiumHTML,
+        isUnlocked: isUnlockedStatus
+    };
+    localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 
-window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+} // <-- 💡 누락되었던 괄호 문제를 여기서 완벽히 봉합했습니다!
 
-
+// ==========================================
+// 부가 엔진 (PDF 다운로드, 타로, 결제 등) 
+// ==========================================
 window.handlePdfPrint = function (type) {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     if ((ua.indexOf("Instagram") > -1) || (ua.indexOf("KAKAOTALK") > -1) || (ua.indexOf("Threads") > -1)) {
@@ -561,9 +573,6 @@ window.handlePdfPrint = function (type) {
     }, 500);
 };
 
-// ==========================================
-// 6. 결제, 타로, 관상 등 부가 엔진
-// ==========================================
 window.openPaymentModal = function (typeName, amount) {
     const modal = document.getElementById('paymentModal');
     document.getElementById('paymentFortuneType').textContent = typeName;
