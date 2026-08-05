@@ -585,11 +585,22 @@ window.openPaymentModal = function (typeName, amount) {
         modal.style.display = 'none';
         localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
         const tossPayments = TossPayments("live_sk_ZLKGPx4M3MPGYxZ6vLye8BaWypv1");
+
         tossPayments.requestPayment('카드', {
-            amount: amount, orderId: 'saju_' + new Date().getTime(), orderName: typeName,
-            customerName: "고객", successUrl: window.location.href + "?orderId=" + new Date().getTime(), failUrl: window.location.href
-        }).catch(function () {
-            alert("결제가 취소되었습니다.");
+            amount: amount,
+            orderId: 'saju_' + new Date().getTime(),
+            orderName: typeName,
+            customerName: "고객",
+            successUrl: window.location.origin + window.location.pathname + "?orderId=" + new Date().getTime(),
+            failUrl: window.location.origin + window.location.pathname
+        }).catch(function (error) {
+            console.error("🚨 토스페이먼츠 에러 상세:", error);
+
+            if (error.code === 'USER_CANCEL') {
+                alert("사용자가 결제를 취소했습니다.");
+            } else {
+                alert("결제 중 오류가 발생했습니다. 개발자 도구를 확인해주세요.");
+            }
             localStorage.removeItem('savedSajuResultHTML');
         });
     };
