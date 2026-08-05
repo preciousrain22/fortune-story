@@ -584,6 +584,8 @@ window.openPaymentModal = function (typeName, amount) {
     document.getElementById('confirmPaymentBtn').onclick = function () {
         modal.style.display = 'none';
         localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
+
+        // 💡 주의: 이전에 발급받은 클라이언트 키(test_ck_...)가 맞는지 다시 한번 확인해 주세요.
         const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
 
         tossPayments.requestPayment('카드', {
@@ -591,8 +593,9 @@ window.openPaymentModal = function (typeName, amount) {
             orderId: 'saju_' + new Date().getTime(),
             orderName: typeName,
             customerName: "고객",
-            successUrl: window.location.origin + window.location.pathname + "?orderId=" + new Date().getTime(),
-            failUrl: window.location.origin + window.location.pathname
+            // 💡 [핵심 수정] URL을 가장 단순한 기본 도메인으로 설정하고 파라미터만 붙입니다.
+            successUrl: window.location.origin + "?paymentKey={PAYMENT_KEY}&orderId={ORDER_ID}&amount={AMOUNT}",
+            failUrl: window.location.origin + "?fail=true"
         }).catch(function (error) {
             console.error("🚨 토스페이먼츠 에러 상세:", error);
 
