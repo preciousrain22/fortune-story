@@ -585,7 +585,7 @@ window.openPaymentModal = function (typeName, amount) {
         modal.style.display = 'none';
         localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
 
-        const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
+        const tossPayments = TossPayments("live_sk_ZLKGPx4M3MPGYxZ6vLye8BaWypv1");
 
         tossPayments.requestPayment('카드', {
             amount: amount,
