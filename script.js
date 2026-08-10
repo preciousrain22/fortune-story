@@ -585,7 +585,6 @@ window.openPaymentModal = function (typeName, amount) {
         modal.style.display = 'none';
         localStorage.setItem('savedSajuResultHTML', document.getElementById('result').innerHTML);
 
-        // 💡 주의: 이전에 발급받은 클라이언트 키(test_ck_...)가 맞는지 다시 한번 확인해 주세요.
         const tossPayments = TossPayments("test_ck_0RnYX2w532xnx91LmkYxrNeyqApQ");
 
         tossPayments.requestPayment('카드', {
@@ -593,55 +592,88 @@ window.openPaymentModal = function (typeName, amount) {
             orderId: 'saju_' + new Date().getTime(),
             orderName: typeName,
             customerName: "고객",
-            // 💡 [핵심 수정] URL을 가장 단순한 기본 도메인으로 설정하고 파라미터만 붙입니다.
-            successUrl: window.location.origin + "?paymentKey={PAYMENT_KEY}&orderId={ORDER_ID}&amount={AMOUNT}",
-            failUrl: window.location.origin + "?fail=true"
+            // 💡 주소를 단순화하여 토스가 파라미터를 정상적으로 붙이도록 유도합니다.
+            successUrl: window.location.origin + window.location.pathname,
+            failUrl: window.location.origin + window.location.pathname
         }).catch(function (error) {
-            console.error("🚨 토스페이먼츠 에러 상세:", error);
-
-            if (error.code === 'USER_CANCEL') {
-                alert("사용자가 결제를 취소했습니다.");
-            } else {
-                alert("결제 중 오류가 발생했습니다. 개발자 도구를 확인해주세요.");
-            }
-            localStorage.removeItem('savedSajuResultHTML');
+            console.error("결제창 에러:", error);
+            alert("결제창을 띄우지 못했습니다: " + error.message);
         });
     };
 };
 
+// ==========================================
+// 💡 [새로 추가] 결제 후 돌아왔을 때 화면 복구 & 승인 엔진
+// ==========================================
 const urlParamsForPayment = new URLSearchParams(window.location.search);
-if (urlParamsForPayment.has('paymentKey')) {
-    showToast("안전하게 결제를 최종 승인하고 있습니다.");
-    fetch('/api/confirm', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentKey: urlParamsForPayment.get('paymentKey'), orderId: urlParamsForPayment.get('orderId'), amount: urlParamsForPayment.get('amount') })
-    }).then(function (res) { return res.json(); }).then(function (data) {
-        if (data.orderId) {
-            alert("결제가 완료되었습니다. 프리미엄 리포트가 해제됩니다.");
-            const saved = localStorage.getItem('savedSajuResultHTML');
-            if (saved) {
-                const header = document.querySelector('.header-neon');
-                if (header) header.style.display = 'none';
-                const bg = document.querySelector('.star-bg-fixed');
-                if (bg) bg.style.display = 'none';
-                const sections = ['login-section', 'gateway', 'daily'];
-                sections.forEach(id => {
-                    if (document.getElementById(id)) document.getElementById(id).style.display = 'none';
-                });
-                const resultSec = document.getElementById('result');
-                resultSec.innerHTML = saved;
-                resultSec.style.display = 'block';
-                resultSec.style.background = "#080808";
-                resultSec.style.minHeight = "100vh";
-                resultSec.style.padding = "30px 15px";
+
+if (urlParamsForPayment.has('code') || urlParamsForPayment.has('paymentKey')) {
+
+    // 1. 공통: 로그인 화면으로 튕기지 않게 보관된 운세 화면 즉시 복구
+    window.loadKeptResult();
+
+    // 2. 결제 취소 또는 실패 시
+    if (urlParamsForPayment.has('code')) {
+        const errCode = urlParamsForPayment.get('code');
+        if (errCode === 'PAY_PROCESS_CANCELED' || errCode === 'USER_CANCEL') {
+            alert("결제가 취소되었습니다. 원하실 때 다시 버튼을 눌러 진행해 주세요.");
+        } else {
+            alert("결제 중 오류가 발생했습니다: " + decodeURIComponent(urlParamsForPayment.get('message')));
+        }
+
+        // 새로고침으로 인해 날아간 결제 버튼 기능(금액, 클릭 이벤트) 다시 살리기
+        setTimeout(() => {
+            const keepDataStr = localStorage.getItem('fortune_keep_data');
+            if (keepDataStr) {
+                const keepData = JSON.parse(keepDataStr);
+                const typeName = keepData.typeName || "프리미엄 리포트";
+                let price = 5900;
+                if (typeName.includes("오늘")) price = 3900;
+                else if (typeName.includes("1년")) price = 9900;
+                else if (typeName.includes("재물")) price = 12900;
+                else if (typeName.includes("애정")) price = 8900;
+
+                const priceStr = price.toLocaleString() + "원";
+                if (document.getElementById('lockPriceAmountInline')) document.getElementById('lockPriceAmountInline').textContent = priceStr;
+                if (document.getElementById('lockPriceAmountSticky')) document.getElementById('lockPriceAmountSticky').textContent = priceStr;
+
+                const openPay = function () { window.openPaymentModal(typeName, price); };
+                if (document.getElementById('btnUnlockInline')) document.getElementById('btnUnlockInline').onclick = openPay;
+                if (document.getElementById('btnUnlockSticky')) document.getElementById('btnUnlockSticky').onclick = openPay;
+            }
+        }, 200);
+
+        // 주소창 지저분한 파라미터 청소
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // 3. 결제 성공 시 (승인 API 호출)
+    else if (urlParamsForPayment.has('paymentKey')) {
+        showToast("결제를 최종 승인하고 있습니다. 잠시만 기다려주세요...");
+        fetch('/api/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                paymentKey: urlParamsForPayment.get('paymentKey'),
+                orderId: urlParamsForPayment.get('orderId'),
+                amount: urlParamsForPayment.get('amount')
+            })
+        }).then(function (res) { return res.json(); }).then(function (data) {
+            if (data.orderId || data.mId) {
+                alert("결제가 완료되었습니다. 프리미엄 리포트가 해제됩니다.");
 
                 document.getElementById('premiumContentArea').style.filter = "none";
                 document.getElementById('premiumContentArea').style.opacity = "1";
                 document.getElementById('premiumContentArea').style.pointerEvents = "auto";
-                if (document.getElementById('unlockOverlay')) document.getElementById('unlockOverlay').style.display = 'none';
-                if (document.getElementById('sajuActionsArea')) document.getElementById('sajuActionsArea').style.display = 'block';
 
-                localStorage.removeItem('savedSajuResultHTML');
+                if (document.getElementById('inlinePayWrapper')) document.getElementById('inlinePayWrapper').style.display = 'none';
+                if (document.getElementById('stickyPayWrapper')) document.getElementById('stickyPayWrapper').style.display = 'none';
+
+                const sajuActionsArea = document.getElementById('sajuActionsArea');
+                if (sajuActionsArea) {
+                    sajuActionsArea.style.display = 'block';
+                    sajuActionsArea.innerHTML = "<div style='margin-top: 1rem; text-align: center; padding-bottom: 2rem;'><p style='color: #FFDF73; margin-bottom: 1.5rem; font-weight:bold;'>프리미엄 리포트가 해제되었습니다.</p><button class='btn-premium outline' style='width: 100%; border-radius: 50px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; height: 60px;' onclick=\"handlePdfPrint('saju')\">결과 이미지 저장</button></div>";
+                }
 
                 const keepDataStr = localStorage.getItem('fortune_keep_data');
                 if (keepDataStr) {
@@ -649,15 +681,18 @@ if (urlParamsForPayment.has('paymentKey')) {
                     keepData.isUnlocked = true;
                     localStorage.setItem('fortune_keep_data', JSON.stringify(keepData));
                 }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert("승인 실패: " + (data.message || "오류가 발생했습니다."));
             }
-        }
-    }).catch(function (err) {
-        console.error("결제 승인 오류:", err);
-        alert("결제 승인 중 통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-    });
-    window.history.replaceState({}, document.title, window.location.pathname);
+        }).catch(function (err) {
+            console.error("결제 승인 오류:", err);
+            alert("결제 승인 중 통신 오류가 발생했습니다.");
+        });
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 }
+
 
 const tarotCards = [];
 for (let i = 0; i <= 21; i++) tarotCards.push({ id: i, name: "메이저 아르카나", img: "images/" + i + ".jpeg" });
@@ -693,7 +728,20 @@ if (tarotForm) {
             };
             deck.appendChild(el);
         });
-        btnRead.onclick = function () { alert("우주의 파동을 분석합니다."); location.reload(); };
+
+        btnRead.onclick = function () {
+            const name = document.getElementById('tarotName').value.trim();
+            const concern = document.getElementById('tarotConcern').value.trim();
+            const tarotResultData = {
+                "scores": { "wealth": 88, "success": 90, "love": 82, "health": 85 },
+                "keyword1": "변화의 파동",
+                "keyword2": "운명의 아르카나",
+                "keyword3": "새로운 시작",
+                "summary": name + "님의 고민: '" + concern.substring(0, 30) + "...'에 대해 선택하신 3장의 카드가 강력한 **전환점과 승리의 기운**을 암시합니다.",
+                "premium": "<div class='premium-content'><div style='background:rgba(211,184,248,0.1); border:1px solid rgba(211,184,248,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center;'><h4 style='color:#D3B8F8; margin-bottom:15px;'>[선택한 메이저 아르카나]</h4><p style='color:#fff;'>과거: 바보(The Fool) | 현재: 운명의 휠(Wheel of Fortune) | 미래: 태양(The Sun)</p></div><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[1. 과거와 현재의 흐름 분석]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>고민하셨던 상황은 큰 변화의 수레바퀴 속에서 필연적으로 맞이한 과제입니다. 주저하기보다 직관을 믿고 나아갈 때입니다.</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[2. 미래의 해법과 우주의 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>태양 카드가 암시하듯 긍정적이고 명확한 성과가 기다리고 있습니다. 스스로를 믿고 주도권을 쥐십시오.</p></div>"
+            };
+            renderSajuResult(name, "타로 3카드 심층 분석", "", "", "", tarotResultData, "tarot", null, null, false);
+        };
     });
 }
 
@@ -702,6 +750,38 @@ window.checkSmishing = function () {
     if (url === '**') { showToast("무제한 감별 모드가 활성화되었습니다."); return; }
     document.getElementById('urlCheckResult').style.display = 'block';
     document.getElementById('urlCheckResult').innerHTML = "현재 보안 데이터베이스에 보고된 위험이 없습니다.";
+};
+
+window.previewFaceImage = function (event) {
+    const file = event.target.files && event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById('facePreview');
+            if (preview) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+window.startFaceReading = function () {
+    const preview = document.getElementById('facePreview');
+    if (!preview || !preview.src || preview.style.display === 'none') {
+        alert("사진을 먼저 업로드해 주십시오.");
+        return;
+    }
+    const faceResultData = {
+        "scores": { "wealth": 92, "success": 88, "love": 85, "health": 90 },
+        "keyword1": "용의 기상",
+        "keyword2": "대기만성 관상",
+        "keyword3": "재물 창고의 명당",
+        "summary": "얼굴의 이마와 코의 능선에 **강렬한 명예와 재물 기운**이 흐르고 있습니다. 눈빛의 정기와 턱 선의 안정감이 돋보이며, 나이가 들수록 더 큰 권력과 부를 축적하는 대기만성형 관상입니다.",
+        "premium": "<div class='premium-content'><div style='background:rgba(244,143,177,0.1); border:1px solid rgba(244,143,177,0.5); border-radius:12px; padding:20px; margin-bottom:35px; text-align:center;'><h4 style='color:#F48FB1; margin-bottom:15px;'>[관상 12궁 핵심 지표]</h4><p style='color:#fff;'>이마(관록궁): 상급 | 코(재백궁): 최상급 | 눈(전택궁): 상급</p></div><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[1. 이마와 코 - 재물과 명예운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>이마가 넓고 훤칠하여 젊은 시절부터 조력자의 도움을 받기 쉬운 형상입니다. 코끝이 두툼하고 살집이 있어 들어온 재물이 쉽게 나가지 않는 철옹성 같은 기운을 품고 있습니다.</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[2. 눈과 입 - 대인관계 및 애정운]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>눈빛에 기품이 있고 또렷하여 사람을 끄는 강력한 매력이 있습니다. 입꼬리가 위로 살짝 올라가 있어 귀인이 절로 찾아오고 긍정적인 운을 불러옵니다.</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[3. 관상 개운 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>이마를 환하게 드러낼수록 명예운과 직업운이 크게 상승합니다. 미간을 항상 밝게 유지하고 자주 웃는 인상을 짓는다면 더욱 큰 복이 찾아옵니다.</p></div>"
+    };
+    renderSajuResult("관상 분석", "관상 심층 해독", "", "", "", faceResultData, "face", null, null, false);
 };
 
 function generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime) {
