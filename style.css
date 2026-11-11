@@ -234,6 +234,39 @@ header-neon {
     }
 }
 
+/* 새로 추가된 버튼 스타일 및 애니메이션 */
+.btn-suneung {
+    border: 2px solid #FFA726;
+    box-shadow: 0 0 10px #FFA726, inset 0 0 5px #FFA726;
+    animation: pulse-suneung 2s infinite alternate;
+}
+
+.btn-gunghap {
+    border: 2px solid #F48FB1;
+    box-shadow: 0 0 10px #F48FB1, inset 0 0 5px #F48FB1;
+    animation: pulse-gunghap 2s infinite alternate;
+}
+
+@keyframes pulse-suneung {
+    0% {
+        box-shadow: 0 0 5px #FFA726;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #FFA726, inset 0 0 10px #FFA726;
+    }
+}
+
+@keyframes pulse-gunghap {
+    0% {
+        box-shadow: 0 0 5px #F48FB1;
+    }
+
+    100% {
+        box-shadow: 0 0 20px #F48FB1, inset 0 0 10px #F48FB1;
+    }
+}
+
 /* 📅 입력창 최적화 */
 .input-grid-3 {
     display: grid;

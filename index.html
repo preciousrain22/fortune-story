@@ -64,6 +64,16 @@
                     <button class="neon-btn btn-face" onclick="selectPath('face')">⏳ 운명의 기록, 관상</button>
                     <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">얼굴에 기록된 재물과 성공운 해독</p>
                 </div>
+                <!-- 수능 운세 버튼 -->
+                <div style="margin-bottom: 30px;">
+                    <button class="neon-btn btn-suneung" onclick="selectPath('suneung')">🎯 2027 수능 대박 기원</button>
+                    <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">수험생 당일 컨디션 및 멘탈 케어</p>
+                </div>
+                <!-- 궁합 버튼 -->
+                <div style="margin-bottom: 30px;">
+                    <button class="neon-btn btn-gunghap" onclick="selectPath('gunghap')">💕 오행 시너지 궁합</button>
+                    <p style="color:#aaa; font-size:0.85rem; margin-top:10px;">성별 무관, 너와 나의 운명적 조화</p>
+                </div>
                 <div style="margin-bottom: 30px;">
                     <button class="neon-btn"
                         style="box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); border: 2px solid #FFD700; color: #FFD700;"
@@ -155,6 +165,58 @@
                 <button type="submit"
                     style="width: 100%; padding: 20px; background: linear-gradient(135deg, #FFDF73, #D4AF37); color: #000; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);">✨
                     정밀 분석 시작하기</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 수능 운세 섹션 -->
+    <section id="suneungSection" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
+        <div
+            style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(255,167,38,0.3);">
+            <h2 style="color: #FFA726; text-align: center; margin-bottom: 25px;">2027 수능 대박 기원</h2>
+            <form id="suneungForm">
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="color:#FFA726; display: block; margin-bottom: 8px; font-weight: bold;">수험생 이름</label>
+                    <input type="text" id="suneungName" placeholder="이름을 입력하세요" required>
+                </div>
+                <button type="submit"
+                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #FFA726, #F57C00); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; margin-top: 20px; cursor: pointer;">🎯
+                    수능 당일 컨디션 분석하기</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 오행 궁합 섹션 -->
+    <section id="gunghapSection" style="display: none; padding: 120px 20px 60px; position: relative; z-index: 50;">
+        <div
+            style="max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.6); padding: 30px 20px; border-radius: 15px; border: 1px solid rgba(244,143,177,0.3);">
+            <h2 style="color: #F48FB1; text-align: center; margin-bottom: 25px;">오행 시너지 궁합</h2>
+            <form id="gunghapForm">
+                <div
+                    style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(129,212,250,0.3);">
+                    <label style="color:#81D4FA; display: block; margin-bottom: 8px; font-weight: bold;">1. 첫 번째 분
+                        (본인)</label>
+                    <input type="text" id="gunghapNameA" placeholder="이름" required style="margin-bottom: 10px;">
+                    <div class="input-grid-3">
+                        <input type="tel" id="gunghapYearA" placeholder="연도(YYYY)" maxlength="4" required>
+                        <input type="tel" id="gunghapMonthA" placeholder="월(MM)" maxlength="2" required>
+                        <input type="tel" id="gunghapDayA" placeholder="일(DD)" maxlength="2" required>
+                    </div>
+                </div>
+                <div
+                    style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(244,143,177,0.3);">
+                    <label style="color:#F48FB1; display: block; margin-bottom: 8px; font-weight: bold;">2. 두 번째 분
+                        (상대방)</label>
+                    <input type="text" id="gunghapNameB" placeholder="이름" required style="margin-bottom: 10px;">
+                    <div class="input-grid-3">
+                        <input type="tel" id="gunghapYearB" placeholder="연도(YYYY)" maxlength="4" required>
+                        <input type="tel" id="gunghapMonthB" placeholder="월(MM)" maxlength="2" required>
+                        <input type="tel" id="gunghapDayB" placeholder="일(DD)" maxlength="2" required>
+                    </div>
+                </div>
+                <button type="submit"
+                    style="width: 100%; padding: 20px; background: linear-gradient(135deg, #F48FB1, #C2185B); color: #fff; border: none; border-radius: 50px; font-weight: 900; font-size: 1.15rem; margin-top: 10px; cursor: pointer;">💕
+                    오행 시너지 분석하기</button>
             </form>
         </div>
     </section>
@@ -289,6 +351,8 @@
             <div class="fab-option" onclick="quickNav('tarot')">🃏 타로</div>
             <div class="fab-option" onclick="quickNav('face')">👁️ 관상</div>
             <div class="fab-option" onclick="quickNav('amulet')">🛡️ 수호부</div>
+            <div class="fab-option" onclick="quickNav('suneung')">🎯 수능</div>
+            <div class="fab-option" onclick="quickNav('gunghap')">💕 궁합</div>
         </div>
         <button id="fabMainBtn" onclick="toggleQuickMenu()">
             <svg id="fabIconMenu" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFDF73"

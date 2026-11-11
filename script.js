@@ -119,7 +119,8 @@ window.selectPath = function (path, isHistory) {
         history.pushState({ view: path }, null, '');
     }
 
-    const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'result', 'tarotResult', 'tarotDraw'];
+    // 💡 수능, 궁합 섹션 라우팅 배열 추가 완료
+    const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'result', 'tarotResult', 'tarotDraw', 'suneungSection', 'gunghapSection'];
     for (let i = 0; i < sections.length; i++) {
         const el = document.getElementById(sections[i]);
         if (el) el.style.display = 'none';
@@ -139,6 +140,9 @@ window.selectPath = function (path, isHistory) {
     else if (path === 'tarot') document.getElementById('tarot').style.display = 'block';
     else if (path === 'face') document.getElementById('faceSection').style.display = 'block';
     else if (path === 'amulet') document.getElementById('amuletSection').style.display = 'block';
+    // 💡 수능, 궁합 화면 표시 로직 추가 완료
+    else if (path === 'suneung') document.getElementById('suneungSection').style.display = 'block';
+    else if (path === 'gunghap') document.getElementById('gunghapSection').style.display = 'block';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -221,7 +225,8 @@ window.loadKeptResult = function () {
     const bg = document.querySelector('.star-bg-fixed');
     if (bg) bg.style.display = 'none';
 
-    const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'tarotResult', 'tarotDraw'];
+    // 💡 여기도 라우팅 배열 업데이트 완료
+    const sections = ['login-section', 'gateway', 'daily', 'tarot', 'faceSection', 'amuletSection', 'tarotResult', 'tarotDraw', 'suneungSection', 'gunghapSection'];
     sections.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -300,7 +305,6 @@ if (sajuForm) {
 
 async function startProfessionalAnalysis(name, gender, displayTypeName, year, month, day, fortuneType, maritalStatus, calendarType) {
 
-    // 💡 '테스트' 입력 시 0초 즉시 로딩
     if (name.indexOf('테스트') !== -1) {
         const testResultData = {
             "scores": { "wealth": 99, "success": 99, "love": 99, "health": 99 },
@@ -407,7 +411,6 @@ function getPersonalColor(yearStr) {
     return { element: '수(水)', textHex: '#B3E5FC', highlightHex: '#81D4FA', borderRgba: 'rgba(129, 212, 250, 0.4)' };
 }
 
-// 💡 여기서부터 끝까지 하나로 완벽하게 묶인 렌더링 함수입니다. 
 function renderSajuResult(name, typeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime) {
     history.pushState({ page: 'result' }, null, '');
 
@@ -437,7 +440,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     let safeSummary = (resultData.summary || "").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#FFD700;'>$1</strong>");
     let chartHTML = (fortuneType === 'wealth') ? "" : generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime);
 
-    // 💡 이미지 1개만 사용하고 그 아래로 텍스트 풀이로 이어지는 단일 구조 HTML 생성
     let premiumCardHTML = `
         <div style='max-width: 550px; margin: 0 auto;'>
             <img src="images/${meta.img}" style='width: 100%; height: auto; display: block;'>
@@ -459,7 +461,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
 
     if (document.getElementById('resultTitle')) document.getElementById('resultTitle').style.display = 'none';
 
-    // 💡 하단 프리미엄 정보 (텍스트) 생성
     let premiumHTML = "";
     if (resultData.scores) {
         const s = resultData.scores;
@@ -476,7 +477,6 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     const premiumArea = document.getElementById('premiumContentArea');
     premiumArea.innerHTML = premiumHTML;
 
-    // 💡 결제 및 마스터 해제 상태 제어 로직 
     let isUnlockedStatus = false;
     if (window.isMasterKey) {
         isUnlockedStatus = true;
@@ -536,7 +536,7 @@ function renderSajuResult(name, typeName, year, month, day, resultData, fortuneT
     localStorage.setItem('fortune_keep_data', JSON.stringify(recentData));
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-} // <-- 💡 누락되었던 괄호 문제를 여기서 완벽히 봉합했습니다!
+}
 
 // ==========================================
 // 부가 엔진 (PDF 다운로드, 타로, 결제 등) 
@@ -592,7 +592,6 @@ window.openPaymentModal = function (typeName, amount) {
             orderId: 'saju_' + new Date().getTime(),
             orderName: typeName,
             customerName: "고객",
-            // 💡 주소를 단순화하여 토스가 파라미터를 정상적으로 붙이도록 유도합니다.
             successUrl: window.location.origin + window.location.pathname,
             failUrl: window.location.origin + window.location.pathname
         }).catch(function (error) {
@@ -602,17 +601,12 @@ window.openPaymentModal = function (typeName, amount) {
     };
 };
 
-// ==========================================
-// 💡 [새로 추가] 결제 후 돌아왔을 때 화면 복구 & 승인 엔진
-// ==========================================
 const urlParamsForPayment = new URLSearchParams(window.location.search);
 
 if (urlParamsForPayment.has('code') || urlParamsForPayment.has('paymentKey')) {
 
-    // 1. 공통: 로그인 화면으로 튕기지 않게 보관된 운세 화면 즉시 복구
     window.loadKeptResult();
 
-    // 2. 결제 취소 또는 실패 시
     if (urlParamsForPayment.has('code')) {
         const errCode = urlParamsForPayment.get('code');
         if (errCode === 'PAY_PROCESS_CANCELED' || errCode === 'USER_CANCEL') {
@@ -621,7 +615,6 @@ if (urlParamsForPayment.has('code') || urlParamsForPayment.has('paymentKey')) {
             alert("결제 중 오류가 발생했습니다: " + decodeURIComponent(urlParamsForPayment.get('message')));
         }
 
-        // 새로고침으로 인해 날아간 결제 버튼 기능(금액, 클릭 이벤트) 다시 살리기
         setTimeout(() => {
             const keepDataStr = localStorage.getItem('fortune_keep_data');
             if (keepDataStr) {
@@ -643,11 +636,8 @@ if (urlParamsForPayment.has('code') || urlParamsForPayment.has('paymentKey')) {
             }
         }, 200);
 
-        // 주소창 지저분한 파라미터 청소
         window.history.replaceState({}, document.title, window.location.pathname);
     }
-
-    // 3. 결제 성공 시 (승인 API 호출)
     else if (urlParamsForPayment.has('paymentKey')) {
         showToast("결제를 최종 승인하고 있습니다. 잠시만 기다려주세요...");
         fetch('/api/confirm', {
@@ -819,4 +809,47 @@ function generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime) {
         console.error("차트 생성 중 문제가 발생했습니다:", e);
         return "";
     }
+}
+
+// ==========================================
+// [신규 기능] 수능 및 궁합 폼 제출 로직
+// ==========================================
+const suneungForm = document.getElementById('suneungForm');
+if (suneungForm) {
+    suneungForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('suneungName').value.trim();
+        if (name.length < 2) return alert("이름을 입력해 주십시오.");
+
+        const mockResultData = {
+            "scores": { "wealth": 80, "success": 98, "love": 70, "health": 85 },
+            "keyword1": "합격의 문",
+            "keyword2": "직관력 상승",
+            "keyword3": "평정심 유지",
+            "summary": "수능 당일은 맑은 기운이 돕는 날입니다. 오전 첫 시간에 긴장만 풀면 평소보다 **직관력이 크게 상승**합니다. 따뜻한 차 한 잔으로 시작하면 평소 이상의 기량을 뽐낼 수 있습니다.",
+            "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[시간대별 멘탈 케어 지침]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>오전 국어 영역에서는 막히는 문제에서 심호흡을 3번 하십시오. 점심시간 이후 졸음이 올 수 있는 화기(火氣)가 있으니 가벼운 스트레칭이 필수입니다. 수능이 끝난 후에는 주변 사람들과 궁합을 보며 스트레스를 날려보세요!</p></div>"
+        };
+
+        renderSajuResult(name, "수능 대박 기원 운세", "", "", "", mockResultData, "daily", null, null, false);
+    });
+}
+
+const gunghapForm = document.getElementById('gunghapForm');
+if (gunghapForm) {
+    gunghapForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const nameA = document.getElementById('gunghapNameA').value.trim();
+        const nameB = document.getElementById('gunghapNameB').value.trim();
+
+        const mockResultData = {
+            "scores": { "wealth": 90, "success": 85, "love": 95, "health": 88 },
+            "keyword1": "오행의 조화",
+            "keyword2": "운명적 시너지",
+            "keyword3": "부족함의 채움",
+            "summary": nameA + "님과 " + nameB + "님은 서로의 부족한 계절을 따뜻하게 채워주는 **사계절 같은 인연**입니다. 한 사람의 추진력과 다른 사람의 포용력이 만나 놀라운 시너지를 만들어냅니다.",
+            "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[상호보완 분석 및 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>두 분은 기운상 서로를 끌어당기는 자석과 같습니다. 다만, 의견 충돌이 발생할 경우 논리적인 설득보다는 감정적인 공감과 지지가 관계를 회복하는 마스터키가 될 것입니다.</p></div>"
+        };
+
+        renderSajuResult(nameA + " & " + nameB, "오행 시너지 궁합", "", "", "", mockResultData, "love", null, null, false);
+    });
 }
