@@ -4,8 +4,6 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-
-    // 진우님께서 확인해주신 최신 Pro 모델(3.1 Pro)로 정확히 수정했습니다.
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
 
     try {
@@ -15,9 +13,18 @@ export default async function handler(req, res) {
             body: JSON.stringify(req.body)
         });
 
-        const data = await googleResponse.json();
-        return res.status(200).json(data);
+        // 💡 에러 원인을 추적하기 위해 구글의 실제 응답을 무조건 텍스트로 받아옵니다.
+        const responseText = await googleResponse.text();
+
+        if (!googleResponse.ok) {
+            return res.status(googleResponse.status).json({
+                message: '구글 API 에러 발생',
+                errorDetail: responseText
+            });
+        }
+
+        return res.status(200).json(JSON.parse(responseText));
     } catch (error) {
-        return res.status(500).json({ message: '서버 에러 발생', error: error.message });
+        return res.status(500).json({ message: 'Vercel 서버 내부 에러', errorDetail: error.toString() });
     }
 }
