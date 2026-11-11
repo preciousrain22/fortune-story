@@ -375,26 +375,31 @@ async function startProfessionalAnalysis(name, gender, displayTypeName, year, mo
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
         });
+
         const data = await response.json();
 
         clearInterval(messageInterval);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
 
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        // 정상적으로 AI 텍스트가 도착했을 때
+        if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
             let aiResultText = data.candidates[0].content.parts[0].text;
             aiResultText = aiResultText.replace(/```json/g, '').replace(/```/g, '').trim();
             const resultData = JSON.parse(aiResultText);
             renderSajuResult(name, displayTypeName, year, month, day, resultData, fortuneType, bazi, wuXing, isUnknownTime);
         } else {
-            alert("데이터를 가져오지 못했습니다.");
+            // 💡 [디버깅] 구글 API나 Vercel에서 에러를 뿜었을 때 알림창으로 표시
+            alert("⚠️ API 응답 에러 확인용:\n\n상태 코드: " + response.status + "\n상세 내용: " + JSON.stringify(data, null, 2));
         }
     } catch (error) {
         console.error(error);
         clearInterval(messageInterval);
         loadingScreen.style.display = 'none';
         window.removeEventListener('beforeunload', preventExit);
-        alert("분석 중 오류가 발생했습니다. 다시 시도해 주십시오.");
+
+        // 💡 [디버깅] 404 에러 등 네트워크 통신 자체가 실패했을 때 알림창으로 표시
+        alert("⚠️ 통신/서버 에러 확인용:\n\n" + error.message + "\n\n(참고: Vercel 서버에 api/gemini.js 파일이 없어서 나는 404 에러일 확률이 높습니다.)");
     }
 }
 
