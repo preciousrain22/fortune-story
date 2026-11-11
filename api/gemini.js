@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
     // 보안 서버(Vercel)의 금고에서 API 키를 몰래 꺼내옵니다.
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     try {
         // 프론트엔드에서 받은 질문을 구글에 대신 전달합니다.
