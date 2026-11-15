@@ -4,26 +4,44 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // 최신 Gemini 3 시리즈 정식/프리뷰 모델 코드 (1순위: 3 Flash, 2순위: 3.1 Pro, 3순위: 2.0 Flash 자동 폴백)
+    const models = [
+        'gemini-3-flash-preview',
+        'gemini-3.1-pro-preview',
+        'gemini-2.0-flash'
+    ];
 
     try {
-        const googleResponse = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req.body)
-        });
+        let lastResponseStatus = 500;
+        let lastResponseText = '';
 
-        // 💡 에러 원인을 추적하기 위해 구글의 실제 응답을 무조건 텍스트로 받아옵니다.
-        const responseText = await googleResponse.text();
-
-        if (!googleResponse.ok) {
-            return res.status(googleResponse.status).json({
-                message: '구글 API 에러 발생',
-                errorDetail: responseText
+        for (const model of models) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const googleResponse = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req.body)
             });
+
+            const responseText = await googleResponse.text();
+
+            if (googleResponse.ok) {
+                return res.status(200).json(JSON.parse(responseText));
+            }
+
+            lastResponseStatus = googleResponse.status;
+            lastResponseText = responseText;
+
+            // 404(모델명 미인식)일 경우에만 다음 최신 모델로 자동 재시도
+            if (googleResponse.status !== 404) {
+                break;
+            }
         }
 
-        return res.status(200).json(JSON.parse(responseText));
+        return res.status(lastResponseStatus).json({
+            message: '구글 API 에러 발생',
+            errorDetail: lastResponseText
+        });
     } catch (error) {
         return res.status(500).json({ message: 'Vercel 서버 내부 에러', errorDetail: error.toString() });
     }
