@@ -817,44 +817,171 @@ function generateSajuChartsHTML(colorInfo, bazi, wuXing, isUnknownTime) {
 }
 
 // ==========================================
-// [신규 기능] 수능 및 궁합 폼 제출 로직
+// [신규 기능] 수능 및 궁합 실시간 AI 분석 로직
 // ==========================================
+
+// 1. 수능 대박 기원 폼 제출 및 AI 연동
 const suneungForm = document.getElementById('suneungForm');
 if (suneungForm) {
     suneungForm.addEventListener('submit', function (e) {
         e.preventDefault();
         const name = document.getElementById('suneungName').value.trim();
-        if (name.length < 2) return alert("이름을 입력해 주십시오.");
+        if (name.length < 2) return alert("수험생의 이름을 정확히 입력해 주십시오.");
 
-        const mockResultData = {
-            "scores": { "wealth": 80, "success": 98, "love": 70, "health": 85 },
-            "keyword1": "합격의 문",
-            "keyword2": "직관력 상승",
-            "keyword3": "평정심 유지",
-            "summary": "수능 당일은 맑은 기운이 돕는 날입니다. 오전 첫 시간에 긴장만 풀면 평소보다 **직관력이 크게 상승**합니다. 따뜻한 차 한 잔으로 시작하면 평소 이상의 기량을 뽐낼 수 있습니다.",
-            "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[시간대별 멘탈 케어 지침]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>오전 국어 영역에서는 막히는 문제에서 심호흡을 3번 하십시오. 점심시간 이후 졸음이 올 수 있는 화기(火氣)가 있으니 가벼운 스트레칭이 필수입니다. 수능이 끝난 후에는 주변 사람들과 궁합을 보며 스트레스를 날려보세요!</p></div>"
-        };
-
-        renderSajuResult(name, "수능 대박 기원 운세", "", "", "", mockResultData, "daily", null, null, false);
+        startSuneungAnalysis(name);
     });
 }
 
+async function startSuneungAnalysis(name) {
+    document.getElementById('suneungSection').style.display = 'none';
+    const loadingScreen = document.getElementById('analysisLoading');
+    loadingScreen.style.display = 'flex';
+    document.getElementById('loadingTitle').innerHTML = name + " 수험생의 <span style='color:#FFA726;'>수능 컨디션</span> 분석 중입니다.";
+    window.addEventListener('beforeunload', preventExit);
+
+    const loadingMessageEl = document.getElementById('loadingMessage');
+    const loadingMessages = [
+        "수능 당일의 우주 기운을 분석하고 있습니다...",
+        "최고의 집중력을 위한 멘탈 케어 지침을 생성 중입니다...",
+        "합격의 문을 여는 열쇠를 찾고 있습니다..."
+    ];
+    let msgIndex = 0;
+    loadingMessageEl.innerText = loadingMessages[0];
+    const messageInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        loadingMessageEl.innerText = loadingMessages[msgIndex];
+    }, 2500);
+
+    const promptText = `너는 30년 경력의 최고급 명리학자이자 수험생 멘탈 케어 전문가야. 
+    고객 정보 - 수험생 이름: '${name}'. 
+    2027학년도 수능을 치르는 이 수험생을 위해, 수능 당일(11월)의 컨디션, 과목별 멘탈 관리법, 그리고 합격을 기원하는 강력한 응원 메시지를 분석해줘. 
+    유머나 이모티콘은 금지하며, 상위 0.1% VIP 고객에게 전달하는 진지하고 무게감 있는 전문가의 어조로 작성해.
+    반드시 아래 JSON 형식으로만 응답해. (HTML 태그 금지)
+    {
+        "scores": { "wealth": 70, "success": 98, "love": 60, "health": 95 },
+        "keyword1": "(합격 관련 핵심 키워드 1)",
+        "keyword2": "(강력한 컨디션 특징 2)",
+        "keyword3": "(합격 운기 변화 3)",
+        "summary": "(무료공개용 요약 3~4문장. 중요한 단어 양옆에 **단어** 형태로 강조)",
+        "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[시간대별 멘탈 케어 지침]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>(500자 이상 아주 상세한 오전/오후 과목별 멘탈 케어 조언)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[합격을 부르는 행운의 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>(500자 이상의 당일 행동 지침, 행운의 색상/음식, 불안감 해소법)</p></div>"
+    }`;
+
+    try {
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+        const data = await response.json();
+
+        clearInterval(messageInterval);
+        loadingScreen.style.display = 'none';
+        window.removeEventListener('beforeunload', preventExit);
+
+        if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
+            let aiResultText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
+            renderSajuResult(name, "2027 수능 대박 기원", "", "", "", JSON.parse(aiResultText), "daily", null, null, false);
+        } else {
+            alert("⚠️ API 응답 에러:\n상태 코드: " + response.status);
+        }
+    } catch (error) {
+        clearInterval(messageInterval);
+        loadingScreen.style.display = 'none';
+        window.removeEventListener('beforeunload', preventExit);
+        alert("통신 에러가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
+}
+
+// 2. 오행 궁합 폼 제출 및 AI 연동
 const gunghapForm = document.getElementById('gunghapForm');
 if (gunghapForm) {
     gunghapForm.addEventListener('submit', function (e) {
         e.preventDefault();
         const nameA = document.getElementById('gunghapNameA').value.trim();
+        const yearA = document.getElementById('gunghapYearA').value;
+        const monthA = document.getElementById('gunghapMonthA').value;
+        const dayA = document.getElementById('gunghapDayA').value;
+
         const nameB = document.getElementById('gunghapNameB').value.trim();
+        const yearB = document.getElementById('gunghapYearB').value;
+        const monthB = document.getElementById('gunghapMonthB').value;
+        const dayB = document.getElementById('gunghapDayB').value;
 
-        const mockResultData = {
-            "scores": { "wealth": 90, "success": 85, "love": 95, "health": 88 },
-            "keyword1": "오행의 조화",
-            "keyword2": "운명적 시너지",
-            "keyword3": "부족함의 채움",
-            "summary": nameA + "님과 " + nameB + "님은 서로의 부족한 계절을 따뜻하게 채워주는 **사계절 같은 인연**입니다. 한 사람의 추진력과 다른 사람의 포용력이 만나 놀라운 시너지를 만들어냅니다.",
-            "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[상호보완 분석 및 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>두 분은 기운상 서로를 끌어당기는 자석과 같습니다. 다만, 의견 충돌이 발생할 경우 논리적인 설득보다는 감정적인 공감과 지지가 관계를 회복하는 마스터키가 될 것입니다.</p></div>"
-        };
+        if (!yearA || !yearB) return alert("생년월일을 모두 입력해 주십시오.");
 
-        renderSajuResult(nameA + " & " + nameB, "오행 시너지 궁합", "", "", "", mockResultData, "love", null, null, false);
+        startGunghapAnalysis(nameA, yearA, monthA, dayA, nameB, yearB, monthB, dayB);
     });
+}
+
+async function startGunghapAnalysis(nameA, yearA, monthA, dayA, nameB, yearB, monthB, dayB) {
+    document.getElementById('gunghapSection').style.display = 'none';
+    const loadingScreen = document.getElementById('analysisLoading');
+    loadingScreen.style.display = 'flex';
+    document.getElementById('loadingTitle').innerHTML = nameA + "님과 " + nameB + "님의 <span style='color:#F48FB1;'>오행 시너지</span> 분석 중입니다.";
+    window.addEventListener('beforeunload', preventExit);
+
+    const loadingMessageEl = document.getElementById('loadingMessage');
+    const loadingMessages = [
+        "두 사람의 명식을 우주의 기운과 동기화하고 있습니다...",
+        "오행의 상생과 상극을 정밀하게 분석 중입니다...",
+        "두 분만의 시너지와 인연의 깊이를 확인하고 있습니다..."
+    ];
+    let msgIndex = 0;
+    loadingMessageEl.innerText = loadingMessages[0];
+    const messageInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        loadingMessageEl.innerText = loadingMessages[msgIndex];
+    }, 2500);
+
+    // 두 사람의 명식 및 오행 추출 로직 (lunar-javascript 활용)
+    let wuxingA = "기본오행", wuxingB = "기본오행";
+    try {
+        const lunarA = Solar.fromYmdHms(parseInt(yearA), parseInt(monthA), parseInt(dayA), 12, 0, 0).getLunar();
+        wuxingA = lunarA.getEightChar().getYearWuXing() + lunarA.getEightChar().getMonthWuXing() + lunarA.getEightChar().getDayWuXing();
+
+        const lunarB = Solar.fromYmdHms(parseInt(yearB), parseInt(monthB), parseInt(dayB), 12, 0, 0).getLunar();
+        wuxingB = lunarB.getEightChar().getYearWuXing() + lunarA.getEightChar().getMonthWuXing() + lunarB.getEightChar().getDayWuXing();
+    } catch (e) {
+        console.error("명식 계산 에러", e);
+    }
+
+    const promptText = `너는 30년 경력의 최고급 명리학자이자 오행 궁합 전문가야. 
+    고객 정보 1: 이름 '${nameA}', 생년월일 ${yearA}년 ${monthA}월 ${dayA}일, 오행(년/월/일): ${wuxingA}
+    고객 정보 2: 이름 '${nameB}', 생년월일 ${yearB}년 ${monthB}월 ${dayB}일, 오행(년/월/일): ${wuxingB}
+    이 두 사람의 오행(목,화,토,금,수) 조합과 기운의 상호작용(상생, 상극)을 바탕으로 매우 깊이 있는 궁합 리포트를 작성해. 성별에 구애받지 않는 인간 대 인간의 시너지 분석에 집중해.
+    유머나 이모티콘은 금지하며, 상위 0.1% VIP 고객에게 전달하는 진지하고 무게감 있는 전문가의 어조로 작성해.
+    반드시 아래 JSON 형식으로만 응답해. (HTML 태그 금지)
+    {
+        "scores": { "wealth": 85, "success": 90, "love": 95, "health": 80 },
+        "keyword1": "(두 사람의 관계를 정의하는 키워드 1)",
+        "keyword2": "(관계 시너지 특징 2)",
+        "keyword3": "(앞으로의 발전 방향 3)",
+        "summary": "(무료공개용 요약 3~4문장. 중요한 단어 양옆에 **단어** 형태로 강조)",
+        "premium": "<div class='premium-content'><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[1. 두 사람의 타고난 기운과 상성]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>(500자 이상 두 사람의 오행 상생/상극 상세 풀이)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[2. 함께일 때 폭발하는 시너지]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>(500자 이상 재물운, 학업/사업 등 목표 달성에서의 협력 시너지 풀이)</p><h4 style='color:#FFDF73; margin-top:30px; border-bottom:1px solid rgba(255,223,115,0.3); padding-bottom:10px; font-size:1.2rem;'>[3. 관계 유지를 위한 전문가의 조언]</h4><p style='color:#e0e0e0; line-height:1.8; margin-top:15px; margin-bottom:25px;'>(두 사람 사이의 갈등 요소와 관계 개선을 위한 500자 이상 상세 실전 조언)</p></div>"
+    }`;
+
+    try {
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+        const data = await response.json();
+
+        clearInterval(messageInterval);
+        loadingScreen.style.display = 'none';
+        window.removeEventListener('beforeunload', preventExit);
+
+        if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
+            let aiResultText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
+            renderSajuResult(nameA + " & " + nameB, "오행 시너지 궁합", yearA, monthA, dayA, JSON.parse(aiResultText), "love", null, null, false);
+        } else {
+            alert("⚠️ API 응답 에러:\n상태 코드: " + response.status);
+        }
+    } catch (error) {
+        clearInterval(messageInterval);
+        loadingScreen.style.display = 'none';
+        window.removeEventListener('beforeunload', preventExit);
+        alert("통신 에러가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
 }
